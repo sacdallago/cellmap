@@ -3,7 +3,7 @@
         "username": "",
         "password": "",
         "port": "27017",
-        "uri": "127.0.0.1",
+        "uri": "10.149.48.34",
         "collection": "cellmap"
     }
 }

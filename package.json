@@ -1,28 +1,29 @@
 {
-  "name": "cellmap",
-  "version": "0.0.1",
-  "description": "Cell Map framework",
-  "main": "app.js",
-  "author": "Christian Dallago",
-  "license": "GPLv3",
-  "private": true,
-  "homepage": "htts://dallago.us",
-  "bugs": {
-    "url": "https://github.com/sacdallago/cellmap/issues"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/sacdallago/cellmap.git"
-  },
-  "engines": {
-    "node": ">= 0.10.0"
-  },
-  "dependencies": {
-    "mongoose": "~4.4.5"
-  },
-  "devDependencies": {
-  },
-  "scripts": {
-    "import": "node scripts/importer.js"
-  }
+    "name": "cellmap",
+    "version": "0.0.1",
+    "description": "Cell Map framework",
+    "main": "app.js",
+    "author": "Christian Dallago",
+    "license": "GPLv3",
+    "private": true,
+    "homepage": "htts://dallago.us",
+    "bugs": {
+        "url": "https://github.com/sacdallago/cellmap/issues"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/sacdallago/cellmap.git"
+    },
+    "engines": {
+        "node": ">= 0.10.0"
+    },
+    "dependencies": {
+        "mongoose": "~4.4.5",
+        "q": "^1.1.2"
+    },
+    "devDependencies": {
+    },
+    "scripts": {
+        "import": "node scripts/importer.js"
+    }
 }
