@@ -31,24 +31,43 @@ db.on('disconnected', function () {
 
 db.on('open', function () {
 
-    // Riken Ligand/Receptor Expression data
-    const expressionLigRecDao = context.component('daos').module('expressionLigRec');
-    const expressionLigRecSource = require(__dirname + "/../" + '/data/' + 'ExpressionLigRec.json');
-
     var promises = [];
 
-    expressionLigRecSource.forEach(function(element){
-        var deferred = context.promises.defer();
-        promises.push(deferred.promise);
-        expressionLigRecDao.update(element).then(function(result){
-            console.log("[ExpressionLigRec] Inserted " + element.approvedsymbol);
-            deferred.resolve();
-        }, function(error){
-            console.error("[ExpressionLigRec] Error with " + element.approvedsymbol);
-            deferred.resolve();
-        });
-    });
 
+    // Riken Ligand/Receptor Expression data
+    const expressionLigRecDao = context.component('daos').module('expressionLigRec');
+    const pairsLigRecDao = context.component('daos').module('pairsLigRec');
+    
+    const expressionLigRecSource = require(__dirname + "/../" + '/data/' + 'ExpressionLigRec.json');
+    const pairsLigRecSource = require(__dirname + "/../" + '/data/' + 'PairsLigRec.json');
+
+    if(expressionLigRecSource){
+        expressionLigRecSource.forEach(function(element){
+            var deferred = context.promises.defer();
+            promises.push(deferred.promise);
+            expressionLigRecDao.update(element).then(function(result){
+                console.log("[expressionLigRec] Inserted " + element.approvedsymbol);
+                deferred.resolve();
+            }, function(error){
+                console.error("[expressionLigRec] Error with " + element.approvedsymbol);
+                deferred.resolve();
+            });
+        });
+    }
+    
+    if(pairsLigRecSource){
+        pairsLigRecSource.forEach(function(element){
+            var deferred = context.promises.defer();
+            promises.push(deferred.promise);
+            pairsLigRecDao.update(element).then(function(result){
+                console.log("[pairsLigRec] Inserted " + element.pair_name);
+                deferred.resolve();
+            }, function(error){
+                console.error("[pairsLigRec] Error with " + element.pair_name);
+                deferred.resolve();
+            });
+        });
+    }
 
     context.promises.all(promises).then(function(results) {
         console.log("Finished.");
