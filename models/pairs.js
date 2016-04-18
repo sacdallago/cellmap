@@ -9,7 +9,7 @@ module.exports = function(context) {
     // Imports
     const mongoose = context.mongoose;
 
-    return mongoose.model('pairsLigRec', mongoose.Schema({
+    return mongoose.model('pairs', mongoose.Schema({
         pair_name : {
             type: String,
             required: true,
@@ -18,12 +18,12 @@ module.exports = function(context) {
         ligand_approvedsymbol: {
             type: String,
             required: true,
-            ref: "expressionLigRec"
+            ref: "localization"
         },
         receptor_approvedsymbol: {
             type: String,
             required: true,
-            ref: "expressionLigRec"
+            ref: "localization"
         },
         createdAt : {
             type: Date,

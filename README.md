@@ -11,13 +11,13 @@ Protein Localization and Protein-Protein Interaction (PPI) visualization tool.
 ## Fill up database
 
  - Once all prerequisites have been met, you can run `npm run import` to fill the database with the data contained in the `.json` files in the `/data` folder.   
- - The script that fills the database will only fill the collections for which a corresponsing file exists. Collection name == File name
+ - The script that fills the database will only fill the collections for which a corresponsing file exists.
  - The insertion happens through a mongo upsert, thus existing entries will be updated if existent, while new ones will be inserted anew.
  - The list of file names accepted is:
-    - `ExpressionLigRec.json` [Riken]
-    - `PairsLigRec.json` [Riken]
-    - `SubcelLoc.Ages.Proteins.json` [Riken]
-    - `AllTissues.json` [Küster]
+    - `ExpressionLigRec.json` [Riken]  --> Collection: `expressions`
+    - `PairsLigRec.json` [Riken]  --> Collection: `pairs`
+    - `SubcelLoc.Ages.Proteins.json` [Riken]  --> Collection: `localization`
+    - `AllTissues.json` [Küster]  --> Collection: `tissues`
 
 
 

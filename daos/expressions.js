@@ -7,13 +7,13 @@
 module.exports = function(context) {
 
     // Imports
-    var expressionLigRec = context.component('models').module('expressionLigRec');
+    var expressionsModel = context.component('models').module('expressions');
 
     return {
         create: function(item) {
             var deferred = context.promises.defer();
 
-            expressionLigRec.create(item, function(error, insertedItem) {
+            expressionsModel.create(item, function(error, insertedItem) {
                 if (error) {
                     console.error(error);
                     deferred.reject(error);
@@ -29,7 +29,7 @@ module.exports = function(context) {
             
             item.updatedAt = Date.now();
 
-            expressionLigRec.update({ approvedsymbol: item.approvedsymbol }, item, {
+            expressionsModel.update({ approvedsymbol: item.approvedsymbol }, item, {
                 upsert: true,
                 setDefaultsOnInsert : true
             }, function(error, insertedItem) {

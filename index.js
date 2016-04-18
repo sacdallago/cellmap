@@ -10,7 +10,7 @@ var context;
 module.exports = {
     start: function(callback) {
         callback = callback || function(){};
-        
+
         const mongoose    = require('mongoose');
         const fs          = require('fs');
         const path        = require('path');
@@ -43,8 +43,44 @@ module.exports = {
                 }
             }
         };
-        
+
         callback();
         return context;
+    },
+    connect: function(callback){
+        const context = this.start();
+        const config = require(__dirname + "/config");
+
+        //Create the DB connection string
+        var databaseParams = config.database;
+        var dbConnection = "mongodb://";
+        if (databaseParams.username.length > 0 && databaseParams.password.length > 0) {
+            dbConnection += databaseParams.username + ":" + databaseParams.password + "@";
+        }
+        dbConnection += databaseParams.uri + ":" + databaseParams.port + "/" + databaseParams.collection;
+
+        context.mongoose.connect(dbConnection);
+        var db = context.mongoose.connection;
+
+        // CONNECTION EVENTS: When successfully connected
+        db.on('connected', function () {
+            console.log('Mongoose connected');
+        });
+
+        // If the connection throws an error
+        db.on('error', function (err) {
+            console.log('Mongoose default connection error: ' + err);
+            process.exit(1);
+        });
+
+        // When the connection is disconnected
+        db.on('disconnected', function () {
+            console.log('Mongoose default connection disconnected');
+            process.exit(1);
+        });
+
+        db.on('open', function () {
+            callback(context);
+        });
     }
 }

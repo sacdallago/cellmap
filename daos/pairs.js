@@ -7,13 +7,13 @@
 module.exports = function(context) {
 
     // Imports
-    var pairsLigRec = context.component('models').module('pairsLigRec');
+    var pairsModel = context.component('models').module('pairs');
 
     return {
         create: function(item) {
             var deferred = context.promises.defer();
 
-            pairsLigRec.create(item, function(error, insertedItem) {
+            pairsModel.create(item, function(error, insertedItem) {
                 if (error) {
                     console.error(error);
                     deferred.reject(error);
@@ -29,7 +29,7 @@ module.exports = function(context) {
             
             item.updatedAt = Date.now();
 
-            pairsLigRec.update({ "pair_name": item.pair_name }, item, {
+            pairsModel.update({ "pair_name": item.pair_name }, item, {
                 upsert: true,
                 setDefaultsOnInsert : true
             }, function(error, insertedItem) {

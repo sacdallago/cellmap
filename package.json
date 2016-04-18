@@ -24,6 +24,7 @@
     "devDependencies": {
     },
     "scripts": {
-        "import": "node scripts/importer.js"
+        "rikenImporter": "node scripts/rikenImporter.js",
+        "kuesterImporter": "node scripts/kuesterImporter.js"
     }
 }
