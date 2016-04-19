@@ -5,7 +5,7 @@ const context = require(__dirname + "/../" + "index").connect(function(context){
     // Riken Ligand/Receptor Expression data
     const expressionLigRecDao = context.component('daos').module('expressions');
     const pairsLigRecDao = context.component('daos').module('pairs');
-    const subcellLocAgesProteinsDao = context.component('daos').module('localization');
+    const subcellLocAgesProteinsDao = context.component('daos').module('localizations');
 
     const expressionLigRecSource = require(__dirname + "/../" + 'data/' + 'ExpressionLigRec.json');
     const pairsLigRecSource = require(__dirname + "/../" + 'data/' + 'PairsLigRec.json');

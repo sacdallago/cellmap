@@ -35,3 +35,5 @@ node_modules
 data/*
 !data/README
 config.json
+
+private/*

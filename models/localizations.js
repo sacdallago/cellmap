@@ -9,7 +9,7 @@ module.exports = function(context) {
     // Imports
     const mongoose = context.mongoose;
 
-    return mongoose.model('localization', mongoose.Schema({
+    return mongoose.model('localizations', mongoose.Schema({
         approvedsymbol : {
             type: String,
             required: true,

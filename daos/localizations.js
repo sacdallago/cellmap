@@ -7,7 +7,7 @@
 module.exports = function(context) {
 
     // Imports
-    var localizationModel = context.component('models').module('localization');
+    var localizationModel = context.component('models').module('localizations');
 
     return {
         create: function(item) {
