@@ -24,7 +24,6 @@
         "express": "latest",
         "compression": "latest",
         "jade": "latest",
-        "socket.io": "latest",
         "node-watch": "latest"
     },
     "devDependencies": {
