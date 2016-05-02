@@ -19,7 +19,13 @@
     },
     "dependencies": {
         "mongoose": "~4.4.5",
-        "q": "^1.1.2"
+        "q": "^1.1.2",
+        "console-stamp": "latest",
+        "express": "latest",
+        "compression": "latest",
+        "jade": "latest",
+        "socket.io": "latest",
+        "node-watch": "latest"
     },
     "devDependencies": {
     },
