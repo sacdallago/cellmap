@@ -21,7 +21,8 @@ module.exports = {
             fs              : fs,
             mongoose        : mongoose,
             path            : path,
-            promises        : q
+            promises        : q,
+            gridFs          : {}
         };
 
         // Function to load all components from the respective folders (models, controllers, services, daos, utils)
@@ -48,8 +49,9 @@ module.exports = {
         return context;
     },
     connect: function(callback){
-        const context = this.start();
-        const config = require(__dirname + "/config");
+        const context   = this.start();
+        const config    = require(__dirname + "/config");
+        const gridFs    = require('gridfs-stream');
 
         //Create the DB connection string
         var databaseParams = config.database;
@@ -80,6 +82,7 @@ module.exports = {
         });
 
         db.on('open', function () {
+            context.gridFs = gridFs(db.db, context.mongoose.mongo);
             callback(context);
         });
     }

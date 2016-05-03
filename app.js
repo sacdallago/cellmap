@@ -56,21 +56,33 @@ if (cluster.isMaster) {
         app.use("/assets", express.static(path.join(__dirname, "assets")));
         app.use("/public", express.static(path.join(__dirname, "public")));
 
+        context.router = new express.Router();
+        app.use('/', context.router);
+        context.router.use(function(request, response, next) {
 
-        app.get('/', function (req, res) {
-            res.render('index', {
-                title: 'Hey',
-                message: 'Hello there!'
-            });
+            // Log each request to the console
+            console.log(request.method, request.url);
+
+            // Continue doing what we were doing and go to the route
+            return next();
         });
+        context.component('.').module('routes');
+
 
         app.listen(app.get('port'), function(){
             console.log("Express server listening on port " + app.get('port'));
         });
     });
 
-        watch([path.join(__dirname, "views"), path.join(__dirname, "public"), path.join(__dirname, "app.js")], function(filename) {
-            console.log('File changed. Worker is gonna perform harakiri.');
-            cluster.worker.kill();
-        });
+    watch([
+        path.join(__dirname, "views"),
+        path.join(__dirname, "services"),
+        path.join(__dirname, "controllers"),
+        path.join(__dirname, "public"),
+        path.join(__dirname, "app.js"),
+        path.join(__dirname, "index.js"),
+    ], function(filename) {
+        console.log('File changed. Worker is gonna perform harakiri.');
+        cluster.worker.kill();
+    });
 }
