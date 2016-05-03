@@ -1,0 +1,41 @@
+html
+  head
+    title= "CellMap - " + title
+    link(rel='stylesheet', href='https://leafletjs-cdn.s3.amazonaws.com/content/leaflet/master/leaflet.css')
+    link(rel='stylesheet', href='/public/semantic/semantic.css')
+    link(rel='stylesheet', href='/public/style.css')
+    meta(charset="utf-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+  body
+    .ui.fixed.inverted.menu
+        .ui.container
+            a(href="#").header.item
+                img(src="/public/cell.png").logo
+                |  CellM
+            a(href="/").item.
+                Models
+    .ui.main.container
+        block content
+    .ui.inverted.vertical.footer.segment
+        .ui.center.aligned.container
+            .ui.stackable.inverted.divided.grid
+                .five.wide.column
+                .six.wide.column
+                    h4.ui.inverted.header CellMap
+                    p Extra space for a call to action inside the footer that could help re-engage users.
+                .five.wide.column
+            .ui.inverted.section.divider
+            img(src="/public/cell.png").ui.centered.mini.image
+            .ui.horizontal.inverted.small.divided.link.list
+                a(href="#").item Site Map
+                a(href="#").item Contact Us
+                a(href="#").item Terms and Conditions
+                a(href="#").item Privacy Policy
+
+    script(type="text/javascript", src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js")
+    script(type="text/javascript", src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js")
+    script(type="text/javascript", src="https://leafletjs-cdn.s3.amazonaws.com/content/leaflet/master/leaflet.js")
+    script(type="text/javascript", src="/public/semantic/semantic.js")
+    if scripts
+        - each s in scripts
+            script(type="text/javascript", src=s)

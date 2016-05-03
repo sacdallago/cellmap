@@ -15,6 +15,7 @@ module.exports = {
         const fs          = require('fs');
         const path        = require('path');
         const q           = require('q');
+        const formidable  = require('formidable');
 
         // Initialize the context
         context = {
@@ -22,6 +23,7 @@ module.exports = {
             mongoose        : mongoose,
             path            : path,
             promises        : q,
+            formidable      : formidable,
             gridFs          : {}
         };
 

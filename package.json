@@ -25,7 +25,8 @@
         "compression": "latest",
         "jade": "latest",
         "node-watch": "latest",
-        "gridfs-stream": "latest"
+        "gridfs-stream": "latest",
+        "formidable": "latest"
     },
     "devDependencies": {
     },
