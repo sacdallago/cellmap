@@ -21,6 +21,33 @@ module.exports = function(context) {
 
             readstream.pipe(response);
         },
+        getTile: function(request, response) {
+
+            const md5 = request.params.md5;
+            const z = request.params.z;
+            const x = request.params.x;
+            const y = request.params.y;
+
+            var readstream = context.gridFs.createReadStream({
+                md5: md5,
+                z: z,
+                x: x,
+                y: y
+                
+            });
+
+            readstream.on('error', function (error) {
+
+                response.render('404', {
+                    title: '404',
+                    message: "Unable to find image",
+                    error: error
+                });
+
+            });
+
+            readstream.pipe(response);
+        },
         getImages: function(request, response) {
             response.status(200).send();
         },

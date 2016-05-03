@@ -3,5 +3,6 @@ module.exports = function(context) {
     context.router
         .get('/images/:iid/', imagesController.getImage)
         .get('/images', imagesController.getImages)
+        .get('/tiles/:md5/:z/:x/:y', imagesController.getTile)
         .post('/images', imagesController.insertImage);
 }
