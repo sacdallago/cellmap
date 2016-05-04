@@ -33,7 +33,7 @@ module.exports = function(context) {
                 z: z,
                 x: x,
                 y: y
-                
+
             });
 
             readstream.on('error', function (error) {
@@ -57,14 +57,75 @@ module.exports = function(context) {
                 const form = new formidable.IncomingForm();
                 // Need to implement the storage of file xyz and then render home
 
+                form.parse(request, function(error, fields, files) {
+                    if(error){
+                        response.render('error', {
+                            title: 'Error',
+                            message: "Unable to post request",
+                            error: error
+                        });
+                    }
+
+                    const image = files.image;
+
+                    if (image.type != 'image/png' && image.type != 'image/jpeg') {
+                        response.render('error', {
+                            title: 'Error',
+                            message: "Unable to post request",
+                            error: "Allowed calls include:\n"+
+                            "- multipart/form-data\n"+
+                            "With attributes 'image' in jpeg or png format"
+                        });
+                        return;
+                    }
+
+                    var source = context.fs.createReadStream(image.path);
+                    var destination = context.gridFs.createWriteStream();
+                    source.pipe(destination);
+
+                    destination.on('error', function (error) {
+                        response.render('error', {
+                            title: 'Error',
+                            message: "Unable to post request",
+                            error: error
+                        });
+                    });
+                    destination.on('close', function (file) {            
+                        // gm convert -crop 256x256 input.png +adjoin tile%04d.png
+                        // gm convert tile0019.png -background transparent -extent 256x256 samename.png
+
+                        /*
+                            The following only writes ONE file!
+                            context.gm()
+                                .command('convert')
+                            .in('+adjoin')
+                                .crop(256,256)
+
+                                .in(image.path)
+                                .write('test'+ '%04d.png', function (err) {
+                                if (err) console.log(err);
+                            });
+                            */
+
+                        const tile = context.childProcess.spawn('gm', ['convert','-crop','256x256', image.path, "+adjoin", __dirname + "/../tiles/" + file._id + "%04d.png"]);
+
+                        tile.on('close', (code) => {
+                            if(code === 0){
+                                const extent = context.childProcess.spawn('gm', ['mogrify','-extent','256x256', "-background", "transparent", __dirname + "/../tiles/" + file._id + "*.png"]);
+                                response.send(200);
+                            } else {
+                                console.error('Failed to tile image. Code ' + code);
+                            }
+                        });
+                    });
+                });
             } else {
                 response.render('error', {
                     title: 'Error',
                     message: "Unable to post request",
                     error: "Allowed calls include:\n"+
                     "- multipart/form-data\n"+
-                    "With attributes 'email', 'fasta' and optional 'pssh'\n"+
-                    "If sending fasta + pssh files, only one sequence can be present in the fasta file."
+                    "With attributes 'image' in jpeg or png format"
                 });
             }
         }

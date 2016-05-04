@@ -26,7 +26,8 @@
         "jade": "latest",
         "node-watch": "latest",
         "gridfs-stream": "latest",
-        "formidable": "latest"
+        "formidable": "latest",
+        "gm": "latest"
     },
     "devDependencies": {
     },
