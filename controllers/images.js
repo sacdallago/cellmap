@@ -91,8 +91,7 @@ module.exports = function(context) {
                         });
                     });
                     destination.on('close', function (file) {            
-                        // gm convert -crop 256x256 input.png +adjoin tile%04d.png
-                        // gm convert tile0019.png -background transparent -extent 256x256 samename.png
+                        // gm convert -crop 256x256 cell.png -extent 256x256 -background transparent +adjoin cell%04d.png
 
                         /*
                             The following only writes ONE file!
@@ -107,11 +106,10 @@ module.exports = function(context) {
                             });
                             */
 
-                        const tile = context.childProcess.spawn('gm', ['convert','-crop','256x256', image.path, "+adjoin", __dirname + "/../tiles/" + file._id + "%04d.png"]);
+                        const tile = context.childProcess.spawn('gm', ['convert','-crop','256x256', image.path, '-extent','256x256', "-background", "transparent", "+adjoin", __dirname + "/../tiles/" + file._id + "%04d.png"]);
 
                         tile.on('close', (code) => {
                             if(code === 0){
-                                const extent = context.childProcess.spawn('gm', ['mogrify','-extent','256x256', "-background", "transparent", __dirname + "/../tiles/" + file._id + "*.png"]);
                                 response.send(200);
                             } else {
                                 console.error('Failed to tile image. Code ' + code);
