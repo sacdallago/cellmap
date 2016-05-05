@@ -33,6 +33,7 @@
     },
     "scripts": {
         "rikenImporter": "node scripts/rikenImporter.js",
-        "kuesterImporter": "node scripts/kuesterImporter.js"
+        "kuesterImporter": "node scripts/kuesterImporter.js",
+        "start": "node app.js"
     }
 }
