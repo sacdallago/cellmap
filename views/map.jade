@@ -1,0 +1,9 @@
+extends base
+
+block content
+    #map
+block scripts
+    script(type="text/javascript", src="https://leafletjs-cdn.s3.amazonaws.com/content/leaflet/master/leaflet.js")
+    script(type="text/javascript", src="/public/map.js")
+    script().
+        renderMap('#{iid}');

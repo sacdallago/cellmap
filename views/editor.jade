@@ -1,0 +1,24 @@
+extends base
+
+block styles
+    link(rel='stylesheet', href='/public/leafletpm/leaflet.pm.css')
+block content
+    .ui.attached.segment
+        .ui.header Add Feature
+        .ui.form
+            .field
+                span.label Lat
+                input(id="lat")
+            .field
+                span.label Lng
+                input(id="lng")
+            .field
+                span.label Type
+                input
+    #map
+block scripts
+    script(type="text/javascript", src="https://leafletjs-cdn.s3.amazonaws.com/content/leaflet/master/leaflet.js")
+    script(type="text/javascript", src="/public/leafletpm/leaflet.pm.min.js")
+    script(type="text/javascript", src="/public/editor.js")
+    script().
+        renderMap('#{iid}');

@@ -16,8 +16,6 @@ module.exports = {
         const path        = require('path');
         const q           = require('q');
         const formidable  = require('formidable');
-        const gm          = require('gm');
-        const childProcess= require('child_process');
 
         // Initialize the context
         context = {
@@ -26,8 +24,6 @@ module.exports = {
             path            : path,
             promises        : q,
             formidable      : formidable,
-            gm              : gm,
-            childProcess    : childProcess,
             gridFs          : {}
         };
 

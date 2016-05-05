@@ -1,18 +1,24 @@
-jQuery(function() {
+var renderMap = function(imageId) {
+    var img = new Image();
+    img.src = '/images/'+imageId;
 
-    var map = L.map('map', {
-        maxZoom: 0,
-        minZoom: 0,
-        crs: L.CRS.Simple
-    }).setView([0, 0], 0);
+    img.onload = function() {
+        var width = this.width;
+        var height = this.height;
 
-    var southWest = map.unproject([0, 592], map.getMaxZoom());
-    var northEast = map.unproject([596, 0], map.getMaxZoom());
-    map.setMaxBounds(new L.LatLngBounds(southWest, northEast));
+        while(width > 500 || height > 500){
+            width /= 2;
+            height /= 2;
+        }
 
-    L.tileLayer('/public/y{y}x{x}.png', {
-        attribution: 'Map data &copy; ???',
-        errorTileUrl: '/public/blank.png',
-        noWrap: true
-    }).addTo(map);
-});
+        var imageBounds = [[0, width], [height, 0]];
+
+        var map = L.map('map', {
+            maxZoom: 4,
+            minZoom: 1,
+            crs: L.CRS.Simple
+        }).setView([height/2, width/2], 1);
+
+        L.imageOverlay(this.src, imageBounds).addTo(map);
+    }
+};
