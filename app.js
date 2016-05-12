@@ -57,7 +57,7 @@ if (cluster.isMaster) {
         app.set('views', path.join(__dirname, "views"));
         app.set('view engine', 'jade');
         app.use(compression());
-        
+
         // Export static folders
         app.use("/public", express.static(path.join(__dirname, "public")));
 
@@ -80,9 +80,15 @@ if (cluster.isMaster) {
         // Load all routes
         context.component('.').module('routes');
 
-        // Make the server listen
-        app.listen(app.get('port'), function(){
-            console.log("Express server listening on port " + app.get('port'));
+        // Global variables:
+        const localizationDao = context.component('daos').module('localizations');
+        localizationDao.getLocalizations().then(function(localizations){
+            context.constants.localizations = localizations;
+
+            // Make the server listen
+            app.listen(app.get('port'), function(){
+                console.log("Express server listening on port " + app.get('port'));
+            });
         });
     });
 

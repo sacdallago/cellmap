@@ -37,7 +37,8 @@ module.exports = function(context) {
             const imageId = request.params.iid;
             response.render('editor', {
                 title: 'Protein interaction visualizer',
-                iid: imageId
+                iid: imageId,
+                localizations: context.constants.localizations
             });
         }
     }

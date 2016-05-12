@@ -23,16 +23,16 @@ var renderMap = function(imageId) {
 
         // Draw polygons --> Necessary?
         //map.pm.addControls();
-        
+
         var lat = document.getElementById('lat');
         var lng = document.getElementById('lng');
-        
+
         var marker = L.marker();
 
         function onMapClick(e) {
             lat.value = e.latlng.lat;
             lng.value = e.latlng.lng;
-            
+
             marker
                 .setLatLng(e.latlng)
                 .addTo(map);
@@ -40,14 +40,53 @@ var renderMap = function(imageId) {
 
         map.on('click', onMapClick);
 
-//      For the future: Save objects (nucleus, ribosome,...) as geoJson (http://geojson.org/geojson-spec.html) data 
-//        L.geoJson(data, {
-//            style: function (feature) {
-//                return {color: feature.properties.color};
-//            },
-//            onEachFeature: function (feature, layer) {
-//                layer.bindPopup(feature.properties.description);
-//            }
-//        }).addTo(map);
+        //      For the future: Save objects (nucleus, ribosome,...) as geoJson (http://geojson.org/geojson-spec.html) data 
+        //        L.geoJson(data, {
+        //            style: function (feature) {
+        //                return {color: feature.properties.color};
+        //            },
+        //            onEachFeature: function (feature, layer) {
+        //                layer.bindPopup(feature.properties.description);
+        //            }
+        //        }).addTo(map);
     }
 };
+
+$('.dropdown').dropdown();
+
+$('.ui.form')
+    .form({
+    fields: {
+        lng   : {
+            identifier: 'lng',
+            rules: [
+                {
+                    type   : 'empty',
+                    prompt : 'Please select a point on the map'
+                }
+            ]
+        },
+        lat   : {
+            identifier: 'lat',
+            rules: [
+                {
+                    type   : 'empty',
+                    prompt : 'Please select a point on the map'
+                }
+            ]
+        },
+        loc   : {
+            identifier: 'loc',
+            rules: [
+                {
+                    type   : 'empty',
+                    prompt : 'Please select a localization'
+                }
+            ]
+        },
+    },
+    onSuccess: function(event, fields){
+        event.preventDefault();
+        console.log('ok');
+    }
+});

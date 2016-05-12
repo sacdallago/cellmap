@@ -5,16 +5,22 @@ block styles
 block content
     .ui.attached.segment
         .ui.header Add Feature
-        .ui.form
+        form.ui.form
+            .ui.error.message
             .field
-                span.label Lat
-                input(id="lat")
+                span.label Localization
+                input(type="hidden", id="lng", name="lng")
+                input(type="hidden", id="lat", name="lat")
+                div(style="z-index:999999").ui.fluid.search.selection.dropdown
+                    input(type="hidden", name="loc", id="loc")
+                    i.dropdown.icon
+                    .default.text Select Localization
+                    .menu
+                        if localizations
+                            - each localization in localizations
+                                div(data-value="#{localization}").item #{localization}
             .field
-                span.label Lng
-                input(id="lng")
-            .field
-                span.label Type
-                input
+                input(type="submit").ui.button.green
     #map
 block scripts
     script(type="text/javascript", src="https://leafletjs-cdn.s3.amazonaws.com/content/leaflet/master/leaflet.js")
@@ -22,3 +28,4 @@ block scripts
     script(type="text/javascript", src="/public/editor.js")
     script().
         renderMap('#{iid}');
+        localizations = !{JSON.stringify(localizations)};

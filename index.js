@@ -24,7 +24,8 @@ module.exports = {
             path            : path,
             promises        : q,
             formidable      : formidable,
-            gridFs          : {}
+            gridFs          : {},
+            constants       : {}
         };
 
         // Function to load all components from the respective folders (models, controllers, services, daos, utils)

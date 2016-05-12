@@ -23,10 +23,10 @@ module.exports = function(context) {
 
             return deferred.promise;
         },
-        
+
         update: function(item) {
             var deferred = context.promises.defer();
-            
+
             item.updatedAt = Date.now();
 
             localizationModel.update({ "approvedsymbol": item.approvedsymbol }, item, {
@@ -42,5 +42,34 @@ module.exports = function(context) {
 
             return deferred.promise;
         },
+        getLocalizations: function() {
+            var deferred = context.promises.defer();
+
+            localizationModel.find({},{
+                "consensus_sl": 1
+            }, function(error, results) {
+                if (error) {
+                    console.error(error);
+                    deferred.reject(error);
+                }
+
+                var onlyLocalizations = []
+
+                results.forEach(function(element){
+                    var localizations = element.consensus_sl.split(". ");
+                    onlyLocalizations.push.apply(onlyLocalizations, localizations);
+                });
+
+                onlyLocalizations = onlyLocalizations.filter(function(elem, pos) {
+                    return onlyLocalizations.indexOf(elem) == pos;
+                });
+                
+                onlyLocalizations.sort();
+
+                deferred.resolve(onlyLocalizations);
+            });
+
+            return deferred.promise;
+        }
     };
 };
