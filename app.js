@@ -94,10 +94,10 @@ if (cluster.isMaster) {
 
     // Watch in case of file changes, restart worker (basically can keep up server running forever)
     watch([
-        path.join(__dirname, "views"),
+        //path.join(__dirname, "views"),
         path.join(__dirname, "services"),
         path.join(__dirname, "controllers"),
-        path.join(__dirname, "public"),
+        path.join(__dirname, "daos"),
         path.join(__dirname, "app.js"),
         path.join(__dirname, "index.js"),
     ], function(filename) {

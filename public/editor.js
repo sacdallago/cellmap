@@ -87,6 +87,15 @@ $('.ui.form')
     },
     onSuccess: function(event, fields){
         event.preventDefault();
-        console.log('ok');
+        $.ajax({
+            url: '/features',
+            type: 'PUT',
+            data: {
+                test: "tes"
+            },
+            success: function(result) {
+                console.log(result);
+            }
+        });
     }
 });
