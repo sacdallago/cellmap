@@ -8,7 +8,7 @@ var renderMap = function(imageId) {
         type: 'GET',
         success: function(results) {
             featuresGeoJSON = results;
-            
+
             var img = new Image();
             img.src = '/images/'+imageId;
 
@@ -75,7 +75,34 @@ var renderMap = function(imageId) {
 };
 
 $.fn.api.settings.api = {
-  'get proteins': '/proteins?identifier={query}',
+    'get proteins': '/proteins?identifier={query}',
 };
 
-$('.dropdown').dropdown();
+$.fn.search.settings.templates.protein = function(response) {
+    var html = '';
+    $.each(response.results, function(index, result) {
+        html += '' + '<div class="result">' +
+            '<span class="name">' + result.uniprotac + '</span>, ' +
+            '<small> Approved symbol ' + result.approvedsymbol + '</small>' +
+            '</div>';
+    });
+    return html;
+}
+
+$('.ui.search').search({
+    type: 'protein',
+    apiSettings: {
+        action: 'get proteins',
+        onResponse: function(response) {
+            return {
+                results: response
+            };
+        }
+    },
+    minCharacters : 2,
+    onSelect: function(result, response) {
+        console.log(result);
+
+        return true;
+    }
+});
