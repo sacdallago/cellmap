@@ -1,9 +1,16 @@
 extends base
 
 block content
+    div(style="z-index:999999").ui.fluid.search.selection.dropdown
+        input(type="hidden", name="prot", id="prot")
+        i.dropdown.icon
+        .default.text Select protein
+        .menu
+            div(data-value="test").item test
     #map
 block scripts
     script(type="text/javascript", src="https://leafletjs-cdn.s3.amazonaws.com/content/leaflet/master/leaflet.js")
+    script(type="text/javascript", src="/public/underscore.js")
     script(type="text/javascript", src="/public/map.js")
     script().
         renderMap('#{iid}');

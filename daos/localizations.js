@@ -42,6 +42,7 @@ module.exports = function(context) {
 
             return deferred.promise;
         },
+
         getLocalizations: function() {
             var deferred = context.promises.defer();
 
@@ -52,7 +53,7 @@ module.exports = function(context) {
                     console.error(error);
                     deferred.reject(error);
                 }
-                
+
                 var onlyLocalizations = [];
 
                 results.forEach(function(element){
@@ -62,10 +63,32 @@ module.exports = function(context) {
                 onlyLocalizations = onlyLocalizations.filter(function(elem, pos) {
                     return onlyLocalizations.indexOf(elem) == pos;
                 });
-                
+
                 onlyLocalizations.sort();
 
                 deferred.resolve(onlyLocalizations);
+            });
+
+            return deferred.promise;
+        },
+
+        findProteinNames: function(identifier) {
+            var deferred = context.promises.defer();
+
+            localizationModel.find({
+                $or: [
+                    {approvedsymbol: {'$regex': identifier}},
+                    {uniprotac: {'$regex': identifier}}
+                ]
+            })
+                .limit(5)
+                .exec(function(error, results) {
+                if (error) {
+                    console.error(error);
+                    deferred.reject(error);
+                } else {
+                    deferred.resolve(results);
+                }
             });
 
             return deferred.promise;
