@@ -15,6 +15,10 @@ const context = require(__dirname + "/../" + "index").connect(function(context){
         subcellLocAgesProteinsSource.forEach(function(element){
             var deferred = context.promises.defer();
             promises.push(deferred.promise);
+            
+            var localizations = element.consensus_sl.split(". ");
+            element.consensus_sl = localizations;
+            
             subcellLocAgesProteinsDao.update(element).then(function(result){
                 console.log("[subcellLocAgesProteinsSource] Inserted " + element.approvedsymbol);
                 deferred.resolve();

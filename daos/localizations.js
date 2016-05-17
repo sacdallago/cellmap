@@ -52,12 +52,11 @@ module.exports = function(context) {
                     console.error(error);
                     deferred.reject(error);
                 }
-
-                var onlyLocalizations = []
+                
+                var onlyLocalizations = [];
 
                 results.forEach(function(element){
-                    var localizations = element.consensus_sl.split(". ");
-                    onlyLocalizations.push.apply(onlyLocalizations, localizations);
+                    onlyLocalizations.push.apply(onlyLocalizations, element.consensus_sl);
                 });
 
                 onlyLocalizations = onlyLocalizations.filter(function(elem, pos) {

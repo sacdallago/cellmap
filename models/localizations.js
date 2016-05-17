@@ -21,7 +21,7 @@ module.exports = function(context) {
             unique: true
         },
         consensus_sl: {
-            type: String,
+            type: [String],
             required: true
         },
         "6class_consensus_sl": {
