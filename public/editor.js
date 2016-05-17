@@ -68,7 +68,11 @@ var renderMap = function(imageId) {
                             url: '/features/' + target.dataset.id,
                             type: 'DELETE',
                             success: function(results) {
-                                location.reload();
+                                var circle = _.find(featuresLayer._layers,function(circle){
+                                    return circle.feature._id == target.dataset.id;
+                                });
+
+                                featuresLayer.removeLayer(circle);
                             }
                         });
                     }, false);
@@ -164,8 +168,14 @@ $('.ui.form')
             type: 'POST',
             data: fields,
             success: function(result) {
+                var circle = _.find(featuresLayer._layers,function(circle){
+                    return circle.feature._id == result._id;
+                });
+                if(circle){
+                    featuresLayer.removeLayer(circle);
+                }
+                
                 featuresLayer.addData(result);
-                console.log(result);
             }
         });
     }
