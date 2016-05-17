@@ -67,15 +67,17 @@ if (cluster.isMaster) {
         // Router listens on /
         app.use('/', context.router);
 
-        // Log all requests 
-        context.router.use(function(request, response, next) {
+        // Log all requests if debug
+        if(process.env.NODE_ENV != 'production'){
+            context.router.use(function(request, response, next) {
 
-            // Log each request to the console
-            console.log(request.method, request.url);
+                // Log each request to the console
+                console.log(request.method, request.url);
 
-            // Continue doing what we were doing and go to the route
-            return next();
-        });
+                // Continue doing what we were doing and go to the route
+                return next();
+            });
+        }
 
         // Load all routes
         context.component('.').module('routes');
