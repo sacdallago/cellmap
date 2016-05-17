@@ -11,6 +11,7 @@ block content
                 span.label Localization
                 input(type="hidden", id="lng", name="lng")
                 input(type="hidden", id="lat", name="lat")
+                input(type="hidden", id="mapId", name="mapId")
                 div(style="z-index:999999").ui.fluid.search.selection.dropdown
                     input(type="hidden", name="loc", id="loc")
                     i.dropdown.icon
@@ -29,3 +30,4 @@ block scripts
     script().
         renderMap('#{iid}');
         localizations = !{JSON.stringify(localizations)};
+        writeMapId('#{iid}');

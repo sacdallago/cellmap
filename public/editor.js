@@ -1,3 +1,5 @@
+var featuresLayer;
+
 var renderMap = function(imageId) {
     var img = new Image();
     img.src = '/images/'+imageId;
@@ -40,19 +42,80 @@ var renderMap = function(imageId) {
 
         map.on('click', onMapClick);
 
-        //      For the future: Save objects (nucleus, ribosome,...) as geoJson (http://geojson.org/geojson-spec.html) data 
-        //        L.geoJson(data, {
-        //            style: function (feature) {
-        //                return {color: feature.properties.color};
-        //            },
-        //            onEachFeature: function (feature, layer) {
-        //                layer.bindPopup(feature.properties.description);
-        //            }
-        //        }).addTo(map);
+        var geojsonMarkerOptions = {
+            radius: 6,
+            fillColor: "#048cff",
+            color: "#f0ff42",
+            weight: 4,
+            opacity: 1,
+            fillOpacity: 1
+        };
+
+        featuresLayer = L.geoJson(undefined, {
+            onEachFeature: function(feature, layer) {
+                if (feature.properties && feature.properties.localization) {
+                    // Very much code for just defining the div in the popup + the delete button
+                    var content = document.createElement("div");
+                    content.className = "ui attached segment";
+                    var text = document.createTextNode(feature.properties.localization);
+                    content.appendChild(text);
+
+                    var btn = document.createElement("div");
+                    // Interesting part: What to do when Delete button is clicked
+                    btn.addEventListener('click', function(event){
+                        var target = $(event.target)[0];
+                        $.ajax({
+                            url: '/features/' + target.dataset.id,
+                            type: 'DELETE',
+                            success: function(results) {
+                                location.reload();
+                            }
+                        });
+                    }, false);
+                    btn.className = "ui attached delete button red";
+                    btn.setAttribute('data-id', feature._id);
+                    var btnText = document.createTextNode("Delete");
+                    btn.appendChild(btnText);
+
+                    var container = document.createElement("div");
+                    container.appendChild(content);
+                    container.appendChild(btn);
+
+                    // Bind the text and the button to the popup
+                    layer.bindPopup(container);
+                }
+            },
+            pointToLayer: function (feature, latlng) {
+                return L.circleMarker(latlng, geojsonMarkerOptions);
+            }
+        }).addTo(map);
+
+
+        $.ajax({
+            url: '/features/' + imageId,
+            type: 'GET',
+            success: function(results) {
+                featuresLayer.addData(results);
+            }
+        });
+
+        // Disable drag and zoom handlers.
+        // map.dragging.disable();
+        map.touchZoom.disable();
+        map.doubleClickZoom.disable();
+        map.scrollWheelZoom.disable();
+        //map.keyboard.disable();
+
+        // Disable tap handler, if present.
+        if (map.tap) map.tap.disable();
     }
 };
 
 $('.dropdown').dropdown();
+
+var writeMapId = function(imageId){
+    document.getElementById('mapId').value = imageId;
+}
 
 $('.ui.form')
     .form({
@@ -84,16 +147,24 @@ $('.ui.form')
                 }
             ]
         },
+        mapId   : {
+            identifier: 'mapId',
+            rules: [
+                {
+                    type   : 'empty',
+                    prompt : 'There was an error. Please reload the page.'
+                }
+            ]
+        }
     },
     onSuccess: function(event, fields){
         event.preventDefault();
         $.ajax({
             url: '/features',
-            type: 'PUT',
-            data: {
-                test: "tes"
-            },
+            type: 'POST',
+            data: fields,
             success: function(result) {
+                featuresLayer.addData(result);
                 console.log(result);
             }
         });
