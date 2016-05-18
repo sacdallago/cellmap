@@ -5,7 +5,7 @@ module.exports = function(context) {
 
     return {
         getProteins: function(request, response) {
-            const identifier = request.query.identifier;
+            const identifier = request.query.identifier.toUpperCase();
 
             if(identifier === undefined){
                 response.send([]);
@@ -16,8 +16,6 @@ module.exports = function(context) {
                     response.send(error);
                 });
             }
-
-
         }
     }
 }

@@ -1,5 +1,7 @@
 var featuresGeoJSON;
-var proteinsLayer;
+var overlayProteins = {};
+var map;
+var controlLayers;
 
 var renderMap = function(imageId) {
     // Wait till I have the localizations of the features
@@ -24,7 +26,7 @@ var renderMap = function(imageId) {
 
                 var imageBounds = [[0, width], [height, 0]];
 
-                var map = L.map('map', {
+                map = L.map('map', {
                     maxZoom: 4,
                     minZoom: 1,
                     crs: L.CRS.Simple
@@ -67,8 +69,9 @@ var renderMap = function(imageId) {
                 //                return L.circleMarker(latlng, geojsonMarkerOptions);
                 //            }
                 //        }).addTo(map);
-
-                proteinsLayer = new L.layerGroup().addTo(map);
+                
+                controlLayers = L.control.layers();
+                controlLayers.addTo(map);
             }
         }
     });
@@ -102,7 +105,13 @@ $('.ui.search').search({
     minCharacters : 2,
     onSelect: function(result, response) {
         console.log(result);
-
+        
+        var littleton = L.marker([39.77, -105.23]).bindPopup('This is Golden, CO.');
+        
+        overlayProteins[result.uniprotac] = L.layerGroup([littleton]);
+        
+        overlayProteins[result.uniprotac].addTo(map);
+        controlLayers.addOverlay(overlayProteins[result.uniprotac], result.uniprotac);
         return true;
     }
 });
