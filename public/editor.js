@@ -18,6 +18,7 @@ var renderMap = function(imageId) {
         var map = L.map('map', {
             maxZoom: 4,
             minZoom: 1,
+            maxBounds: imageBounds,
             crs: L.CRS.Simple
         }).setView([height/2, width/2], 1);
 

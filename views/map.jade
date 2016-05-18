@@ -1,13 +1,23 @@
 extends base
-
+block styles
+    link(rel='stylesheet', href='/public/markercluster/MarkerCluster.Default.css')
+    link(rel='stylesheet', href='/public/markercluster/MarkerCluster.css')
 block content
     div(style="z-index:999999").ui.fluid.input.search
         input(type="text", name="prot", id="prot", placeholder="Search protein").prompt
         .results
     #map
+    table.ui.celled.table
+        thead
+            tr
+                th Protein
+                th Mapped
+                th Unmapped
+        tbody(id="proteinList")
 block scripts
     script(type="text/javascript", src="https://leafletjs-cdn.s3.amazonaws.com/content/leaflet/master/leaflet.js")
     script(type="text/javascript", src="/public/underscore.js")
+    script(type="text/javascript", src="/public/markercluster/leaflet.markercluster.js")
     script(type="text/javascript", src="/public/map.js")
     script().
         renderMap('#{iid}');

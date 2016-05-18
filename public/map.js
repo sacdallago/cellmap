@@ -2,8 +2,67 @@ var featuresGeoJSON;
 var overlayProteins = {};
 var map;
 var controlLayers;
+var clusterGroup;
+
+localizations = {
+    "cytoplasm": {},
+    "endomembrane system": {},
+    "endoplasmic reticulum": {},
+    "endoplasmic reticulum membrane": {},
+    "endosome": {},
+    "endosome membrane": {},
+    "golgi apparatus": {},
+    "golgi apparatus membrane": {},
+    "lipid droplet": {},
+    "lysosome": {},
+    "lysosome membrane": {},
+    "melanosome": {},
+    "melanosome membrane": {},
+    "mitochondrion": {},
+    "mitochondrion membrane": {},
+    "n/a": {},
+    "nucleus": {},
+    "nucleus membrane": {},
+    "peroxisomal membrane": {},
+    "peroxisome": {},
+    "peroxisome membrane": {},
+    "plasma membrane": {},
+    "preautophagosomal structure": {},
+    "secreted": {},
+    "vacuole": {},
+    "vacuole membrane": {}
+}
+
+var sequentialColor = function(numOfSteps, step) {
+    // This function generates vibrant, "evenly spaced" colours (i.e. no clustering). This is ideal for creating easily distinguishable vibrant markers in Google Maps and other apps.
+    // Adam Cole, 2011-Sept-14
+    // HSV to RBG adapted from: http://mjijackson.com/2008/02/rgb-to-hsl-and-rgb-to-hsv-color-model-conversion-algorithms-in-javascript
+    var r, g, b;
+    var h = step / numOfSteps;
+    var i = ~~(h * 6);
+    var f = h * 6 - i;
+    var q = 1 - f;
+    switch(i % 6){
+        case 0: r = 1; g = f; b = 0; break;
+        case 1: r = q; g = 1; b = 0; break;
+        case 2: r = 0; g = 1; b = f; break;
+        case 3: r = 0; g = q; b = 1; break;
+        case 4: r = f; g = 0; b = 1; break;
+        case 5: r = 1; g = 0; b = q; break;
+    }
+    var c = "#" + ("00" + (~ ~(r * 255)).toString(16)).slice(-2) + ("00" + (~ ~(g * 255)).toString(16)).slice(-2) + ("00" + (~ ~(b * 255)).toString(16)).slice(-2);
+    return (c);
+}
+
+var total = Object.keys(localizations).length;
+var i = 0;
+for(key in localizations){
+    localizations[key].count = 0;
+    localizations[key].color = sequentialColor(total, i++);
+}
 
 var renderMap = function(imageId) {
+    renderProgress();
     // Wait till I have the localizations of the features
     $.ajax({
         url: '/features/' + imageId,
@@ -29,6 +88,7 @@ var renderMap = function(imageId) {
                 map = L.map('map', {
                     maxZoom: 4,
                     minZoom: 1,
+                    maxBounds: imageBounds,
                     crs: L.CRS.Simple
                 }).setView([height/2, width/2], 1);
 
@@ -40,38 +100,16 @@ var renderMap = function(imageId) {
                 var lat = document.getElementById('lat');
                 var lng = document.getElementById('lng');
 
-                var geojsonMarkerOptions = {
-                    radius: 6,
-                    fillColor: "#048cff",
-                    color: "#f0ff42",
-                    weight: 4,
-                    opacity: 1,
-                    fillOpacity: 1
-                };
+                // Marker Cluster Group
+                clusterGroup = L.markerClusterGroup();
+                map.addLayer(clusterGroup);
 
-                //        featuresLayer = L.geoJson(undefined, {
-                //            onEachFeature: function(feature, layer) {
-                //                if (feature.properties && feature.properties.localization) {
-                //                    // Very much code for just defining the div in the popup + the delete button
-                //                    var content = document.createElement("div");
-                //                    content.className = "ui attached segment";
-                //                    var text = document.createTextNode(feature.properties.localization);
-                //                    content.appendChild(text);
-                //
-                //                    var container = document.createElement("div");
-                //                    container.appendChild(content);
-                //
-                //                    // Bind the text and the button to the popup
-                //                    layer.bindPopup(container);
-                //                }
-                //            },
-                //            pointToLayer: function (feature, latlng) {
-                //                return L.circleMarker(latlng, geojsonMarkerOptions);
-                //            }
-                //        }).addTo(map);
-                
+                // Add controls for the layers
                 controlLayers = L.control.layers();
                 controlLayers.addTo(map);
+                controlLayers.addOverlay(clusterGroup, "Clustered Proteins");
+
+                hideProgress();
             }
         }
     });
@@ -104,14 +142,68 @@ $('.ui.search').search({
     },
     minCharacters : 2,
     onSelect: function(result, response) {
-        console.log(result);
-        
-        var littleton = L.marker([39.77, -105.23]).bindPopup('This is Golden, CO.');
-        
-        overlayProteins[result.uniprotac] = L.layerGroup([littleton]);
-        
+        var mapped = [];
+        var unmapped = [];
+        var points = [];
+
+        result.consensus_sl.forEach(function(location){
+            var geoLoc = _.find(featuresGeoJSON, function(geoLoc){
+                return geoLoc.properties.localization == location;
+            });
+
+            if(geoLoc === undefined){
+                unmapped.push(location);
+            } else {
+                mapped.push(location);
+
+                // http://mathworld.wolfram.com/LogarithmicSpiral.html
+                var r = localizations[location].count++;
+                var theta = ((r%9)/4) * Math.PI;
+                var x = ((r*10)*Math.cos(theta)) + geoLoc.geometry.coordinates[0];
+                var y = ((r*10)*Math.sin(theta)) + geoLoc.geometry.coordinates[1];
+
+                var marker = L.circleMarker([y,x],{
+                    radius: 6,
+                    fillColor: localizations[location].color,
+                    color: localizations[location].color,
+                    opacity: 1,
+                    fillOpacity: 1
+                });
+
+                marker.bindPopup(result.uniprotac + " " + location);
+
+                points.push(marker);
+            }
+        });
+
+        // HTML table telling which localizations are mapped for protein and which not
+        var container = document.getElementById('proteinList');
+        var tr = document.createElement("tr");
+
+        var proteinTd = document.createElement("td");
+        proteinTd.appendChild(document.createTextNode(result.uniprotac));
+        tr.appendChild(proteinTd);
+
+        var mappedTd = document.createElement("td");
+        mappedTd.appendChild(document.createTextNode(mapped));
+        tr.appendChild(mappedTd);
+
+        var unmappedTd = document.createElement("td");
+        unmappedTd.appendChild(document.createTextNode(unmapped));
+        tr.appendChild(unmappedTd);
+
+        container.appendChild(tr);
+        // END of HTML table
+
+        overlayProteins[result.uniprotac] = L.layerGroup(points);
+
         overlayProteins[result.uniprotac].addTo(map);
         controlLayers.addOverlay(overlayProteins[result.uniprotac], result.uniprotac);
+
+        clusterGroup.addLayer(L.featureGroup(points)
+                              .bindPopup(result.uniprotac)
+                             );
+
         return true;
     }
 });
