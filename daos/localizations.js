@@ -92,6 +92,26 @@ module.exports = function(context) {
             });
 
             return deferred.promise;
-        }
+        },
+        
+        findProteins: function(accNumbers) {
+            var deferred = context.promises.defer();
+
+            localizationModel.find({
+                uniprotac: {
+                    $in: accNumbers
+                }
+            })
+                .exec(function(error, results) {
+                if (error) {
+                    console.error(error);
+                    deferred.reject(error);
+                } else {
+                    deferred.resolve(results);
+                }
+            });
+
+            return deferred.promise;
+        },
     };
 };

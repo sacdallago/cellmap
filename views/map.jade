@@ -2,6 +2,7 @@ extends base
 block styles
     link(rel='stylesheet', href='/public/markercluster/MarkerCluster.Default.css')
     link(rel='stylesheet', href='/public/markercluster/MarkerCluster.css')
+    link(rel='stylesheet', href='/public/easy-button/easy-button.css')
 block content
     div(style="z-index:999999").ui.fluid.input.search
         input(type="text", name="prot", id="prot", placeholder="Search protein").prompt
@@ -18,6 +19,11 @@ block scripts
     script(type="text/javascript", src="https://leafletjs-cdn.s3.amazonaws.com/content/leaflet/master/leaflet.js")
     script(type="text/javascript", src="/public/underscore.js")
     script(type="text/javascript", src="/public/markercluster/leaflet.markercluster.js")
+    script(type="text/javascript", src="/public/easy-button/easy-button.js")
     script(type="text/javascript", src="/public/map.js")
     script().
-        renderMap('#{iid}');
+        initializeLocalizations(!{JSON.stringify(localizations)}, function(){
+            renderMap('#{iid}', function(){
+                addProteins(!{JSON.stringify(requestProteins)});
+            });
+        });

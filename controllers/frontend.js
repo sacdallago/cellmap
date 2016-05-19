@@ -1,5 +1,8 @@
-
 module.exports = function(context) {
+
+    // Imports
+    var localizationsDao = context.component('daos').module('localizations');
+
     return {
         home: function(request, response) {
             response.render('index', {
@@ -28,9 +31,21 @@ module.exports = function(context) {
         },
         map: function(request, response) {
             const imageId = request.params.iid;
-            response.render('map', {
-                title: 'Protein interaction visualizer',
-                iid: imageId
+            const proteins = request.query.proteins;
+
+            localizationsDao.findProteins(proteins).then(function(requestProteins){
+                response.render('map', {
+                    title: 'Protein interaction visualizer',
+                    iid: imageId,
+                    requestProteins: requestProteins,
+                    localizations: context.constants.localizations
+                });
+            },function(error){
+                response.render('error', {
+                    title: 'Error',
+                    message: "Unable to retrieve images metadata",
+                    error: error
+                });
             });
         },
         editor: function(request, response) {
