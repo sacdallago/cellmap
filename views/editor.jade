@@ -2,6 +2,7 @@ extends base
 
 block styles
     link(rel='stylesheet', href='/public/leafletpm/leaflet.pm.css')
+    link(rel='stylesheet', href='/public/easy-button/easy-button.css')
 block content
     .ui.attached.segment
         .ui.header Add Feature
@@ -27,6 +28,8 @@ block scripts
     script(type="text/javascript", src="https://leafletjs-cdn.s3.amazonaws.com/content/leaflet/master/leaflet.js")
     script(type="text/javascript", src="/public/leafletpm/leaflet.pm.min.js")
     script(type="text/javascript", src="/public/underscore.js")
+    script(type="text/javascript", src="/public/easy-button/easy-button.js")
+    script(type="text/javascript", src="/public/utilities.js")
     script(type="text/javascript", src="/public/editor.js")
     script().
         renderMap('#{iid}');

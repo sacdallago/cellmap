@@ -113,6 +113,9 @@ var renderMap = function(imageId) {
 
         // Disable tap handler, if present.
         if (map.tap) map.tap.disable();
+
+        // Add fading button
+        loadFadingButton(map);
     }
 };
 
@@ -175,7 +178,7 @@ $('.ui.form')
                 if(circle){
                     featuresLayer.removeLayer(circle);
                 }
-                
+
                 featuresLayer.addData(result);
             }
         });
