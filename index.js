@@ -59,7 +59,7 @@ module.exports = {
         //Create the DB connection string
         var databaseParams = config.database;
         var dbConnection = "mongodb://";
-        if (databaseParams.username.length > 0 && databaseParams.password.length > 0) {
+        if (databaseParams.username && databaseParams.password  && databaseParams.username.length > 0 && databaseParams.password.length > 0) {
             dbConnection += databaseParams.username + ":" + databaseParams.password + "@";
         }
         dbConnection += databaseParams.uri + ":" + databaseParams.port + "/" + databaseParams.collection;
