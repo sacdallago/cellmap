@@ -1,4 +1,5 @@
 var featuresLayer;
+var drawnItems;
 
 var renderMap = function(imageId) {
     var img = new Image();
@@ -18,39 +19,68 @@ var renderMap = function(imageId) {
         var map = L.map('map', {
             maxZoom: 4,
             minZoom: 1,
-            maxBounds: imageBounds,
+            maxBounds: [[-100, width+100], [height+100, -100]],
             crs: L.CRS.Simple
         }).setView([height/2, width/2], 1);
 
         L.imageOverlay(this.src, imageBounds).addTo(map);
 
-        // Draw polygons --> Necessary?
-        //map.pm.addControls();
+        // Add draw controls
+        // Initialise the FeatureGroup to store drawn layers
+        drawnItems = new L.FeatureGroup();
+        map.addLayer(drawnItems);
 
-        var lat = document.getElementById('lat');
-        var lng = document.getElementById('lng');
+        // Initialise the draw control and pass it the FeatureGroup of editable layers
+        var drawControl = new L.Control.Draw({
+            draw: {
+                marker: false,
+                circle: {
+                    metric: false,
+                    showRadius: false,
+                    shapeOptions: {
+                        stroke: false,
+                        opacity: 1,
+                        color: '#AD0014',
+                        fillOpacity: .8,
+                    }
+                },
+                polyline: {
+                    showLength: false,
+                    shapeOptions: {
+                        opacity: 1,
+                        color: '#5235DF'
+                    }
+                },
+                rectangle: {
+                    shapeOptions: {
+                        stroke: false,
+                        opacity: 1,
+                        color: '#FFD322',
+                        fillOpacity: .8,
+                    }
+                },
+                polygon: {
+                    shapeOptions: {
+                        stroke: true,
+                        opacity: .8,
+                        color: '#469531',
+                        fillOpacity: .8,
+                    }
+                }
+            }
+        });
 
-        var marker = L.marker();
+        map.on('draw:created', function (e) {
+            var type = e.layerType;
+            var layer = e.layer;
 
-        function onMapClick(e) {
-            lat.value = e.latlng.lat;
-            lng.value = e.latlng.lng;
+            // Allow always only one layer/feature on the drawnItems feature group.
+            drawnItems.clearLayers();
+            drawnItems.addLayer(layer);
+        });
 
-            marker
-                .setLatLng(e.latlng)
-                .addTo(map);
-        }
-
-        map.on('click', onMapClick);
-
-        var geojsonMarkerOptions = {
-            radius: 6,
-            fillColor: "#048cff",
-            color: "#f0ff42",
-            weight: 4,
-            opacity: 1,
-            fillOpacity: 1
-        };
+        map.addControl(drawControl);
+        // END add draw controls
 
         featuresLayer = L.geoJson(undefined, {
             onEachFeature: function(feature, layer) {
@@ -69,11 +99,11 @@ var renderMap = function(imageId) {
                             url: '/features/' + target.dataset.id,
                             type: 'DELETE',
                             success: function(results) {
-                                var circle = _.find(featuresLayer._layers,function(circle){
-                                    return circle.feature._id == target.dataset.id;
+                                var object = _.find(featuresLayer._layers,function(object){
+                                    return object.feature._id == target.dataset.id;
                                 });
 
-                                featuresLayer.removeLayer(circle);
+                                featuresLayer.removeLayer(object);
                             }
                         });
                     }, false);
@@ -91,11 +121,34 @@ var renderMap = function(imageId) {
                 }
             },
             pointToLayer: function (feature, latlng) {
-                return L.circleMarker(latlng, geojsonMarkerOptions);
+                // TODO: find out if it is possible to have proportional radius to zoom!
+                return L.circleMarker(latlng, {
+                    radius: feature.properties.radius || 6
+                });
+            },
+            style: function(feature) {
+                if(feature.geometry.type == "LineString") {
+                    return {
+                        fillColor: localizations[feature.properties.localization].color,
+                        color: localizations[feature.properties.localization].color,
+                        weight: 4,
+                        opacity: .8,
+                        fillOpacity: .8
+                    };
+                } else {
+                    return {
+                        fillColor: localizations[feature.properties.localization].color,
+                        color: localizations[feature.properties.localization].color,
+                        weight: 0,
+                        opacity: .8,
+                        fillOpacity: .8
+                    };
+                }
             }
         }).addTo(map);
 
 
+        // Get all the localizations that are already stored on the db.
         $.ajax({
             url: '/features/' + imageId,
             type: 'GET',
@@ -125,28 +178,14 @@ var writeMapId = function(imageId){
     document.getElementById('mapId').value = imageId;
 }
 
+$.fn.form.settings.rules.featureDefined = function() {
+    return drawnItems.getLayers()[0] !== undefined;
+};
+
 $('.ui.form')
     .form({
     fields: {
-        lng   : {
-            identifier: 'lng',
-            rules: [
-                {
-                    type   : 'empty',
-                    prompt : 'Please select a point on the map'
-                }
-            ]
-        },
-        lat   : {
-            identifier: 'lat',
-            rules: [
-                {
-                    type   : 'empty',
-                    prompt : 'Please select a point on the map'
-                }
-            ]
-        },
-        loc   : {
+        loc: {
             identifier: 'loc',
             rules: [
                 {
@@ -155,7 +194,7 @@ $('.ui.form')
                 }
             ]
         },
-        mapId   : {
+        mapId: {
             identifier: 'mapId',
             rules: [
                 {
@@ -163,24 +202,50 @@ $('.ui.form')
                     prompt : 'There was an error. Please reload the page.'
                 }
             ]
+        },
+        feature: {
+            identifier: 'placeholder',
+            rules: [
+                {
+                    type   : 'featureDefined',
+                    prompt : 'Please first draw a shape'
+                }
+            ]
         }
     },
     onSuccess: function(event, fields){
         event.preventDefault();
-        $.ajax({
-            url: '/features',
-            type: 'POST',
-            data: fields,
-            success: function(result) {
-                var circle = _.find(featuresLayer._layers,function(circle){
-                    return circle.feature._id == result._id;
-                });
-                if(circle){
-                    featuresLayer.removeLayer(circle);
-                }
+        var feature = drawnItems.getLayers()[0];
 
-                featuresLayer.addData(result);
+        if(feature !== undefined){
+            var geoJSON = feature.toGeoJSON();
+
+            geoJSON.properties = {
+                localization: fields.loc,
+                map: fields.mapId
+            };
+            
+            if(feature._radius){
+                geoJSON.properties.radius = feature._radius;
             }
-        });
+
+            $.ajax({
+                url: '/features',
+                type: 'POST',
+                data: JSON.stringify(geoJSON),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function(result) {
+                    var object = _.find(featuresLayer._layers,function(object){
+                        return object.feature._id == result._id;
+                    });
+
+                    if(object){
+                        featuresLayer.removeLayer(object);
+                    }
+                    featuresLayer.addData(result)
+                }
+            });
+        }
     }
 });

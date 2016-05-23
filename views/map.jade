@@ -23,8 +23,7 @@ block scripts
     script(type="text/javascript", src="/public/utilities.js")
     script(type="text/javascript", src="/public/map.js")
     script().
-        initializeLocalizations(!{JSON.stringify(localizations)}, function(){
-            renderMap('#{iid}', function(){
-                addProteins(!{JSON.stringify(requestProteins)});
-            });
+        var localizations = initializeLocalizations(!{JSON.stringify(localizations)});
+        renderMap('#{iid}', function(){
+            addProteins(!{JSON.stringify(requestProteins)});
         });

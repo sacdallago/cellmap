@@ -21,7 +21,7 @@ module.exports = function(context) {
                 required: true
             },
             coordinates: {
-                type: [Number],
+                type: Array,
                 required: true
             }
         },
@@ -33,6 +33,9 @@ module.exports = function(context) {
             map: {
                 type: String,
                 required: true
+            },
+            radius: {
+                type: Number
             },
             updatedAt : {
                 type: Date,

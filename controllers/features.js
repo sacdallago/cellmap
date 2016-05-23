@@ -14,40 +14,25 @@ module.exports = function(context) {
             });
         },
         updateFeature: function(request, response) {
-            if(request.is('application/x-www-form-urlencoded')) {
+            if(request.is('application/json')) {
                 const formidable = context.formidable;
                 const form = new formidable.IncomingForm();
                 // Need to implement the storage of file xyz and then render home
 
                 form.parse(request, function(error, fields, files) {
-                    const lat = fields.lat;
-                    const lng = fields.lng;
-                    const loc = fields.loc;
-                    const map = fields.mapId;
-
-                    const feature = {
-                        geometry : {
-                            type: "Point",
-                            coordinates: [lng, lat]
-                        },
-                        properties: {
-                            localization: loc,
-                            map: map
-                        }
-                    }
-
-                    featuresDao.update(feature).then(function(updatedItem){
+                    featuresDao.update(fields).then(function(updatedItem){
                         response.send(updatedItem);
                     }, function(error){
                         response.send(error);
                     });
-
                 });
             } else {
-                response.render('error', {
+                response
+                    .status(400)
+                    .render('error', {
                     title: 'Error',
                     message: "Unable to post request",
-                    error: "Allowed calls include:\n - application/x-www-form-urlencoded\n"
+                    error: "Allowed calls include:\n - application/json\n"
                 });
             }
         },

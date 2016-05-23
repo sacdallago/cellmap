@@ -1,7 +1,7 @@
 extends base
 
 block styles
-    link(rel='stylesheet', href='/public/leafletpm/leaflet.pm.css')
+    link(rel='stylesheet', href='/public/draw/leaflet.draw.css')
     link(rel='stylesheet', href='/public/easy-button/easy-button.css')
 block content
     .ui.attached.segment
@@ -10,9 +10,8 @@ block content
             .ui.error.message
             .field
                 span.label Localization
-                input(type="hidden", id="lng", name="lng")
-                input(type="hidden", id="lat", name="lat")
                 input(type="hidden", id="mapId", name="mapId")
+                input(type="hidden", id="placeholder", name="placeholder")
                 div(style="z-index:999999").ui.fluid.search.selection.dropdown
                     input(type="hidden", name="loc", id="loc")
                     i.dropdown.icon
@@ -26,12 +25,12 @@ block content
     #map
 block scripts
     script(type="text/javascript", src="https://leafletjs-cdn.s3.amazonaws.com/content/leaflet/master/leaflet.js")
-    script(type="text/javascript", src="/public/leafletpm/leaflet.pm.min.js")
+    script(type="text/javascript", src="/public/draw/leaflet.draw.js")
     script(type="text/javascript", src="/public/underscore.js")
     script(type="text/javascript", src="/public/easy-button/easy-button.js")
     script(type="text/javascript", src="/public/utilities.js")
     script(type="text/javascript", src="/public/editor.js")
     script().
+        var localizations = initializeLocalizations(!{JSON.stringify(localizations)});
         renderMap('#{iid}');
-        localizations = !{JSON.stringify(localizations)};
         writeMapId('#{iid}');

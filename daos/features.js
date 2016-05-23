@@ -13,7 +13,13 @@ module.exports = function(context) {
         update: function(item) {
             var deferred = context.promises.defer();
 
-            item.properties.updatedAt = Date.now();
+            try{
+                item.properties.updatedAt = Date.now();
+            } catch(e){
+                console.error(e);
+                deferred.reject(e);
+                return deferred.promise;
+            }
 
             featuresModel.update({ "properties.map": item.properties.map, "properties.localization": item.properties.localization}, item, {
                 upsert: true,
