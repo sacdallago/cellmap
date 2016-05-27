@@ -1,13 +1,16 @@
 extends base
 block styles
-    link(rel='stylesheet', href='/public/markercluster/MarkerCluster.Default.css')
-    link(rel='stylesheet', href='/public/markercluster/MarkerCluster.css')
     link(rel='stylesheet', href='/public/easy-button/easy-button.css')
+    
+block fistContent
+    section
+        .page_container
+            div(style="height: 100%;")
+                #map
 block content
     div(style="z-index:999999").ui.fluid.input.search
         input(type="text", name="prot", id="prot", placeholder="Search protein").prompt
         .results
-    #map
     table.ui.celled.table
         thead
             tr
@@ -15,15 +18,23 @@ block content
                 th Mapped
                 th Unmapped
         tbody(id="proteinList")
+    .ui.header Legend
+    table.ui.celled.table
+        thead
+            tr
+                th Color
+                th Localization
+        tbody(id="localizationList")
 block scripts
     script(type="text/javascript", src="https://leafletjs-cdn.s3.amazonaws.com/content/leaflet/master/leaflet.js")
     script(type="text/javascript", src="/public/underscore.js")
-    script(type="text/javascript", src="/public/markercluster/leaflet.markercluster.js")
     script(type="text/javascript", src="/public/easy-button/easy-button.js")
     script(type="text/javascript", src="/public/utilities.js")
+    script(type="text/javascript", src="/public/regression.js")
     script(type="text/javascript", src="/public/map.js")
     script().
         var localizations = initializeLocalizations(!{JSON.stringify(localizations)});
+        localizationsTable(localizations);
         renderMap('#{iid}', function(){
             addProteins(!{JSON.stringify(requestProteins)});
         });

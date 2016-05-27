@@ -3,26 +3,20 @@ extends base
 block styles
     link(rel='stylesheet', href='/public/draw/leaflet.draw.css')
     link(rel='stylesheet', href='/public/easy-button/easy-button.css')
+
+block fistContent
+    section
+        .page_container
+            div(style="height: 100%;")
+                #map
 block content
-    .ui.attached.segment
-        .ui.header Add Feature
-        form.ui.form
-            .ui.error.message
-            .field
-                span.label Localization
-                input(type="hidden", id="mapId", name="mapId")
-                input(type="hidden", id="placeholder", name="placeholder")
-                div(style="z-index:999999").ui.fluid.search.selection.dropdown
-                    input(type="hidden", name="loc", id="loc")
-                    i.dropdown.icon
-                    .default.text Select Localization
-                    .menu
-                        if localizations
-                            - each localization in localizations
-                                div(data-value="#{localization}").item #{localization}
-            .field
-                input(type="submit").ui.button.green
-    #map
+    .ui.header Legend
+    table.ui.celled.table
+        thead
+            tr
+                th Color
+                th Localization
+        tbody(id="localizationList")
 block scripts
     script(type="text/javascript", src="https://leafletjs-cdn.s3.amazonaws.com/content/leaflet/master/leaflet.js")
     script(type="text/javascript", src="/public/draw/leaflet.draw.js")
@@ -32,5 +26,6 @@ block scripts
     script(type="text/javascript", src="/public/editor.js")
     script().
         var localizations = initializeLocalizations(!{JSON.stringify(localizations)});
+        localizationsTable(localizations);
         renderMap('#{iid}');
         writeMapId('#{iid}');

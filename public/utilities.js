@@ -55,3 +55,21 @@ var initializeLocalizations = function(localizationsArray){
 
     return localizations;
 };
+
+var localizationsTable = function(localizations){
+    // HTML table telling which localizations are mapped to which color
+    var container = document.getElementById('localizationList');
+    for(localization in localizations){
+        var tr = document.createElement("tr");
+
+        var color = document.createElement("td");
+        color.style.background = localizations[localization].color;
+        tr.appendChild(color);
+
+        var locName = document.createElement("td");
+        locName.appendChild(document.createTextNode(localization));
+        tr.appendChild(locName);
+
+        container.appendChild(tr);
+    }
+};

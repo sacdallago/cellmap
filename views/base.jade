@@ -6,40 +6,84 @@ html
     link(rel='stylesheet', href='/public/style.css')
     link(rel='stylesheet', href='/public/progress/progress.css')
     block styles
+    link(rel='stylesheet', href='/public/onepage/onepage.css')
     meta(charset="utf-8")
     meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    
+    //- Classic meta
+    meta(name="title", content="No")
+    meta(name="description", content="Protein localization and protein-protein interaction visualizer.")
+    meta(name="keywords", content="no")
+    meta(name="author", content="Christian Dallago")
+    meta(name="copyright", content="Christian Dallago 2016")
+    meta(http-equiv="Reply-to", content="code@dallago.co")
+    meta(http-equiv="content-language", content="en")
+    meta(http-equiv="Content-Type", content="text/html; iso-8859-1")
+    meta(name="ROBOTS", content="INDEX,FOLLOW")
+    meta(name="creation_Date", content="06/27/2016")
+    meta(name="revisit-after", content="7 days")
+    
+    meta(name="fragment", content="!")
+    
+    //- Open Graph Meta Tags
+    meta(property="og:type", content="website")
+    meta(property="og:title", content="No")
+    meta(property="og:description", content="Protein localization and protein-protein interaction visualizer.")
+    meta(property="og:site_name", content="No")
+    meta(property="og:url", content="https://cell.map/")
+    meta(property="og:locale", content="en_US")
+    
+    //- Twitter Card Meta Tags
+    meta(name="twitter:card", content="summary")
+    meta(name="twitter:title", content="No")
+    meta(name="twitter:description", content="Protein localization and protein-protein interaction visualizer.")
   body
-    .ui.inverted.menu
-        #progressBarContainer
-        .ui.container
-            a(href="/").header.item
-                img(src="/public/cell.png").logo
-                |  CellMap
-            a(href="/images").item Images
-    .ui.main.container
-        block content
-    .ui.inverted.vertical.footer.segment
-        .ui.center.aligned.container
-            .ui.stackable.inverted.divided.grid
-                .five.wide.column
-                .six.wide.column
-                    h4.ui.inverted.header CellMap
-                    p Extra space for a call to action inside the footer that could help re-engage users.
-                .five.wide.column
-            .ui.inverted.section.divider
-            img(src="/public/cell.png").ui.centered.mini.image
-            .ui.horizontal.inverted.small.divided.link.list
-                a(href="#").item Site Map
-                a(href="#").item Contact Us
-                a(href="#").item Terms and Conditions
-                a(href="#").item Privacy Policy
+    #progressBarContainer
+    .wrapper
+        .main
+            block fistContent
+            section
+                .page_container
+                    div(style="height: 100%;")
+                        .ui.inverted.menu
+                                .ui.container
+                                    a(href="/").header.item
+                                        img(src="/public/cell.png").logo
+                                        |  CellMap
+                                    a(href="/images").item Images
+                            .ui.main.container
+                                block content
+                            .ui.inverted.vertical.footer.segment
+                                .ui.center.aligned.container
+                                    .ui.stackable.inverted.divided.grid
+                                        .five.wide.column
+                                        .six.wide.column
+                                            h4.ui.inverted.header CellMap
+                                            p Extra space for a call to action inside the footer that could help re-engage users.
+                                        .five.wide.column
+                                    .ui.inverted.section.divider
+                                    img(src="/public/cell.png").ui.centered.mini.image
+                                    .ui.horizontal.inverted.small.divided.link.list
+                                        a(href="#").item Site Map
+                                        a(href="#").item Contact Us
+                                        a(href="#").item Terms and Conditions
+                                        a(href="#").item Privacy Policy
 
     script(type="text/javascript", src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js")
     script(type="text/javascript", src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js")
     script(type="text/javascript", src="/public/urlRewrite.js")
     script(type="text/javascript", src="/public/semantic/semantic.js")
     script(type="text/javascript", src='/public/progress/progress.js')
+    script(type="text/javascript", src='/public/onepage/onepage.js')
     if scripts
         - each s in scripts
             script(type="text/javascript", src=s)
     block scripts
+    script.
+        onePageScroll(".main", {
+            sectionContainer : "section",
+            loop : true,
+            updateURL: false,
+            pagination: false,
+            responsiveFallback : false
+        });

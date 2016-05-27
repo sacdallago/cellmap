@@ -2,7 +2,33 @@ var featuresGeoJSON;
 var overlayProteins = {};
 var map;
 var controlLayers;
-var clusterGroup;
+
+var randomPointInPoly = function(polygon, vs) {
+    var bounds = polygon.getBounds(); 
+    var x_min  = bounds.getEast();
+    var x_max  = bounds.getWest();
+    var y_min  = bounds.getSouth();
+    var y_max  = bounds.getNorth();
+
+    var y = y_min + (Math.random() * (y_max - y_min));
+    var x = x_min + (Math.random() * (x_max - x_min));
+
+    var inside = false;
+    for (var i = 0, j = vs.length - 1; i < vs.length; j = i++) {
+        var xi = vs[i][0], yi = vs[i][1];
+        var xj = vs[j][0], yj = vs[j][1];
+
+        var intersect = ((yi > y) != (yj > y))
+        && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+        if (intersect) inside = !inside;
+    }
+
+    if (inside) {
+        return [y, x];
+    } else {
+        return randomPointInPoly(polygon, vs);
+    }
+};
 
 var renderMap = function(imageId, callback) {
     renderProgress();
@@ -37,20 +63,19 @@ var renderMap = function(imageId, callback) {
 
                 L.imageOverlay(this.src, imageBounds).addTo(map);
 
-                // Draw polygons --> Necessary?
-                //map.pm.addControls();
-
-                var lat = document.getElementById('lat');
-                var lng = document.getElementById('lng');
-
-                // Marker Cluster Group
-                clusterGroup = L.markerClusterGroup();
-                map.addLayer(clusterGroup);
-
                 // Add controls for the layers
                 controlLayers = L.control.layers();
                 controlLayers.addTo(map);
-                controlLayers.addOverlay(clusterGroup, "Clustered Proteins");
+
+                // Disable drag and zoom handlers.
+                // map.dragging.disable();
+                //map.touchZoom.disable();
+                //map.doubleClickZoom.disable();
+                map.scrollWheelZoom.disable();
+                //map.keyboard.disable();
+
+                // Disable tap handler, if present.
+                if (map.tap) map.tap.disable();
 
                 // Add fading button
                 loadFadingButton(map);
@@ -92,11 +117,60 @@ var addToMapAndTable = function(protein){
         } else {
             mapped.push(location);
 
-            // http://mathworld.wolfram.com/LogarithmicSpiral.html
-            var r = localizations[location].count++;
-            var theta = ((r%9)/4) * Math.PI;
-            var x = ((r*10)*Math.cos(theta)) + geoLoc.geometry.coordinates[0];
-            var y = ((r*10)*Math.sin(theta)) + geoLoc.geometry.coordinates[1];
+            var x = 0;
+            var y = 0;
+
+            switch(geoLoc.geometry.type){
+                case "Polygon":
+                    var coords = randomPointInPoly(L.polygon(geoLoc.geometry.coordinates), geoLoc.geometry.coordinates[0]);
+                    x = coords[1];
+                    y = coords[0];
+                    break;
+                case "Point":
+                    //t = L.circle(geoLoc.geometry.coordinates,{radius:geoLoc.properties.radius});
+
+                    // http://stackoverflow.com/questions/481144/equation-for-testing-if-a-point-is-inside-a-circle
+                    var center = geoLoc.geometry.coordinates;
+                    var radius = geoLoc.properties.radius;
+                    var x_max = center[0]+radius;
+                    var x_min = center[0]-radius;
+
+                    var y_max = center[1]+radius;
+                    var y_min = center[1]-radius;
+
+                    x = x_min + (Math.random() * (x_max - x_min));
+                    y = y_min + (Math.random() * (y_max - y_min));
+                    
+                    x = x_max;
+                    y = y_max;
+
+                    while(Math.pow(x - center[0],2) + Math.pow(y - center[1], 2) > Math.pow(radius, 2)){
+                        points.push(L.circle([y,x]));
+                        
+                        x = x_min + (Math.random() * (x_max - x_min));
+                        y = y_min + (Math.random() * (y_max - y_min));
+                    }
+                    break;
+                case "LineString":
+                    var position = Math.floor(Math.random() * geoLoc.geometry.coordinates.length);
+                    var a = geoLoc.geometry.coordinates[position];
+                    var b = geoLoc.geometry.coordinates[position+1];
+                    var reg = regression('linear',[a,b]);
+
+                    var x_max = a[0];
+                    var x_min = b[0];
+
+                    if(x_max < b[0]) {
+                        x_max = b[0];
+                        x_min = a[0];
+                    }
+
+                    x = x_min + (Math.random() * (x_max - x_min));
+
+                    y = reg.equation[0]*x + reg.equation[1];
+
+                    break;
+            }
 
             var marker = L.circleMarker([y,x],{
                 radius: 6,
@@ -135,10 +209,6 @@ var addToMapAndTable = function(protein){
 
     overlayProteins[protein.uniprotac].addTo(map);
     controlLayers.addOverlay(overlayProteins[protein.uniprotac], protein.uniprotac);
-
-    clusterGroup.addLayer(L.featureGroup(points)
-                          .bindPopup(protein.uniprotac)
-                         );
 }
 
 var addProteins = function(someProteins){

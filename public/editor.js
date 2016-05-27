@@ -1,7 +1,9 @@
 var featuresLayer;
 var drawnItems;
+var mapId;
 
 var renderMap = function(imageId) {
+    renderProgress();
     var img = new Image();
     img.src = '/images/'+imageId;
 
@@ -122,7 +124,7 @@ var renderMap = function(imageId) {
             },
             pointToLayer: function (feature, latlng) {
                 // TODO: find out if it is possible to have proportional radius to zoom!
-                return L.circleMarker(latlng, {
+                return L.circle(latlng, {
                     radius: feature.properties.radius || 6
                 });
             },
@@ -154,6 +156,7 @@ var renderMap = function(imageId) {
             type: 'GET',
             success: function(results) {
                 featuresLayer.addData(results);
+                hideProgress();
             }
         });
 
@@ -169,83 +172,126 @@ var renderMap = function(imageId) {
 
         // Add fading button
         loadFadingButton(map);
+
+        // Add feature search  + adder
+        var featureAdder = L.Control.extend({
+            options: {
+                position: 'topright'
+            },
+
+            onAdd: function (map) {
+                // create the control container with a particular class name
+                this._div = L.DomUtil.create('form', 'ui form');
+
+                //this._div.style.width = "50px";
+                //this._div.style.paddingTop = "50%";
+                //this._div.style.paddingLeft = "50%";
+                this._div.style.minWidth = "300px";
+
+                var errorMessage = L.DomUtil.create('div', 'ui error message');
+                this._div.appendChild(errorMessage);
+
+                var field = L.DomUtil.create('div', 'field');
+                var search = L.DomUtil.create('div', ' ui fluid search selection dropdown');
+                search.style.zIndex = "999999";
+                var input = L.DomUtil.create('input');
+                input.name = "loc";
+                input.id = "loc";
+                input.type = "hidden";
+                search.appendChild(input);
+                search.appendChild( L.DomUtil.create('i', "dropdown icon"));
+                var placeholder = L.DomUtil.create('div', "default text");
+                placeholder.innerText = "Select localization";
+                search.appendChild(placeholder);
+                var menu = L.DomUtil.create('div', "menu");
+                for(localization in localizations){
+                    var temp = L.DomUtil.create('div', "item");
+                    temp.innerText = localization;
+                    temp.setAttribute('data-value', localization);
+                    menu.appendChild(temp);
+                }
+                search.appendChild(menu);
+                field.appendChild(search);
+                this._div.appendChild(field);
+
+                var submitField = L.DomUtil.create('div', 'field');
+                var submit = L.DomUtil.create('input', "ui button green");
+                submit.type = "submit";
+                submitField.appendChild(submit);
+                this._div.appendChild(submitField);
+
+                return this._div;
+            }
+        });
+
+        map.addControl(new featureAdder());
+
+        // Activate dropdowns
+        $('.dropdown').dropdown();
+
+        // Form Validation
+        $('.ui.form')
+            .form({
+            fields: {
+                loc: {
+                    identifier: 'loc',
+                    rules: [
+                        {
+                            type   : 'empty',
+                            prompt : 'Please select a localization'
+                        },
+                        {
+                            type   : 'featureDefined',
+                            prompt : 'Please first draw a shape'
+                        }
+                    ]
+                }
+            },
+            onSuccess: function(event, fields){
+                event.preventDefault();
+                var feature = drawnItems.getLayers()[0];
+
+                if(feature !== undefined){
+                    var geoJSON = feature.toGeoJSON();
+
+                    geoJSON.properties = {
+                        localization: fields.loc,
+                        map: mapId
+                    };
+
+                    try{
+                        geoJSON.properties.radius = feature.getRadius();
+                    } catch(e){
+                    }
+
+                    $.ajax({
+                        url: '/features',
+                        type: 'POST',
+                        data: JSON.stringify(geoJSON),
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        success: function(result) {
+                            var object = _.find(featuresLayer._layers,function(object){
+                                return object.feature._id == result._id;
+                            });
+
+                            if(object){
+                                featuresLayer.removeLayer(object);
+                            }
+                            drawnItems.clearLayers();
+                            featuresLayer.addData(result);
+                        }
+                    });
+                }
+            }
+        });
     }
 };
 
-$('.dropdown').dropdown();
-
 var writeMapId = function(imageId){
-    document.getElementById('mapId').value = imageId;
+    mapId = imageId;
 }
 
 $.fn.form.settings.rules.featureDefined = function() {
     return drawnItems.getLayers()[0] !== undefined;
 };
-
-$('.ui.form')
-    .form({
-    fields: {
-        loc: {
-            identifier: 'loc',
-            rules: [
-                {
-                    type   : 'empty',
-                    prompt : 'Please select a localization'
-                }
-            ]
-        },
-        mapId: {
-            identifier: 'mapId',
-            rules: [
-                {
-                    type   : 'empty',
-                    prompt : 'There was an error. Please reload the page.'
-                }
-            ]
-        },
-        feature: {
-            identifier: 'placeholder',
-            rules: [
-                {
-                    type   : 'featureDefined',
-                    prompt : 'Please first draw a shape'
-                }
-            ]
-        }
-    },
-    onSuccess: function(event, fields){
-        event.preventDefault();
-        var feature = drawnItems.getLayers()[0];
-
-        if(feature !== undefined){
-            var geoJSON = feature.toGeoJSON();
-
-            geoJSON.properties = {
-                localization: fields.loc,
-                map: fields.mapId
-            };
-            
-            if(feature._radius){
-                geoJSON.properties.radius = feature._radius;
-            }
-
-            $.ajax({
-                url: '/features',
-                type: 'POST',
-                data: JSON.stringify(geoJSON),
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                success: function(result) {
-                    var object = _.find(featuresLayer._layers,function(object){
-                        return object.feature._id == result._id;
-                    });
-
-                    if(object){
-                        featuresLayer.removeLayer(object);
-                    }
-                    featuresLayer.addData(result)
-                }
-            });
-        }
-    }
-});
