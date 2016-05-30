@@ -2,6 +2,7 @@ var featuresGeoJSON;
 var overlayProteins = {};
 var map;
 var controlLayers;
+var underlayingFeatureLayer;
 
 var randomPointInPoly = function(polygon, vs) {
     var bounds = polygon.getBounds(); 
@@ -10,8 +11,8 @@ var randomPointInPoly = function(polygon, vs) {
     var y_min  = bounds.getSouth();
     var y_max  = bounds.getNorth();
 
-    var y = y_min + (Math.random() * (y_max - y_min));
-    var x = x_min + (Math.random() * (x_max - x_min));
+    var x = y_min + (Math.random() * (y_max - y_min));
+    var y = x_min + (Math.random() * (x_max - x_min));
 
     var inside = false;
     for (var i = 0, j = vs.length - 1; i < vs.length; j = i++) {
@@ -80,6 +81,66 @@ var renderMap = function(imageId, callback) {
                 // Add fading button
                 loadFadingButton(map);
 
+                // Add features highlight
+
+                var featuresLayer = L.geoJson(featuresGeoJSON, {
+                    pointToLayer: function (feature, latlng) {
+                        return L.circle(latlng, {
+                            radius: feature.properties.radius || 6
+                        });
+                    },
+                    style: function(feature) {
+                        if(feature.geometry.type == "LineString") {
+                            return {
+                                fillColor: localizations[feature.properties.localization].color,
+                                color: localizations[feature.properties.localization].color,
+                                weight: 4,
+                                opacity: .8,
+                                fillOpacity: .8
+                            };
+                        } else {
+                            return {
+                                fillColor: localizations[feature.properties.localization].color,
+                                color: localizations[feature.properties.localization].color,
+                                weight: 0,
+                                opacity: .8,
+                                fillOpacity: .8
+                            };
+                        }
+                    }
+                });
+
+                controlLayers.addOverlay(featuresLayer, "Localizations");
+
+                underlayingFeatureLayer = L.geoJson(featuresGeoJSON, {
+                    pointToLayer: function (feature, latlng) {
+                        return L.circle(latlng, {
+                            radius: feature.properties.radius || 6
+                        });
+                    },
+                    style: function(feature) {
+                        if(feature.geometry.type == "LineString") {
+                            return {
+                                fillColor: "#a7adba",
+                                color: "#a7adba",
+                                weight: 4,
+                                opacity: 0,
+                                fillOpacity: 0
+                            };
+                        } else {
+                            return {
+                                fillColor: "#a7adba",
+                                color: "#a7adba",
+                                weight: 0,
+                                opacity: 0,
+                                fillOpacity: 0
+                            };
+                        }
+                    }
+                });
+
+                underlayingFeatureLayer.addTo(map);
+
                 hideProgress();
                 callback();
             }
@@ -115,74 +176,112 @@ var addToMapAndTable = function(protein){
         if(geoLoc === undefined){
             unmapped.push(location);
         } else {
-            mapped.push(location);
+            try {
+                mapped.push(location);
 
-            var x = 0;
-            var y = 0;
+                var x = 0;
+                var y = 0;
 
-            switch(geoLoc.geometry.type){
-                case "Polygon":
-                    var coords = randomPointInPoly(L.polygon(geoLoc.geometry.coordinates), geoLoc.geometry.coordinates[0]);
-                    x = coords[1];
-                    y = coords[0];
-                    break;
-                case "Point":
-                    //t = L.circle(geoLoc.geometry.coordinates,{radius:geoLoc.properties.radius});
+                console.log(geoLoc.geometry.type);
 
-                    // http://stackoverflow.com/questions/481144/equation-for-testing-if-a-point-is-inside-a-circle
-                    var center = geoLoc.geometry.coordinates;
-                    var radius = geoLoc.properties.radius;
-                    var x_max = center[0]+radius;
-                    var x_min = center[0]-radius;
+                switch(geoLoc.geometry.type){
+                    case "Polygon":
+                        var coords = randomPointInPoly(L.polygon(geoLoc.geometry.coordinates), geoLoc.geometry.coordinates[0]);
+                        x = coords[1];
+                        y = coords[0];
+                        break;
+                    case "Point":
+                        // http://stackoverflow.com/questions/481144/equation-for-testing-if-a-point-is-inside-a-circle
+                        var center = geoLoc.geometry.coordinates;
+                        var radius = geoLoc.properties.radius;
+                        var x_max = center[0]+radius;
+                        var x_min = center[0]-radius;
 
-                    var y_max = center[1]+radius;
-                    var y_min = center[1]-radius;
+                        var y_max = center[1]+radius;
+                        var y_min = center[1]-radius;
 
-                    x = x_min + (Math.random() * (x_max - x_min));
-                    y = y_min + (Math.random() * (y_max - y_min));
-                    
-                    x = x_max;
-                    y = y_max;
-
-                    while(Math.pow(x - center[0],2) + Math.pow(y - center[1], 2) > Math.pow(radius, 2)){
-                        points.push(L.circle([y,x]));
-                        
                         x = x_min + (Math.random() * (x_max - x_min));
                         y = y_min + (Math.random() * (y_max - y_min));
+
+                        x = x_max;
+                        y = y_max;
+
+                        while(Math.pow(x - center[0],2) + Math.pow(y - center[1], 2) > Math.pow(radius, 2)){
+                            x = x_min + (Math.random() * (x_max - x_min));
+                            y = y_min + (Math.random() * (y_max - y_min));
+                        }
+                        break;
+                    case "LineString":
+                        var position = Math.floor(Math.random() * geoLoc.geometry.coordinates.length);
+                        var a = geoLoc.geometry.coordinates[position];
+                        var b = geoLoc.geometry.coordinates[position+1];
+                        var reg = regression('linear',[a,b]);
+
+                        var x_max = a[0];
+                        var x_min = b[0];
+
+                        if(x_max < b[0]) {
+                            x_max = b[0];
+                            x_min = a[0];
+                        }
+
+                        x = x_min + (Math.random() * (x_max - x_min));
+
+                        y = reg.equation[0]*x + reg.equation[1];
+
+                        break;
+                }
+
+
+                var marker = L.circleMarker([y,x],{
+                    radius: 6,
+                    fillColor: localizations[location].color,
+                    color: localizations[location].color,
+                    opacity: 1,
+                    fillOpacity: 1,
+                });
+
+                // Bind popup to marker and add overlay of feature when clicked.
+                var popup = L.popup().setContent('<p>' + protein.uniprotac + "<br>" + location + '</p>');
+                popup.location = location;
+                marker.bindPopup(popup);
+
+                marker.on('popupopen', function(e) {
+                    var loc = e.popup.location;
+
+                    var object = _.find(underlayingFeatureLayer._layers,function(object){
+                        return object.feature.properties.localization == loc;
+                    });
+
+                    if(object){
+                        object.setStyle({
+                            opacity: .8,
+                            fillOpacity: .8,
+                        });
                     }
-                    break;
-                case "LineString":
-                    var position = Math.floor(Math.random() * geoLoc.geometry.coordinates.length);
-                    var a = geoLoc.geometry.coordinates[position];
-                    var b = geoLoc.geometry.coordinates[position+1];
-                    var reg = regression('linear',[a,b]);
+                });
 
-                    var x_max = a[0];
-                    var x_min = b[0];
+                marker.on('popupclose', function(e) {
+                    var loc = e.popup.location;
 
-                    if(x_max < b[0]) {
-                        x_max = b[0];
-                        x_min = a[0];
+                    var object = _.find(underlayingFeatureLayer._layers,function(object){
+                        return object.feature.properties.localization == loc;
+                    });
+
+                    if(object){
+                        object.setStyle({
+                            opacity: 0,
+                            fillOpacity: 0,
+                        });
                     }
+                });
 
-                    x = x_min + (Math.random() * (x_max - x_min));
+                points.push(marker);
+            } catch (e) {
+                console.log(e);
 
-                    y = reg.equation[0]*x + reg.equation[1];
-
-                    break;
+                alert("There has been a problem loading the data. Please reload the page. If the problem persists, please contact the maintainer of the webservice.");
             }
-
-            var marker = L.circleMarker([y,x],{
-                radius: 6,
-                fillColor: localizations[location].color,
-                color: localizations[location].color,
-                opacity: 1,
-                fillOpacity: 1
-            });
-
-            marker.bindPopup(protein.uniprotac + " " + location);
-
-            points.push(marker);
         }
     });
 

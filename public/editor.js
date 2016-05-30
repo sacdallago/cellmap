@@ -123,7 +123,6 @@ var renderMap = function(imageId) {
                 }
             },
             pointToLayer: function (feature, latlng) {
-                // TODO: find out if it is possible to have proportional radius to zoom!
                 return L.circle(latlng, {
                     radius: feature.properties.radius || 6
                 });
