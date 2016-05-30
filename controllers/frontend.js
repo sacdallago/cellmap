@@ -31,7 +31,7 @@ module.exports = function(context) {
         },
         map: function(request, response) {
             const imageId = request.params.iid;
-            const proteins = request.query.proteins;
+            const proteins = request.query.p;
 
             localizationsDao.findProteins(proteins).then(function(requestProteins){
                 response.render('map', {

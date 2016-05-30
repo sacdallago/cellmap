@@ -49,7 +49,7 @@ var initializeLocalizations = function(localizationsArray){
     for(var i = 0; i < total; i++){
         localizations[localizationsArray[i]] = {
             count: 0,
-            color: sequentialColor(total, i+5)
+            color: sequentialColor(total, i)
         };
     }
 

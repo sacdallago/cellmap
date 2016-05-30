@@ -182,8 +182,6 @@ var addToMapAndTable = function(protein){
                 var x = 0;
                 var y = 0;
 
-                console.log(geoLoc.geometry.type);
-
                 switch(geoLoc.geometry.type){
                     case "Polygon":
                         var coords = randomPointInPoly(L.polygon(geoLoc.geometry.coordinates), geoLoc.geometry.coordinates[0]);
@@ -242,38 +240,42 @@ var addToMapAndTable = function(protein){
                 });
 
                 // Bind popup to marker and add overlay of feature when clicked.
-                var popup = L.popup().setContent('<p>' + protein.uniprotac + "<br>" + location + '</p>');
-                popup.location = location;
+                var popup = L.popup().setContent('<p><strong>' + protein.uniprotac + "</strong><br><strong>Localizations:</strong> " + protein.consensus_sl + '</p>');
+                popup.locations = protein.consensus_sl;
                 marker.bindPopup(popup);
 
                 marker.on('popupopen', function(e) {
-                    var loc = e.popup.location;
+                    var locs = e.popup.locations;
 
-                    var object = _.find(underlayingFeatureLayer._layers,function(object){
-                        return object.feature.properties.localization == loc;
-                    });
-
-                    if(object){
-                        object.setStyle({
-                            opacity: .8,
-                            fillOpacity: .8,
+                    locs.forEach(function(loc){
+                        var object = _.find(underlayingFeatureLayer._layers,function(object){
+                            return object.feature.properties.localization == loc;
                         });
-                    }
+
+                        if(object){
+                            object.setStyle({
+                                opacity: .8,
+                                fillOpacity: .8,
+                            });
+                        }
+                    });
                 });
 
                 marker.on('popupclose', function(e) {
-                    var loc = e.popup.location;
+                    var locs = e.popup.locations;
 
-                    var object = _.find(underlayingFeatureLayer._layers,function(object){
-                        return object.feature.properties.localization == loc;
-                    });
-
-                    if(object){
-                        object.setStyle({
-                            opacity: 0,
-                            fillOpacity: 0,
+                    locs.forEach(function(loc){
+                        var object = _.find(underlayingFeatureLayer._layers,function(object){
+                            return object.feature.properties.localization == loc;
                         });
-                    }
+
+                        if(object){
+                            object.setStyle({
+                                opacity: 0,
+                                fillOpacity: 0,
+                            });
+                        }
+                    });
                 });
 
                 points.push(marker);
@@ -332,10 +334,18 @@ $('.ui.search').search({
 
         //Add protein to search query in URL
         var currentUri = URI(window.location.href);
-        currentUri.addSearch({'proteins':result.uniprotac});
+        currentUri.addSearch({'p':result.uniprotac});
 
-        window.history.pushState({'proteins':result.uniprotac}, "CellMap", currentUri.resource());
+        window.history.pushState({'p':result.uniprotac}, "CellMap", currentUri.resource());
 
         return true;
     }
 });
+
+$('.ui.accordion')
+    .accordion({
+    selector: {
+        trigger: '.title'
+    }
+})
+;

@@ -33,6 +33,8 @@
     "scripts": {
         "rikenImporter": "node scripts/rikenImporter.js",
         "kuesterImporter": "node scripts/kuesterImporter.js",
+        "hippieImporter": "node scripts/hippieImporter.js",
+        "uniprotImporter": "node scripts/uniprotImporter.js",
         "start": "node app.js"
     }
 }

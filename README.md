@@ -14,10 +14,12 @@ Protein Localization and Protein-Protein Interaction (PPI) visualization tool.
  - The script that fills the database will only fill the collections for which a corresponsing file exists.
  - The insertion happens through a mongo upsert, thus existing entries will be updated if existent, while new ones will be inserted anew.
  - The list of file names accepted is:
+    - `proteinMapping.json` [[UniProt]](ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/idmapping/by_organism/) --> Collection: `mappings`
     - `ExpressionLigRec.json` [Riken]  --> Collection: `expressions`
     - `PairsLigRec.json` [Riken]  --> Collection: `pairs`
-    - `SubcelLoc.Ages.Proteins.json` [Riken]  --> Collection: `localization`
+    - `SubcelLoc.Ages.Proteins.json` [Riken]  --> Collection: `localization`, Depends on: `mappings`
     - `AllTissues.json` [Küster]  --> Collection: `tissues`
+    - `hippie.json` [mschaefer]  --> Collection: `interactions`, Depends on: `mappings`
 
 
 

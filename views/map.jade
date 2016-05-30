@@ -11,20 +11,29 @@ block content
     div(style="z-index:999999").ui.fluid.input.search
         input(type="text", name="prot", id="prot", placeholder="Search protein").prompt
         .results
-    table.ui.celled.table
-        thead
-            tr
-                th Protein
-                th Mapped
-                th Unmapped
-        tbody(id="proteinList")
-    .ui.header Legend
-    table.ui.celled.table
-        thead
-            tr
-                th Color
-                th Localization
-        tbody(id="localizationList")
+    .ui.accordion
+        .title
+            i.dropdown.icon
+            | Proteins
+        .content.active
+            table.ui.celled.table
+                thead
+                    tr
+                        th Protein
+                        th Mapped
+                        th Unmapped
+                tbody(id="proteinList")
+    .ui.accordion
+        .title
+            i.dropdown.icon
+            | Legend
+        .content
+            table.ui.celled.table
+                thead
+                    tr
+                        th Color
+                        th Localization
+                tbody(id="localizationList")
 block scripts
     script(type="text/javascript", src="https://leafletjs-cdn.s3.amazonaws.com/content/leaflet/master/leaflet.js")
     script(type="text/javascript", src="/public/underscore.js")
