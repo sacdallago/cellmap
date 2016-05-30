@@ -1,5 +1,5 @@
 // Parallelize
-const numCPUs = require('os').cpus().length;
+const numCPUs = (require('os').cpus().length) * 2;
 const cluster = require('cluster');
 const mappingSource = require(__dirname + "/../" + 'data/' + 'proteinMapping.json');
 

@@ -23,10 +23,10 @@ module.exports = function(context) {
 
             return deferred.promise;
         },
-        
+
         update: function(item) {
             var deferred = context.promises.defer();
-            
+
             item.updatedAt = Date.now();
 
             mappingsModel.update({ uniprotId: item.uniprotId }, item, {
@@ -42,5 +42,43 @@ module.exports = function(context) {
 
             return deferred.promise;
         },
+
+        findProteinNames: function(identifier) {
+            var deferred = context.promises.defer();
+
+            mappingsModel.findOne({
+                $or: [
+                    {uniprotId:  identifier},
+                    {geneId: identifier},
+                    {entryName: identifier}
+                ]
+            })
+                .exec(function(error, result) {
+                if (error) {
+                    console.error(error);
+                    deferred.reject(error);
+                } else {
+                    deferred.resolve(result);
+                }
+            });
+
+            return deferred.promise;
+        },
+        
+        findByUniprotId: function(identifier) {
+            var deferred = context.promises.defer();
+
+            mappingsModel.findOne({uniprotId:  identifier})
+                .exec(function(error, result) {
+                if (error) {
+                    console.error(error);
+                    deferred.reject(error);
+                } else {
+                    deferred.resolve(result);
+                }
+            });
+
+            return deferred.promise;
+        }
     };
 };

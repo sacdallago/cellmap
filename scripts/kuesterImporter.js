@@ -13,7 +13,8 @@ const context = require(__dirname + "/../" + "index").connect(function(context){
 
             // Lowering key cases (eg. TISSUE_NAME to tissue_name)
 
-            var key, keys = Object.keys(element);
+            var key;
+            var keys = Object.keys(element);
             var n = keys.length;
             var newobj={}
             while (n--) {

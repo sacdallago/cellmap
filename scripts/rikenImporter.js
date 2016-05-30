@@ -1,96 +1,68 @@
-const context = require(__dirname + "/../" + "index").connect(function(context){
-    var promises = [];
+// Parallelize
+const numCPUs = (require('os').cpus().length) * 2;
+const cluster = require('cluster');
+const subcellLocAgesProteinsSource = require(__dirname + "/../" + 'data/' + 'SubcelLoc.Ages.Proteins.json');
 
+if (cluster.isMaster) {
+    var step = Math.ceil(subcellLocAgesProteinsSource.length/numCPUs);
 
-    // Riken Ligand/Receptor Expression data
-    const expressionLigRecDao = context.component('daos').module('expressions');
-    const pairsLigRecDao = context.component('daos').module('pairs');
-    const subcellLocAgesProteinsDao = context.component('daos').module('localizations');
-
-    const expressionLigRecSource = require(__dirname + "/../" + 'data/' + 'ExpressionLigRec.json');
-    const pairsLigRecSource = require(__dirname + "/../" + 'data/' + 'PairsLigRec.json');
-    const subcellLocAgesProteinsSource = require(__dirname + "/../" + 'data/' + 'SubcelLoc.Ages.Proteins.json');
-
-    if(subcellLocAgesProteinsSource){
-        subcellLocAgesProteinsSource.forEach(function(element){
-            var deferred = context.promises.defer();
-            promises.push(deferred.promise);
-            
-            var localizations = element.consensus_sl.split(". ");
-            element.consensus_sl = localizations;
-            
-            subcellLocAgesProteinsDao.update(element).then(function(result){
-                console.log("[subcellLocAgesProteinsSource] Inserted " + element.approvedsymbol);
-                deferred.resolve();
-            }, function(error){
-                console.error("[subcellLocAgesProteinsSource] Error with " + element.approvedsymbol);
-                deferred.resolve();
-            });
+    // Fork workers.
+    for (var i = 0; i < numCPUs; i++) {
+        var from = i*step;
+        var to = ((i*step)+step > subcellLocAgesProteinsSource.length ? subcellLocAgesProteinsSource.length : (i*step)+step);
+        var worker = cluster.fork({
+            from: from,
+            to: to
         });
+        console.log("Spwaning worker " + worker.id);
     }
 
-    if(expressionLigRecSource){
-        expressionLigRecSource.forEach(function(element){
-            var deferred = context.promises.defer();
-            promises.push(deferred.promise);
-            expressionLigRecDao.update(element).then(function(result){
-                console.log("[expressionLigRec] Inserted " + element.approvedsymbol);
-                deferred.resolve();
-            }, function(error){
-                console.error("[expressionLigRec] Error with " + element.approvedsymbol);
-                deferred.resolve();
-            });
-        });
-    }
-
-    if(pairsLigRecSource){
-        pairsLigRecSource.forEach(function(element){
-            var deferred = context.promises.defer();
-            promises.push(deferred.promise);
-            pairsLigRecDao.update(element).then(function(result){
-                console.log("[pairsLigRec] Inserted " + element.pair_name);
-                deferred.resolve();
-            }, function(error){
-                console.error("[pairsLigRec] Error with " + element.pair_name);
-                deferred.resolve();
-            });
-        });
-    }
-
-    // Kuester tissue data
-    const tissuesDao = context.component('daos').module('tissues');
-
-    const tissuesSource = require(__dirname + "/../" + 'data/' + 'AllTissues.json');
-
-    if(tissuesSource){
-        tissuesSource.forEach(function(element){
-            var deferred = context.promises.defer();
-            promises.push(deferred.promise);
-
-            // Lowering key cases (eg. TISSUE_NAME to tissue_name)
-
-            var key;
-            var keys = Object.keys(element);
-            var n = keys.length;
-            var newobj={}
-            while (n--) {
-                key = keys[n];
-                newobj[key.toLowerCase()] = element[key];
-            }
-
-            tissuesDao.update(newobj).then(function(result){
-                console.log("[tissues] Inserted " + newobj.tissue_id);
-                deferred.resolve();
-            }, function(error){
-                console.error("[tissues] Error with " + newobj.tissue_id);
-                deferred.resolve();
-            });
-        });
-    }
-
-    context.promises.all(promises).then(function(results) {
-        console.log("Finished.");
-        process.exit();
+    cluster.on('exit', (worker, code, signal) => {
+        console.log(`worker ${worker.process.pid} ended`);
     });
+} else {
+    const context = require(__dirname + "/../" + "index").connect(function(context){
+        var promises = [];
 
-});
+        // Riken Ligand/Receptor Expression data
+        const subcellLocAgesProteinsDao = context.component('daos').module('localizations');
+        //const mappingDao = context.component('daos').module('mappings');
+
+        if(subcellLocAgesProteinsSource){
+            subcellLocAgesProteinsSource.slice(process.env.from, process.env.to).forEach(function(element){
+                var deferred = context.promises.defer();
+                promises.push(deferred.promise);
+
+                var localizations = element.consensus_sl.split(". ");
+                element.consensus_sl = localizations;
+
+//                mappingDao.findByUniprotId(element.uniprotac).then(function(synonymous){
+//                    if(synonymous){
+//                        element.geneId = synonymous.geneId;
+//                        element.entryName = synonymous.entryName;
+                        
+                        subcellLocAgesProteinsDao.update(element).then(function(result){
+                            console.log("[localizations] Inserted " + element.approvedsymbol);
+                            deferred.resolve();
+                        }, function(error){
+                            console.error("[localizations] Error with " + element.approvedsymbol);
+                            deferred.resolve();
+                        });
+//                    } else {
+//                        console.error("[localizations] Error with " + element.approvedsymbol);
+//                        deferred.resolve();
+//                    }
+//                }, function(error){
+//                    console.error("[localizations] Error with " + element.approvedsymbol);
+//                    deferred.resolve();
+//                });
+            });
+        }
+
+        context.promises.all(promises).then(function(results) {
+            console.log("Finished.");
+            process.exit();
+        });
+
+    });
+}

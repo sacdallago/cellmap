@@ -24,6 +24,13 @@ module.exports = function(context) {
             type: [String],
             required: true
         },
+        geneId: {
+            type: String
+        },
+        entryName:{
+            type: String,
+            required: true
+        },
         "6class_consensus_sl": {
             type: String,
             required: true
