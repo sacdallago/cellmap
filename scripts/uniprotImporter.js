@@ -1,5 +1,5 @@
 // Parallelize
-const numCPUs = (require('os').cpus().length) * 2;
+const numCPUs = require('os').cpus().length;
 const cluster = require('cluster');
 const mappingSource = require(__dirname + "/../" + 'data/' + 'proteinMapping.json');
 
@@ -25,6 +25,7 @@ if (cluster.isMaster) {
         var promises = [];
 
         const mappingDao = context.component('daos').module('mappings');
+        const now = Date.now();
 
         if(mappingSource){
             mappingSource.slice(process.env.from, process.env.to).forEach(function(element){
@@ -37,23 +38,27 @@ if (cluster.isMaster) {
 
                 var newobj = {
                     uniprotId: element.val0,
-                    geneId: element.val1,
-                    entryName: element.val2
+                    entryName: element.val1,
+                    geneId: element.val2,
+                    createdAt: now,
+                    updatedAt: now
                 };
 
-                mappingDao.update(newobj).then(function(result){
-                    console.log("[Mappings] Inserted " + newobj.uniprotId);
-                    deferred.resolve();
-                }, function(error){
-                    console.error("[Mappings] Error with " + newobj.uniprotId);
-                    deferred.resolve();
-                });
+                deferred.resolve(newobj);
+                console.log('Prepared ' + newobj.uniprotId);
             });
         }
 
         context.promises.all(promises).then(function(results) {
-            console.log("Finished.");
-            process.exit();
+            mappingDao.bulkInsert(promises).then(function(result){
+                console.log("[Mappings] Inserted ", process.env.from, process.env.to);
+                console.log("Finished.");
+                process.exit();
+            }, function(error){
+                console.error("[Mappings] Error: " + error, "With: ", process.env.from, process.env.to);
+                console.log("Finished.");
+                process.exit();
+            });
         });
 
     });

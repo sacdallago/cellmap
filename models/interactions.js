@@ -10,14 +10,12 @@ module.exports = function(context) {
     const mongoose = context.mongoose;
 
     return mongoose.model('interactions', mongoose.Schema({
-        approvedsymbol : {
-            type: String,
-            required: true,
-            unique: true,
-            ref: "localization"
+        edges: {
+            type: [String],
+            required: true
         },
-        type: {
-            type: String,
+        score: {
+            type: Number,
             required: true
         },
         createdAt : {

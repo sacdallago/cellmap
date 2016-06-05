@@ -81,13 +81,29 @@ module.exports = function(context) {
                     {uniprotac: {'$regex': identifier}}
                 ]
             })
-                .limit(5)
+                .limit(10)
                 .exec(function(error, results) {
                 if (error) {
                     console.error(error);
                     deferred.reject(error);
                 } else {
                     deferred.resolve(results);
+                }
+            });
+
+            return deferred.promise;
+        },
+        
+        findByUniprotId: function(identifier) {
+            var deferred = context.promises.defer();
+
+            localizationModel.findOne({uniprotac:  identifier})
+                .exec(function(error, result) {
+                if (error) {
+                    console.error(error);
+                    deferred.reject(error);
+                } else {
+                    deferred.resolve(result);
                 }
             });
 

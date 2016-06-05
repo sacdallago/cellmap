@@ -33,7 +33,7 @@ var randomPointInPoly = function(polygon, vs) {
 
 var renderMap = function(imageId, callback) {
     renderProgress();
-    // Wait till I have the localizations of the features
+    // Wait till I have the localizations
     $.ajax({
         url: '/features/' + imageId,
         type: 'GET',
@@ -147,21 +147,6 @@ var renderMap = function(imageId, callback) {
         }
     });
 };
-
-$.fn.api.settings.api = {
-    'get proteins': '/proteins?identifier={query}',
-};
-
-$.fn.search.settings.templates.protein = function(response) {
-    var html = '';
-    $.each(response.results, function(index, result) {
-        html += '' + '<div class="result">' +
-            '<span class="name">' + result.uniprotac + '</span>, ' +
-            '<small> Approved symbol ' + result.approvedsymbol + '</small>' +
-            '</div>';
-    });
-    return html;
-}
 
 var addToMapAndTable = function(protein){
     var mapped = [];
@@ -280,9 +265,10 @@ var addToMapAndTable = function(protein){
 
                 points.push(marker);
             } catch (e) {
+                // Need to make something smarter here: case point calculation exceeedes heap. Very likely with Polygons!
                 console.log(e);
-
-                alert("There has been a problem loading the data. Please reload the page. If the problem persists, please contact the maintainer of the webservice.");
+                console.log("Will reload");
+                window.location.reload();
             }
         }
     });
@@ -318,10 +304,50 @@ var addProteins = function(someProteins){
     });
 }
 
+$.fn.api.settings.api = {
+    'get from localizations': '/proteins/localizations?identifier={query}',
+    'get from mappings': '/proteins/mappings?identifier={query}',
+};
+
+$.fn.search.settings.templates.protein = function(response) {
+    var html = '';
+    $.each(response.results, function(index, result) {
+        html += '' + '<div class="result">';
+        html += '<span class="name">' + result.entryName + '</span>, ';
+        html += '<small> [UniProt ID] ' + result.uniprotId + '</small>';
+        html += ( (result.geneId && result.geneId.length > 0) ? ('<small> [Gene ID] ' + result.geneId + '</small>') : "" );
+        html += '</div>';
+    });
+    return html;
+}
+
+$.fn.search.settings.templates.mapping = function(response) {
+    var html = '';
+    $.each(response.results, function(index, result) {
+        html += '' + '<div class="result">';
+        html += '<span class="name">' + result.entryName + '</span>, ';
+        html += '<small> [UniProt ID] ' + result.uniprotId + '</small>';
+        html += ( (result.geneId && result.geneId.length > 0) ? ('<small> [Gene ID] ' + result.geneId + '</small>') : "" );
+        html += '</div>';
+    });
+    return html;
+}
+
+$.fn.search.settings.templates.localization = function(response) {
+    var html = '';
+    $.each(response.results, function(index, result) {
+        html += '' + '<div class="result">' +
+            '<span class="name">' + result.uniprotac + '</span>, ' +
+            '<small> Approved symbol ' + result.approvedsymbol + '</small>' +
+            '</div>';
+    });
+    return html;
+}
+
 $('.ui.search').search({
-    type: 'protein',
+    type: 'localization',
     apiSettings: {
-        action: 'get proteins',
+        action: 'get from localizations',
         onResponse: function(response) {
             return {
                 results: response

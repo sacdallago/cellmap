@@ -21,43 +21,49 @@ if (cluster.isMaster) {
         console.log(`worker ${worker.process.pid} ended`);
     });
 } else {
-        const context = require(__dirname + "/../" + "index").connect(function(context){
-            var promises = [];
-    
-            // Hippie protein-protein interaction data
-            const interactionsDao = context.component('daos').module('interactions');
-    
-            if(interactionsSource){
-                interactionsSource.slice(process.env.from, process.env.to).forEach(function(element){
-                    var deferred = context.promises.defer();
-                    promises.push(deferred.promise);
-    
-                    // Lowering key cases (eg. TISSUE_NAME to tissue_name)
-    
-                    var key, keys = Object.keys(element);
-                    var n = keys.length;
-                    var newobj={}
-                    while (n--) {
-                        key = keys[n];
-                        newobj[key.toLowerCase()] = element[key];
-                    }
-                    
-                    deferred.resolve();
-    
-//                    interactionsDao.update(newobj).then(function(result){
-//                        console.log("[Hippie] Inserted " + newobj.tissue_id);
-//                        deferred.resolve();
-//                    }, function(error){
-//                        console.error("[Hippie] Error with " + newobj.tissue_id);
-//                        deferred.resolve();
-//                    });
-                });
-            }
-    
-            context.promises.all(promises).then(function(results) {
+    const context = require(__dirname + "/../" + "index").connect(function(context){
+        var promises = [];
+
+        // Hippie protein-protein interaction data
+        const interactionsDao = context.component('daos').module('interactions');
+        const now = Date.now();
+
+        if(interactionsSource){
+            interactionsSource.slice(process.env.from, process.env.to).forEach(function(element){
+                var deferred = context.promises.defer();
+                promises.push(deferred.promise);
+
+                var edge1 = element.val0;
+                edge1 = edge1.replace(/_HUMAN/,'');
+                var edge2 = element.val2;
+                edge2 = edge2.replace(/_HUMAN/,'');
+
+                var newobj = {
+                    edges: [
+                        edge1,
+                        edge2
+                    ],
+                    score: element.val4,
+                    createdAt: now,
+                    updatedAt: now
+                };
+                
+                deferred.resolve(newobj);
+                console.log('Prepared ' + newobj.edges);
+            });
+        }
+
+        context.promises.all(promises).then(function(results) {
+            interactionsDao.bulkInsert(promises).then(function(result){
+                console.log("[Hippie] Inserted ", process.env.from, process.env.to);
+                console.log("Finished.");
+                process.exit();
+            }, function(error){
+                console.error("[Hippie] Error with insertion: " + error);
                 console.log("Finished.");
                 process.exit();
             });
-    
         });
+
+    });
 }

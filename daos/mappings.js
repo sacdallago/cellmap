@@ -42,6 +42,20 @@ module.exports = function(context) {
 
             return deferred.promise;
         },
+        
+        bulkInsert: function(items) {
+            var deferred = context.promises.defer();
+
+            mappingsModel.collection.insert(items, function(error, insertedItems) {
+                if (error) {
+                    console.error(error);
+                    deferred.reject(error);
+                }
+                deferred.resolve(insertedItems);
+            });
+
+            return deferred.promise;
+        },
 
         findProteinNames: function(identifier) {
             var deferred = context.promises.defer();
@@ -79,6 +93,29 @@ module.exports = function(context) {
             });
 
             return deferred.promise;
-        }
+        },
+        
+        findProteinNames: function(identifier) {
+            var deferred = context.promises.defer();
+
+            mappingsModel.find({
+                $or: [
+                    {uniprotId: {'$regex': identifier}},
+                    {geneId: {'$regex': identifier}},
+                    {entryName: {'$regex': identifier}}
+                ]
+            })
+                .limit(10)
+                .exec(function(error, results) {
+                if (error) {
+                    console.error(error);
+                    deferred.reject(error);
+                } else {
+                    deferred.resolve(results);
+                }
+            });
+
+            return deferred.promise;
+        },
     };
 };
