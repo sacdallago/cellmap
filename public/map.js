@@ -149,6 +149,12 @@ var renderMap = function(imageId, callback) {
 };
 
 var addToMapAndTable = function(protein){
+    
+    // If the protein is already there, don't add it again!
+    if(overlayProteins[protein.uniprotac] !== undefined){
+        return;
+    }
+    
     var mapped = [];
     var unmapped = [];
     var points = [];
@@ -274,7 +280,7 @@ var addToMapAndTable = function(protein){
     });
 
     // HTML table telling which localizations are mapped for protein and which not
-    var container = document.getElementById('proteinList');
+    var container = document.getElementById('proteinLocalizationList');
     var tr = document.createElement("tr");
 
     var proteinTd = document.createElement("td");
@@ -292,6 +298,39 @@ var addToMapAndTable = function(protein){
     container.appendChild(tr);
     // END of HTML table
 
+    // HTML table mapping uniprot ID to other identifiers
+    $.ajax({
+        url: '/mappings/uniprot/' + protein.uniprotac,
+        type: 'GET',
+        success: function(result) {
+            if(result){
+                var container = document.getElementById('proteinMappingList');
+                var tr = document.createElement("tr");
+
+                var proteinTd = document.createElement("td");
+                proteinTd.appendChild(document.createTextNode(result.uniprotId));
+                tr.appendChild(proteinTd);
+
+                var entryName = document.createElement("td");
+                entryName.appendChild(document.createTextNode(result.entryName));
+                tr.appendChild(entryName);
+
+                var proteinName = document.createElement("td");
+                proteinName.appendChild(document.createTextNode(result.proteinName));
+                tr.appendChild(proteinName);
+                
+                var geneName = document.createElement("td");
+                geneName.appendChild(document.createTextNode(result.geneName));
+                tr.appendChild(geneName);
+
+                container.appendChild(tr);
+            } else {
+                console.log("No mapping information for: ", protein.uniprotac);
+            }
+        }
+    });
+    // END of HTML table
+
     overlayProteins[protein.uniprotac] = L.layerGroup(points);
 
     overlayProteins[protein.uniprotac].addTo(map);
@@ -305,8 +344,8 @@ var addProteins = function(someProteins){
 }
 
 $.fn.api.settings.api = {
-    'get from localizations': '/proteins/localizations?identifier={query}',
-    'get from mappings': '/proteins/mappings?identifier={query}',
+    'get from localizations': '/localizations/search/{query}',
+    'get from mappings': '/mappings/search/{query}',
 };
 
 $.fn.search.settings.templates.protein = function(response) {

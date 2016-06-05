@@ -33,15 +33,10 @@ if (cluster.isMaster) {
                 var deferred = context.promises.defer();
                 promises.push(deferred.promise);
 
-                var edge1 = element.val0;
-                edge1 = edge1.replace(/_HUMAN/,'');
-                var edge2 = element.val2;
-                edge2 = edge2.replace(/_HUMAN/,'');
-
                 var newobj = {
                     edges: [
-                        edge1,
-                        edge2
+                        element.val0,
+                        element.val2
                     ],
                     score: element.val4,
                     createdAt: now,

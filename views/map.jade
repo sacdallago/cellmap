@@ -6,15 +6,19 @@ block fistContent
     section
         .page_container
             div(style="height: 100%;")
+                .container(style="position:absolute; width:100%; top: 5px;")
+                    .ui.fluid.input.search(style="width:300px; z-index:999999; margin:auto;")
+                        input(type="text", name="prot", placeholder="Search protein").prompt
+                        .results
                 #map
 block content
     div(style="z-index:999999").ui.fluid.input.search
-        input(type="text", name="prot", id="prot", placeholder="Search protein").prompt
+        input(type="text", name="prot", placeholder="Search protein").prompt
         .results
     .ui.accordion
         .title
             i.dropdown.icon
-            | Proteins
+            | Protein localization information
         .content.active
             table.ui.celled.table
                 thead
@@ -22,7 +26,20 @@ block content
                         th Protein
                         th Mapped
                         th Unmapped
-                tbody(id="proteinList")
+                tbody(id="proteinLocalizationList")
+    .ui.accordion
+        .title
+            i.dropdown.icon
+            | Protein UniProt ID mapping information
+        .content.active
+            table.ui.celled.table
+                thead
+                    tr
+                        th Uniprot ID
+                        th Entry Name
+                        th Protein Name
+                        th Gene Name (primary)
+                tbody(id="proteinMappingList")
     .ui.accordion
         .title
             i.dropdown.icon

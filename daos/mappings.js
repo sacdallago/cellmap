@@ -101,8 +101,8 @@ module.exports = function(context) {
             mappingsModel.find({
                 $or: [
                     {uniprotId: {'$regex': identifier}},
-                    {geneId: {'$regex': identifier}},
-                    {entryName: {'$regex': identifier}}
+                    {entryName: {'$regex': identifier}},
+                    {geneName: {'$regex': identifier}}
                 ]
             })
                 .limit(10)

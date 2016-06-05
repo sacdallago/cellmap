@@ -15,14 +15,18 @@ module.exports = function(context) {
             required: true,
             unique: true
         },
-        geneId: {
-            type: String,
-            required: true
-        },
         entryName:{
             type: String,
             required: true,
             unique: true
+        },
+        proteinName: {
+            type: String,
+            required: true
+        },
+        geneName:{
+            type: String,
+            required: true
         },
         createdAt : {
             type: Date,

@@ -5,11 +5,9 @@ module.exports = function(context) {
 
     return {
         getProteinInteractions: function(request, response) {
-            const identifier = request.query.p.toUpperCase();
+            const identifier = request.params.id.toUpperCase();
 
             interactionsDao.findByUniprotId(identifier).then(function(interactions){
-                
-                console.log(interactions);
                 
                 var result = [];
                 
@@ -18,7 +16,7 @@ module.exports = function(context) {
                         return uniprotId !== identifier;
                     });
                     
-                    result.append({
+                    result.push({
                         interactor: interactor,
                         score: interaction.score
                     });
