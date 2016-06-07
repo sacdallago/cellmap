@@ -51,9 +51,9 @@ html
                                         img(src="/public/cell.png").logo
                                         |  CellMap
                                     a(href="/images").item Images
-                            .ui.main.container
+                        .ui.main.container
                                 block content
-                            .ui.inverted.vertical.footer.segment
+                        .ui.inverted.vertical.footer.segment
                                 .ui.center.aligned.container
                                     .ui.stackable.inverted.divided.grid
                                         .five.wide.column
@@ -76,7 +76,7 @@ html
     script(type="text/javascript", src='/public/progress/progress.js')
     script(type="text/javascript", src='/public/onepage/onepage.js')
     if scripts
-        - each s in scripts
+        each s in scripts
             script(type="text/javascript", src=s)
     block scripts
     script.

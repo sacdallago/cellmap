@@ -23,7 +23,7 @@
         "console-stamp": "latest",
         "express": "latest",
         "compression": "latest",
-        "jade": "latest",
+        "pug": "latest",
         "node-watch": "latest",
         "gridfs-stream": "latest",
         "formidable": "latest"
