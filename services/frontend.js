@@ -5,5 +5,6 @@ module.exports = function(context) {
         .get('/images', frontendController.images)
         .get('/map/:iid', frontendController.map)
         .get('/editor/:iid', frontendController.editor)
+        .get('/ppi/:iid', frontendController.ppi)
         .get('/about', frontendController.about);
 }

@@ -37,3 +37,4 @@ data/*
 config.json
 
 private/*
+cache/*

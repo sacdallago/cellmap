@@ -48,6 +48,25 @@ module.exports = function(context) {
                 });
             });
         },
+        ppi: function(request, response) {
+            const imageId = request.params.iid;
+            const proteins = request.query.p;
+
+            localizationsDao.findProteins(proteins).then(function(requestProteins){
+                response.render('ppi', {
+                    title: 'Protein interaction visualizer',
+                    iid: imageId,
+                    requestProteins: requestProteins,
+                    localizations: context.constants.localizations
+                });
+            },function(error){
+                response.render('error', {
+                    title: 'Error',
+                    message: "Unable to retrieve images metadata",
+                    error: error
+                });
+            });
+        },
         editor: function(request, response) {
             const imageId = request.params.iid;
             response.render('editor', {

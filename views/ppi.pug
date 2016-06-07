@@ -1,0 +1,66 @@
+extends base
+block styles
+    link(rel='stylesheet', href='/public/easy-button/easy-button.css')
+    
+block fistContent
+    section
+        .page_container
+            div(style="height: 100%;")
+                .container(style="position:absolute; width:100%; top: 5px;")
+                    .ui.fluid.input.search(style="width:300px; z-index:999999; margin:auto;")
+                        input(type="text", name="prot", placeholder="Search protein").prompt
+                        .results
+                #map
+block content
+    div(style="z-index:999999").ui.fluid.input.search
+        input(type="text", name="prot", placeholder="Search protein").prompt
+        .results
+    .ui.accordion
+        .title
+            i.dropdown.icon
+            | Protein localization information
+        .content.active
+            table.ui.celled.table
+                thead
+                    tr
+                        th Protein
+                        th Mapped
+                        th Unmapped
+                tbody(id="proteinLocalizationList")
+    .ui.accordion
+        .title
+            i.dropdown.icon
+            | Protein UniProt ID mapping information
+        .content.active
+            table.ui.celled.table
+                thead
+                    tr
+                        th Uniprot ID
+                        th Entry Name
+                        th Protein Name
+                        th Gene Name (primary)
+                tbody(id="proteinMappingList")
+    .ui.accordion
+        .title
+            i.dropdown.icon
+            | Legend
+        .content
+            table.ui.celled.table
+                thead
+                    tr
+                        th Color
+                        th Localization
+                tbody(id="localizationList")
+block scripts
+    script(type="text/javascript", src="https://leafletjs-cdn.s3.amazonaws.com/content/leaflet/master/leaflet.js")
+    script(type="text/javascript", src="/public/underscore.js")
+    script(type="text/javascript", src="/public/easy-button/easy-button.js")
+    script(type="text/javascript", src="/public/utilities.js")
+    script(type="text/javascript", src="/public/regression.js")
+    script(type="text/javascript", src="/public/ppi.js")
+    script().
+        var localizations = initializeLocalizations(!{JSON.stringify(localizations)});
+        localizationsTable(localizations);
+        renderMap('#{iid}', function(){
+            addProteins(!{JSON.stringify(requestProteins)});
+        });
