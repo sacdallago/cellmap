@@ -1,0 +1,9 @@
+{
+    "database" : {
+        "username": "cellmap",
+        "password": "readonly+123",
+        "port": "13280",
+        "uri": "ds013280.mlab.com",
+        "collection": "guided"
+    }
+}
