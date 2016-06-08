@@ -159,142 +159,150 @@ var addToMapAndTable = function(protein){
     var unmapped = [];
     var points = [];
 
-    protein.consensus_sl.forEach(function(location){
+    protein.consensus_sl.forEach(function(element){
         var geoLoc = _.find(featuresGeoJSON, function(geoLoc){
-            return geoLoc.properties.localization == location;
+            return geoLoc.properties.localization == element;
         });
 
         if(geoLoc === undefined){
-            unmapped.push(location);
+            unmapped.push(element);
         } else {
-            try {
-                mapped.push(location);
-
-                var x = 0;
-                var y = 0;
-
-                switch(geoLoc.geometry.type){
-                    case "Polygon":
-                        var coords = randomPointInPoly(L.polygon(geoLoc.geometry.coordinates), geoLoc.geometry.coordinates[0]);
-                        x = coords[1];
-                        y = coords[0];
-                        break;
-                    case "Point":
-                        // http://stackoverflow.com/questions/481144/equation-for-testing-if-a-point-is-inside-a-circle
-                        var center = geoLoc.geometry.coordinates;
-                        var radius = geoLoc.properties.radius;
-                        var x_max = center[0]+radius;
-                        var x_min = center[0]-radius;
-
-                        var y_max = center[1]+radius;
-                        var y_min = center[1]-radius;
-
-                        x = x_min + (Math.random() * (x_max - x_min));
-                        y = y_min + (Math.random() * (y_max - y_min));
-
-                        x = x_max;
-                        y = y_max;
-
-                        while(Math.pow(x - center[0],2) + Math.pow(y - center[1], 2) > Math.pow(radius, 2)){
-                            x = x_min + (Math.random() * (x_max - x_min));
-                            y = y_min + (Math.random() * (y_max - y_min));
-                        }
-                        break;
-                    case "LineString":
-                        var position = Math.floor(Math.random() * geoLoc.geometry.coordinates.length);
-                        var a = geoLoc.geometry.coordinates[position];
-                        var b = geoLoc.geometry.coordinates[position+1];
-                        var reg = regression('linear',[a,b]);
-
-                        var x_max = a[0];
-                        var x_min = b[0];
-
-                        if(x_max < b[0]) {
-                            x_max = b[0];
-                            x_min = a[0];
-                        }
-
-                        x = x_min + (Math.random() * (x_max - x_min));
-
-                        y = reg.equation[0]*x + reg.equation[1];
-
-                        break;
-                }
-
-
-                var marker = L.circleMarker([y,x],{
-                    radius: 6,
-                    fillColor: localizations[location].color,
-                    color: localizations[location].color,
-                    opacity: 1,
-                    fillOpacity: 1,
-                });
-
-                // Create selection for localizations
-//                var menu = '<div class="ui dropdown link item"> \
-//                    Test \
-//                    <i class="dropdown icon"></i> \
-//                    <div class="menu"> \
-//                    <a class="item" href="http://google.com">Google</a> \
-//                    <a class="item" href="http://amazon.com">Amazon</a> \
-//                    </div> \
-//                    </div>';
-//
-//                $("#rightMenu").append(menu)
-//
-//                menu.find(".ui.dropdown")
-//                    .dropdown({
-//                    on: 'hover'
-//                });
-
-                // Bind popup to marker and add overlay of feature when clicked.
-                var popup = L.popup().setContent('<p><strong>' + protein.uniprotac + "</strong><br><strong>Select localization:</strong> " + protein.consensus_sl + '</p>');
-                popup.locations = protein.consensus_sl;
-                marker.bindPopup(popup);
-
-                marker.on('popupopen', function(e) {
-                    var locs = e.popup.locations;
-
-                    locs.forEach(function(loc){
-                        var object = _.find(underlayingFeatureLayer._layers,function(object){
-                            return object.feature.properties.localization == loc;
-                        });
-
-                        if(object){
-                            object.setStyle({
-                                opacity: .8,
-                                fillOpacity: .8,
-                            });
-                        }
-                    });
-                });
-
-                marker.on('popupclose', function(e) {
-                    var locs = e.popup.locations;
-
-                    locs.forEach(function(loc){
-                        var object = _.find(underlayingFeatureLayer._layers,function(object){
-                            return object.feature.properties.localization == loc;
-                        });
-
-                        if(object){
-                            object.setStyle({
-                                opacity: 0,
-                                fillOpacity: 0,
-                            });
-                        }
-                    });
-                });
-
-                points.push(marker);
-            } catch (e) {
-                // Need to make something smarter here: case point calculation exceeedes heap. Very likely with Polygons!
-                console.log(e);
-                console.log("Will reload");
-                window.location.reload();
-            }
+            mapped.push({
+                geoLoc: geoLoc,
+                loc: element
+            });
         }
     });
+
+    // Create selection for localizations
+    menu = '<div class="ui dropdown locselecter">';
+    menu += '<div class="text">New localization</div>';
+    menu += '<i class="dropdown icon"></i>';
+    menu += '<div class="menu">';
+    
+    mapped.forEach(function(locationObject){
+        menu += '<div class="item">' + locationObject.loc + '</div>';
+    });
+
+    menu += '</div></div>';
+
+    for(var i=0; i < mapped.length; i++){
+        
+        var location = mapped[i].loc;
+        var geoLoc = mapped[i].geoLoc;
+
+        try {
+
+            var x = 0;
+            var y = 0;
+
+            switch(geoLoc.geometry.type){
+                case "Polygon":
+                    var coords = randomPointInPoly(L.polygon(geoLoc.geometry.coordinates), geoLoc.geometry.coordinates[0]);
+                    x = coords[1];
+                    y = coords[0];
+                    break;
+                case "Point":
+                    // http://stackoverflow.com/questions/481144/equation-for-testing-if-a-point-is-inside-a-circle
+                    var center = geoLoc.geometry.coordinates;
+                    var radius = geoLoc.properties.radius;
+                    var x_max = center[0]+radius;
+                    var x_min = center[0]-radius;
+
+                    var y_max = center[1]+radius;
+                    var y_min = center[1]-radius;
+
+                    x = x_min + (Math.random() * (x_max - x_min));
+                    y = y_min + (Math.random() * (y_max - y_min));
+
+                    x = x_max;
+                    y = y_max;
+
+                    while(Math.pow(x - center[0],2) + Math.pow(y - center[1], 2) > Math.pow(radius, 2)){
+                        x = x_min + (Math.random() * (x_max - x_min));
+                        y = y_min + (Math.random() * (y_max - y_min));
+                    }
+                    break;
+                case "LineString":
+                    var position = Math.floor(Math.random() * geoLoc.geometry.coordinates.length);
+                    var a = geoLoc.geometry.coordinates[position];
+                    var b = geoLoc.geometry.coordinates[position+1];
+                    var reg = regression('linear',[a,b]);
+
+                    var x_max = a[0];
+                    var x_min = b[0];
+
+                    if(x_max < b[0]) {
+                        x_max = b[0];
+                        x_min = a[0];
+                    }
+
+                    x = x_min + (Math.random() * (x_max - x_min));
+
+                    y = reg.equation[0]*x + reg.equation[1];
+
+                    break;
+            }
+
+
+            var marker = L.circleMarker([y,x],{
+                radius: 6,
+                fillColor: localizations[location].color,
+                color: localizations[location].color,
+                opacity: i==0 ? 1 : 0, //Only show first localization, but draw them all
+                fillOpacity: i==0 ? 1 : 0,
+            });
+
+            // Bind popup to marker and add overlay of feature when clicked.
+            var popup = L.popup().setContent('<p><strong>' + protein.uniprotac + " - " + location + "</strong><br>Select new localization:<br>" + menu + '</p>');
+            popup.locations = protein.consensus_sl;
+            marker.bindPopup(popup);
+
+            marker.on('popupopen', function(e) {
+                var locs = e.popup.locations;
+
+                $('.ui.dropdown.locselecter')
+                    .dropdown();
+
+                locs.forEach(function(loc){
+                    var object = _.find(underlayingFeatureLayer._layers,function(object){
+                        return object.feature.properties.localization == loc;
+                    });
+
+                    if(object){
+                        object.setStyle({
+                            opacity: .8,
+                            fillOpacity: .8,
+                        });
+                    }
+                });
+            });
+
+            marker.on('popupclose', function(e) {
+                var locs = e.popup.locations;
+
+                locs.forEach(function(loc){
+                    var object = _.find(underlayingFeatureLayer._layers,function(object){
+                        return object.feature.properties.localization == loc;
+                    });
+
+                    if(object){
+                        object.setStyle({
+                            opacity: 0,
+                            fillOpacity: 0,
+                        });
+                    }
+                });
+            });
+
+            points.push(marker);
+        } catch (e) {
+            // Need to make something smarter here: case point calculation exceeedes heap. Very likely with Polygons!
+            console.log(e);
+            console.log("Will reload");
+            window.location.reload();
+        }
+    }
 
     // HTML table telling which localizations are mapped for protein and which not
     var container = document.getElementById('proteinLocalizationList');
@@ -381,9 +389,10 @@ $.fn.search.settings.templates.mapping = function(response) {
     var html = '';
     $.each(response.results, function(index, result) {
         html += '' + '<div class="result">';
-        html += '<span class="name">' + result.entryName + '</span>, ';
-        html += '<small> [UniProt ID] ' + result.uniprotId + '</small>';
-        html += ( (result.geneId && result.geneId.length > 0) ? ('<small> [Gene ID] ' + result.geneId + '</small>') : "" );
+        html += '<span class="name">' + result.uniprotId + '</span>, ';
+        html += '<small> [Entry] ' + result.entryName + '</small>';
+        // html += '<small> [Protein] ' + result.proteinName + '</small><br>';
+        html += '<small> [Gene] ' + result.geneName + '</small>';
         html += '</div>';
     });
     return html;
@@ -394,16 +403,16 @@ $.fn.search.settings.templates.localization = function(response) {
     $.each(response.results, function(index, result) {
         html += '' + '<div class="result">' +
             '<span class="name">' + result.uniprotac + '</span>, ' +
-            '<small> Approved symbol ' + result.approvedsymbol + '</small>' +
+            '<small> [Gene] ' + result.approvedsymbol + '</small>' +
             '</div>';
     });
     return html;
 }
 
 $('.ui.search').search({
-    type: 'localization',
+    type: 'mapping',
     apiSettings: {
-        action: 'get from localizations',
+        action: 'get from mappings',
         onResponse: function(response) {
             return {
                 results: response

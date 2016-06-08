@@ -348,25 +348,14 @@ $.fn.api.settings.api = {
     'get from mappings': '/mappings/search/{query}',
 };
 
-$.fn.search.settings.templates.protein = function(response) {
-    var html = '';
-    $.each(response.results, function(index, result) {
-        html += '' + '<div class="result">';
-        html += '<span class="name">' + result.entryName + '</span>, ';
-        html += '<small> [UniProt ID] ' + result.uniprotId + '</small>';
-        html += ( (result.geneId && result.geneId.length > 0) ? ('<small> [Gene ID] ' + result.geneId + '</small>') : "" );
-        html += '</div>';
-    });
-    return html;
-}
-
 $.fn.search.settings.templates.mapping = function(response) {
     var html = '';
     $.each(response.results, function(index, result) {
         html += '' + '<div class="result">';
-        html += '<span class="name">' + result.entryName + '</span>, ';
-        html += '<small> [UniProt ID] ' + result.uniprotId + '</small>';
-        html += ( (result.geneId && result.geneId.length > 0) ? ('<small> [Gene ID] ' + result.geneId + '</small>') : "" );
+        html += '<span class="name">' + result.uniprotId + '</span>, ';
+        html += '<small> [Entry] ' + result.entryName + '</small>';
+        // html += '<small> [Protein] ' + result.proteinName + '</small><br>';
+        html += '<small> [Gene] ' + result.geneName + '</small>';
         html += '</div>';
     });
     return html;
@@ -377,7 +366,7 @@ $.fn.search.settings.templates.localization = function(response) {
     $.each(response.results, function(index, result) {
         html += '' + '<div class="result">' +
             '<span class="name">' + result.uniprotac + '</span>, ' +
-            '<small> Approved symbol ' + result.approvedsymbol + '</small>' +
+            '<small> [Gene] ' + result.approvedsymbol + '</small>' +
             '</div>';
     });
     return html;
