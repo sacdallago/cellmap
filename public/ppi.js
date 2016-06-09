@@ -4,6 +4,37 @@ var map;
 var controlLayers;
 var underlayingFeatureLayer;
 
+var PPINButton = function(map){
+    L.easyButton({
+        states: [{
+            stateName: 'loadPPIN',   // name the state
+            icon:      'asterisk icon',          // and define its properties
+            title:     'Network', // like its title
+            onClick: function(btn, map) {  // and its callback
+                renderProgress();
+                var mappables = [];
+                for(var key in overlayProteins){
+                    // If it makes sense to load protein 
+                    if(overlayProteins[key].layer !== undefined){
+                        mappables.push(key);
+                    }
+                }
+
+                $.ajax({
+                    url: '/interactions',
+                    type: 'POST',
+                    data: JSON.stringify(mappables),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function(results) {
+                        hideProgress();
+                    }
+                });
+            }
+        }]
+    }).addTo(map);
+};
+
 var randomPointInPoly = function(polygon, vs) {
     var bounds = polygon.getBounds(); 
     var x_min  = bounds.getEast();
@@ -79,6 +110,7 @@ var renderMap = function(imageId, callback) {
                 if (map.tap) map.tap.disable();
 
                 // Add fading button
+                PPINButton(map);
                 loadFadingButton(map);
 
                 // Add features highlight
@@ -277,7 +309,7 @@ var addToMapAndTable = function(protein){
             } else {
                 popup = L.popup().setContent('<p><strong>' + protein.uniprotac + " - " + location + "</strong></p>");
             }
-            
+
 
 
             popup.locations = protein.consensus_sl;
@@ -399,7 +431,7 @@ var addToMapAndTable = function(protein){
     } else {
         overlayProteins[protein.uniprotac] = {
             layer : undefined,
-            points: points
+            points: undefined
         };
     }
 
@@ -491,5 +523,4 @@ $('.ui.accordion')
     selector: {
         trigger: '.title'
     }
-})
-;
+});
