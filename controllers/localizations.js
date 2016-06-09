@@ -13,9 +13,23 @@ module.exports = function(context) {
                 localizationsDao.findProteinNames(identifier).then(function(proteins){
                     response.send(proteins);
                 }, function(error){
-                    response.send(error);
+                    response.status(500).send(error);
                 });
             }
-        }
+        },
+        
+        getProteinByUniprotId: function(request, response) {
+            const identifier = request.params.id.toUpperCase();
+            
+            if(identifier === undefined){
+                response.status(403).send();
+            } else {
+                localizationsDao.findByUniprotId(identifier).then(function(protein){
+                    response.send(protein);
+                }, function(error){
+                    response.status(500).send(error);
+                });
+            }
+        },
     }
 }

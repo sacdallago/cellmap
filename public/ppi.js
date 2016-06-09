@@ -86,7 +86,8 @@ var renderMap = function(imageId, callback) {
                 var featuresLayer = L.geoJson(featuresGeoJSON, {
                     pointToLayer: function (feature, latlng) {
                         return L.circle(latlng, {
-                            radius: feature.properties.radius || 6
+                            radius: feature.properties.radius || 6,
+                            interactive: false
                         });
                     },
                     style: function(feature) {
@@ -96,7 +97,8 @@ var renderMap = function(imageId, callback) {
                                 color: localizations[feature.properties.localization].color,
                                 weight: 4,
                                 opacity: .8,
-                                fillOpacity: .8
+                                fillOpacity: .8,
+                                interactive: false
                             };
                         } else {
                             return {
@@ -104,7 +106,8 @@ var renderMap = function(imageId, callback) {
                                 color: localizations[feature.properties.localization].color,
                                 weight: 0,
                                 opacity: .8,
-                                fillOpacity: .8
+                                fillOpacity: .8,
+                                interactive: false
                             };
                         }
                     }
@@ -115,7 +118,8 @@ var renderMap = function(imageId, callback) {
                 underlayingFeatureLayer = L.geoJson(featuresGeoJSON, {
                     pointToLayer: function (feature, latlng) {
                         return L.circle(latlng, {
-                            radius: feature.properties.radius || 6
+                            radius: feature.properties.radius || 6,
+                            interactive: false
                         });
                     },
                     style: function(feature) {
@@ -125,7 +129,8 @@ var renderMap = function(imageId, callback) {
                                 color: "#a7adba",
                                 weight: 4,
                                 opacity: 0,
-                                fillOpacity: 0
+                                fillOpacity: 0,
+                                interactive: false
                             };
                         } else {
                             return {
@@ -133,7 +138,8 @@ var renderMap = function(imageId, callback) {
                                 color: "#a7adba",
                                 weight: 0,
                                 opacity: 0,
-                                fillOpacity: 0
+                                fillOpacity: 0,
+                                interactive: false
                             };
                         }
                     }
@@ -157,6 +163,8 @@ var addToMapAndTable = function(protein){
 
     var mapped = [];
     var unmapped = [];
+
+    // Array for the different locations
     var points = [];
 
     protein.consensus_sl.forEach(function(element){
@@ -175,19 +183,23 @@ var addToMapAndTable = function(protein){
     });
 
     // Create selection for localizations
-    menu = '<div class="ui dropdown locselecter">';
-    menu += '<div class="text">New localization</div>';
-    menu += '<i class="dropdown icon"></i>';
-    menu += '<div class="menu">';
-    
-    mapped.forEach(function(locationObject){
-        menu += '<div class="item">' + locationObject.loc + '</div>';
-    });
+    var menu;
 
-    menu += '</div></div>';
+    if(mapped.length > 1){
+        menu = '<div class="ui dropdown locselecter">';
+        menu += '<div class="text">New localization</div>';
+        menu += '<i class="dropdown icon"></i>';
+        menu += '<div class="menu">';
+
+        mapped.forEach(function(locationObject){
+            menu += '<div class="item" data-value="' + protein.uniprotac + '">' + locationObject.loc + '</div>';
+        });
+
+        menu += '</div></div>';
+    }
 
     for(var i=0; i < mapped.length; i++){
-        
+
         var location = mapped[i].loc;
         var geoLoc = mapped[i].geoLoc;
 
@@ -249,20 +261,42 @@ var addToMapAndTable = function(protein){
                 radius: 6,
                 fillColor: localizations[location].color,
                 color: localizations[location].color,
-                opacity: i==0 ? 1 : 0, //Only show first localization, but draw them all
-                fillOpacity: i==0 ? 1 : 0,
+                // Only show first localization, but draw them all
+                opacity: 1, 
+                fillOpacity: 1
             });
 
+            // Assign a location to the marker, so to then highlight it if needed:
+            marker.location = location;
+
             // Bind popup to marker and add overlay of feature when clicked.
-            var popup = L.popup().setContent('<p><strong>' + protein.uniprotac + " - " + location + "</strong><br>Select new localization:<br>" + menu + '</p>');
+            var popup;
+
+            if(mapped.length > 1){
+                popup = L.popup().setContent('<p><strong>' + protein.uniprotac + " - " + location + "</strong><br>" + menu + '</p>');
+            } else {
+                popup = L.popup().setContent('<p><strong>' + protein.uniprotac + " - " + location + "</strong></p>");
+            }
+            
+
+
             popup.locations = protein.consensus_sl;
             marker.bindPopup(popup);
 
             marker.on('popupopen', function(e) {
-                var locs = e.popup.locations;
+                // Load dropdown selector
+                // When new location selected, change opacity + interactive
+                $('.ui.dropdown.locselecter').dropdown({
+                    onChange: function(value, text, $selectedItem) {                
+                        var newLocPoint = _.find(overlayProteins[value].points, function(point){
+                            return point.location == text;
+                        });
+                        overlayProteins[value].layer.clearLayers();
+                        overlayProteins[value].layer.addLayer(newLocPoint);
+                    }
+                });
 
-                $('.ui.dropdown.locselecter')
-                    .dropdown();
+                var locs = e.popup.locations;
 
                 locs.forEach(function(loc){
                     var object = _.find(underlayingFeatureLayer._layers,function(object){
@@ -313,7 +347,7 @@ var addToMapAndTable = function(protein){
     tr.appendChild(proteinTd);
 
     var mappedTd = document.createElement("td");
-    mappedTd.appendChild(document.createTextNode(mapped));
+    mappedTd.appendChild(document.createTextNode(mapped.map(function(element){return element.loc})));
     tr.appendChild(mappedTd);
 
     var unmappedTd = document.createElement("td");
@@ -356,10 +390,23 @@ var addToMapAndTable = function(protein){
     });
     // END of HTML table
 
-    overlayProteins[protein.uniprotac] = L.layerGroup(points);
+    if(points[0] !== undefined){
+        overlayProteins[protein.uniprotac] = {
+            layer : L.layerGroup(),
+            points: points
+        };
+        overlayProteins[protein.uniprotac].layer.addLayer(points[0]);
+    } else {
+        overlayProteins[protein.uniprotac] = {
+            layer : undefined,
+            points: points
+        };
+    }
 
-    overlayProteins[protein.uniprotac].addTo(map);
-    controlLayers.addOverlay(overlayProteins[protein.uniprotac], protein.uniprotac);
+    if(overlayProteins[protein.uniprotac].layer !== undefined) {
+        overlayProteins[protein.uniprotac].layer.addTo(map);
+        controlLayers.addOverlay(overlayProteins[protein.uniprotac].layer, protein.uniprotac);
+    }
 }
 
 var addProteins = function(someProteins){
@@ -421,13 +468,19 @@ $('.ui.search').search({
     },
     minCharacters : 2,
     onSelect: function(result, response) {
-        addToMapAndTable(result);
+        $.ajax({
+            url: '/localizations/uniprotId/' + result.uniprotId,
+            type: 'GET',
+            success: function(uniprotLocProtein) {
+                addToMapAndTable(uniprotLocProtein);
+            }
+        });
 
         //Add protein to search query in URL
         var currentUri = URI(window.location.href);
-        currentUri.addSearch({'p':result.uniprotac});
+        currentUri.addSearch({'p':result.uniprotId});
 
-        window.history.pushState({'p':result.uniprotac}, "CellMap", currentUri.resource());
+        window.history.pushState({'p':result.uniprotId}, "CellMap", currentUri.resource());
 
         return true;
     }
