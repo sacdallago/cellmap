@@ -34,6 +34,9 @@ node_modules
 
 data/*
 !data/README
+!data/SubcelLoc.Ages.Proteins.json
+!data/proteinMapping.json
+!data/hippie.json
 
 private/*
 cache/*

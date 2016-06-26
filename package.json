@@ -26,7 +26,13 @@
         "pug": "latest",
         "node-watch": "latest",
         "gridfs-stream": "latest",
-        "formidable": "latest"
+        "formidable": "latest",
+        "passport": "latest",
+        "passport-google-oauth2": "latest",
+        "cookie-parser": "latest",
+        "universal-analytics": "latest",
+        "express-session": "latest",
+        "connect-mongo": "latest"
     },
     "devDependencies": {
     },

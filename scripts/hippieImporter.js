@@ -2,6 +2,8 @@
 const numCPUs = require('os').cpus().length;
 const cluster = require('cluster');
 const interactionsSource = require(__dirname + "/../" + 'data/' + 'hippie.json');
+const mappingSource = require(__dirname + "/../" + 'data/' + 'proteinMapping.json');
+
 const context = require(__dirname + "/../" + "index").connect(function(context){
     const interactionsDao = context.component('daos').module('interactions');
     const now = Date.now();
@@ -40,12 +42,10 @@ const context = require(__dirname + "/../" + "index").connect(function(context){
         });
     } else {
 
-        var promises = [];
+        var interacitons = [];
 
         if(interactionsSource){
             interactionsSource.slice(process.env.from, process.env.to).forEach(function(element){
-                var deferred = context.promises.defer();
-                promises.push(deferred.promise);
 
                 var newobj = {
                     edges: [
@@ -58,13 +58,25 @@ const context = require(__dirname + "/../" + "index").connect(function(context){
                     origin: 'Hippie'
                 };
 
-                deferred.resolve(newobj);
-                console.log('Prepared ' + newobj.edges);
-            });
-        }
+                var edge1 = mappingSource.find(function(mapping){
+                    return mapping['entry name'] == newobj.edges[0];
+                });
+                
+                var edge2 = mappingSource.find(function(mapping){
+                    return mapping['entry name'] == newobj.edges[1];
+                });
 
-        context.promises.all(promises).then(function(results) {
-            interactionsDao.bulkInsert(promises).then(function(result){
+                if(edge1 && edge2){
+                    interacitons.push(newobj);
+
+                    console.log('Found mappings for interaction', newobj.edges);
+                } else {
+                    // console.log('No mapping data for interaciton', newobj.edges);
+                }
+
+            });
+
+            interactionsDao.bulkInsert(interacitons).then(function(result){
                 console.log("[Hippie] Inserted ", process.env.from, process.env.to);
                 console.log("Finished.");
                 process.exit();
@@ -73,8 +85,6 @@ const context = require(__dirname + "/../" + "index").connect(function(context){
                 console.log("Finished.");
                 process.exit();
             });
-        });
-
-
+        }
     }
 });

@@ -22,8 +22,7 @@ module.exports = function(context) {
         },
         origin: {
             type: String,
-            required: true,
-            unique: true
+            required: true
         },
         createdAt : {
             type: Date,

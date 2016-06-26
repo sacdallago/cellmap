@@ -57,10 +57,6 @@ const context = require(__dirname + "/../" + "index").connect(function(context){
                 var deferred = context.promises.defer();
                 promises.push(deferred.promise);
 
-                /* Example of JSON:
-                {"yourlist:m20160605c2335653e4fa1b8aecf5153189fa788f083ebax":"P04217","entry":"P04217","entry name":"A1BG_HUMAN","status":"reviewed","protein names":"Alpha-1B-glycoprotein (Alpha-1-B glycoprotein)","gene names":"A1BG","organism":"Homo sapiens (Human)","length":"495"},
-                    */
-
                 var newobj = {
                     uniprotId: element['entry'],
                     entryName: element['entry name'],

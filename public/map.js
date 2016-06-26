@@ -300,7 +300,7 @@ var addToMapAndTable = function(protein){
 
     // HTML table mapping uniprot ID to other identifiers
     $.ajax({
-        url: '/mappings/uniprot/' + protein.uniprotId,
+        url: '/api/mappings/uniprot/' + protein.uniprotId,
         type: 'GET',
         success: function(result) {
             if(result){
@@ -344,8 +344,8 @@ var addProteins = function(someProteins){
 }
 
 $.fn.api.settings.api = {
-    'get from localizations': '/localizations/search/{query}',
-    'get from mappings': '/mappings/search/{query}',
+    'get from localizations': '/api/localizations/search/{query}',
+    'get from mappings': '/api/mappings/search/{query}',
 };
 
 $.fn.search.settings.templates.mapping = function(response) {

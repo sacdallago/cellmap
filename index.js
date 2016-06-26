@@ -11,11 +11,12 @@ module.exports = {
     start: function(callback) {
         callback = callback || function(){};
 
-        const mongoose    = require('mongoose');
-        const fs          = require('fs');
-        const path        = require('path');
-        const q           = require('q');
-        const formidable  = require('formidable');
+        // Imports
+        const mongoose          = require('mongoose');
+        const fs                = require('fs');
+        const path              = require('path');
+        const q                 = require('q');
+        const formidable        = require('formidable');
 
         // Initialize the context
         context = {
@@ -48,13 +49,15 @@ module.exports = {
             }
         };
 
-        callback();
+        callback(context);
         return context;
     },
     connect: function(callback){
         const context   = this.start();
-        const config    = require(__dirname + "/config");
         const gridFs    = require('gridfs-stream');
+        const config    = require(__dirname + "/config");
+        
+        context.config  = config;
 
         //Create the DB connection string
         var databaseParams = config.database;
@@ -63,6 +66,8 @@ module.exports = {
             dbConnection += databaseParams.username + ":" + databaseParams.password + "@";
         }
         dbConnection += databaseParams.uri + ":" + databaseParams.port + "/" + databaseParams.collection;
+        
+        context.mongoConnectionString = dbConnection;
 
         context.mongoose.connect(dbConnection);
         var db = context.mongoose.connection;

@@ -264,7 +264,7 @@ var renderMap = function(imageId) {
                     }
 
                     $.ajax({
-                        url: '/features',
+                        url: '/api/features',
                         type: 'POST',
                         data: JSON.stringify(geoJSON),
                         contentType: "application/json; charset=utf-8",
