@@ -10,29 +10,18 @@ module.exports = function(context) {
     const mongoose = context.mongoose;
 
     return mongoose.model('localizations', mongoose.Schema({
-        approvedsymbol : {
+        geneName : {
             type: String,
             required: true,
             unique: true
         },
-        uniprotac: {
+        uniprotId: {
             type: String,
             required: true,
             unique: true
         },
-        consensus_sl: {
+        localizations: {
             type: [String],
-            required: true
-        },
-        geneId: {
-            type: String
-        },
-        entryName:{
-            type: String,
-            required: true
-        },
-        "6class_consensus_sl": {
-            type: String,
             required: true
         },
         createdAt : {
@@ -44,6 +33,6 @@ module.exports = function(context) {
             default: Date.now
         }
     }, {
-        strict: false
+        strict: true
     }));
 };

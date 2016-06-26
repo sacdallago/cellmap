@@ -151,7 +151,7 @@ var renderMap = function(imageId, callback) {
 var addToMapAndTable = function(protein){
     
     // If the protein is already there, don't add it again!
-    if(overlayProteins[protein.uniprotac] !== undefined){
+    if(overlayProteins[protein.uniprotId] !== undefined){
         return;
     }
     
@@ -159,7 +159,7 @@ var addToMapAndTable = function(protein){
     var unmapped = [];
     var points = [];
 
-    protein.consensus_sl.forEach(function(location){
+    protein.localizations.forEach(function(location){
         var geoLoc = _.find(featuresGeoJSON, function(geoLoc){
             return geoLoc.properties.localization == location;
         });
@@ -231,8 +231,8 @@ var addToMapAndTable = function(protein){
                 });
 
                 // Bind popup to marker and add overlay of feature when clicked.
-                var popup = L.popup().setContent('<p><strong>' + protein.uniprotac + "</strong><br><strong>Localizations:</strong> " + protein.consensus_sl + '</p>');
-                popup.locations = protein.consensus_sl;
+                var popup = L.popup().setContent('<p><strong>' + protein.uniprotId + "</strong><br><strong>Localizations:</strong> " + protein.localizations + '</p>');
+                popup.locations = protein.localizations;
                 marker.bindPopup(popup);
 
                 marker.on('popupopen', function(e) {
@@ -284,7 +284,7 @@ var addToMapAndTable = function(protein){
     var tr = document.createElement("tr");
 
     var proteinTd = document.createElement("td");
-    proteinTd.appendChild(document.createTextNode(protein.uniprotac));
+    proteinTd.appendChild(document.createTextNode(protein.uniprotId));
     tr.appendChild(proteinTd);
 
     var mappedTd = document.createElement("td");
@@ -300,7 +300,7 @@ var addToMapAndTable = function(protein){
 
     // HTML table mapping uniprot ID to other identifiers
     $.ajax({
-        url: '/mappings/uniprot/' + protein.uniprotac,
+        url: '/mappings/uniprot/' + protein.uniprotId,
         type: 'GET',
         success: function(result) {
             if(result){
@@ -325,16 +325,16 @@ var addToMapAndTable = function(protein){
 
                 container.appendChild(tr);
             } else {
-                console.log("No mapping information for: ", protein.uniprotac);
+                console.log("No mapping information for: ", protein.uniprotId);
             }
         }
     });
     // END of HTML table
 
-    overlayProteins[protein.uniprotac] = L.layerGroup(points);
+    overlayProteins[protein.uniprotId] = L.layerGroup(points);
 
-    overlayProteins[protein.uniprotac].addTo(map);
-    controlLayers.addOverlay(overlayProteins[protein.uniprotac], protein.uniprotac);
+    overlayProteins[protein.uniprotId].addTo(map);
+    controlLayers.addOverlay(overlayProteins[protein.uniprotId], protein.uniprotId);
 }
 
 var addProteins = function(someProteins){
@@ -365,8 +365,8 @@ $.fn.search.settings.templates.localization = function(response) {
     var html = '';
     $.each(response.results, function(index, result) {
         html += '' + '<div class="result">' +
-            '<span class="name">' + result.uniprotac + '</span>, ' +
-            '<small> [Gene] ' + result.approvedsymbol + '</small>' +
+            '<span class="name">' + result.uniprotId + '</span>, ' +
+            '<small> [Gene] ' + result.geneName + '</small>' +
             '</div>';
     });
     return html;
@@ -388,9 +388,9 @@ $('.ui.search').search({
 
         //Add protein to search query in URL
         var currentUri = URI(window.location.href);
-        currentUri.addSearch({'p':result.uniprotac});
+        currentUri.addSearch({'p':result.uniprotId});
 
-        window.history.pushState({'p':result.uniprotac}, "CellMap", currentUri.resource());
+        window.history.pushState({'p':result.uniprotId}, "CellMap", currentUri.resource());
 
         return true;
     }

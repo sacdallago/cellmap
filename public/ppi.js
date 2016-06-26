@@ -189,7 +189,7 @@ var renderMap = function(imageId, callback) {
 var addToMapAndTable = function(protein){
 
     // If the protein is already there, don't add it again!
-    if(overlayProteins[protein.uniprotac] !== undefined){
+    if(overlayProteins[protein.uniprotId] !== undefined){
         return;
     }
 
@@ -199,7 +199,7 @@ var addToMapAndTable = function(protein){
     // Array for the different locations
     var points = [];
 
-    protein.consensus_sl.forEach(function(element){
+    protein.localizations.forEach(function(element){
         var geoLoc = _.find(featuresGeoJSON, function(geoLoc){
             return geoLoc.properties.localization == element;
         });
@@ -224,7 +224,7 @@ var addToMapAndTable = function(protein){
         menu += '<div class="menu">';
 
         mapped.forEach(function(locationObject){
-            menu += '<div class="item" data-value="' + protein.uniprotac + '">' + locationObject.loc + '</div>';
+            menu += '<div class="item" data-value="' + protein.uniprotId + '">' + locationObject.loc + '</div>';
         });
 
         menu += '</div></div>';
@@ -305,14 +305,14 @@ var addToMapAndTable = function(protein){
             var popup;
 
             if(mapped.length > 1){
-                popup = L.popup().setContent('<p><strong>' + protein.uniprotac + " - " + location + "</strong><br>" + menu + '</p>');
+                popup = L.popup().setContent('<p><strong>' + protein.uniprotId + " - " + location + "</strong><br>" + menu + '</p>');
             } else {
-                popup = L.popup().setContent('<p><strong>' + protein.uniprotac + " - " + location + "</strong></p>");
+                popup = L.popup().setContent('<p><strong>' + protein.uniprotId + " - " + location + "</strong></p>");
             }
 
 
 
-            popup.locations = protein.consensus_sl;
+            popup.locations = protein.localizations;
             marker.bindPopup(popup);
 
             marker.on('popupopen', function(e) {
@@ -375,7 +375,7 @@ var addToMapAndTable = function(protein){
     var tr = document.createElement("tr");
 
     var proteinTd = document.createElement("td");
-    proteinTd.appendChild(document.createTextNode(protein.uniprotac));
+    proteinTd.appendChild(document.createTextNode(protein.uniprotId));
     tr.appendChild(proteinTd);
 
     var mappedTd = document.createElement("td");
@@ -391,7 +391,7 @@ var addToMapAndTable = function(protein){
 
     // HTML table mapping uniprot ID to other identifiers
     $.ajax({
-        url: '/mappings/uniprot/' + protein.uniprotac,
+        url: '/mappings/uniprot/' + protein.uniprotId,
         type: 'GET',
         success: function(result) {
             if(result){
@@ -416,28 +416,28 @@ var addToMapAndTable = function(protein){
 
                 container.appendChild(tr);
             } else {
-                console.log("No mapping information for: ", protein.uniprotac);
+                console.log("No mapping information for: ", protein.uniprotId);
             }
         }
     });
     // END of HTML table
 
     if(points[0] !== undefined){
-        overlayProteins[protein.uniprotac] = {
+        overlayProteins[protein.uniprotId] = {
             layer : L.layerGroup(),
             points: points
         };
-        overlayProteins[protein.uniprotac].layer.addLayer(points[0]);
+        overlayProteins[protein.uniprotId].layer.addLayer(points[0]);
     } else {
-        overlayProteins[protein.uniprotac] = {
+        overlayProteins[protein.uniprotId] = {
             layer : undefined,
             points: undefined
         };
     }
 
-    if(overlayProteins[protein.uniprotac].layer !== undefined) {
-        overlayProteins[protein.uniprotac].layer.addTo(map);
-        controlLayers.addOverlay(overlayProteins[protein.uniprotac].layer, protein.uniprotac);
+    if(overlayProteins[protein.uniprotId].layer !== undefined) {
+        overlayProteins[protein.uniprotId].layer.addTo(map);
+        controlLayers.addOverlay(overlayProteins[protein.uniprotId].layer, protein.uniprotId);
     }
 }
 
@@ -481,8 +481,8 @@ $.fn.search.settings.templates.localization = function(response) {
     var html = '';
     $.each(response.results, function(index, result) {
         html += '' + '<div class="result">' +
-            '<span class="name">' + result.uniprotac + '</span>, ' +
-            '<small> [Gene] ' + result.approvedsymbol + '</small>' +
+            '<span class="name">' + result.uniprotId + '</span>, ' +
+            '<small> [Gene] ' + result.geneName + '</small>' +
             '</div>';
     });
     return html;

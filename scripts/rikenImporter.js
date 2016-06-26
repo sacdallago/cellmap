@@ -34,28 +34,21 @@ if (cluster.isMaster) {
                 promises.push(deferred.promise);
 
                 var localizations = element.consensus_sl.split(". ");
-                element.consensus_sl = localizations;
 
-//                mappingDao.findByUniprotId(element.uniprotac).then(function(synonymous){
-//                    if(synonymous){
-//                        element.geneId = synonymous.geneId;
-//                        element.entryName = synonymous.entryName;
-                        
-                        subcellLocAgesProteinsDao.update(element).then(function(result){
-                            console.log("[localizations] Inserted " + element.approvedsymbol);
-                            deferred.resolve();
-                        }, function(error){
-                            console.error("[localizations] Error with " + element.approvedsymbol);
-                            deferred.resolve();
-                        });
-//                    } else {
-//                        console.error("[localizations] Error with " + element.approvedsymbol);
-//                        deferred.resolve();
-//                    }
-//                }, function(error){
-//                    console.error("[localizations] Error with " + element.approvedsymbol);
-//                    deferred.resolve();
-//                });
+                var loc = {
+                    localizations: localizations,
+                    uniprotId: element.uniprotac,
+                    geneName: element.approvedsymbol
+                }
+
+                subcellLocAgesProteinsDao.update(loc).then(function(result){
+                    console.log("[localizations] Inserted " + loc.geneName);
+                    deferred.resolve();
+                }, function(error){
+                    console.error("[localizations] Error with " + loc.geneName);
+                    deferred.resolve();
+                });
+
             });
         }
 

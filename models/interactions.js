@@ -16,7 +16,9 @@ module.exports = function(context) {
         },
         score: {
             type: Number,
-            required: true
+            required: true,
+            min: 0,
+            max: 1
         },
         createdAt : {
             type: Date,
@@ -27,6 +29,6 @@ module.exports = function(context) {
             default: Date.now
         }
     }, {
-        strict: false
+        strict: true
     }));
 };

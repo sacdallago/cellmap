@@ -29,7 +29,7 @@ module.exports = function(context) {
 
             item.updatedAt = Date.now();
 
-            localizationModel.update({ "approvedsymbol": item.approvedsymbol }, item, {
+            localizationModel.update({ "geneName": item.geneName }, item, {
                 upsert: true,
                 setDefaultsOnInsert : true
             }, function(error, insertedItem) {
@@ -47,7 +47,7 @@ module.exports = function(context) {
             var deferred = context.promises.defer();
 
             localizationModel.find({},{
-                "consensus_sl": 1
+                "localizations": 1
             }, function(error, results) {
                 if (error) {
                     console.error(error);
@@ -57,7 +57,7 @@ module.exports = function(context) {
                 var onlyLocalizations = [];
 
                 results.forEach(function(element){
-                    onlyLocalizations.push.apply(onlyLocalizations, element.consensus_sl);
+                    onlyLocalizations.push.apply(onlyLocalizations, element.localizations);
                 });
 
                 onlyLocalizations = onlyLocalizations.filter(function(elem, pos) {
@@ -77,8 +77,8 @@ module.exports = function(context) {
 
             localizationModel.find({
                 $or: [
-                    {approvedsymbol: {'$regex': identifier}},
-                    {uniprotac: {'$regex': identifier}}
+                    {geneName: {'$regex': identifier}},
+                    {uniprotId: {'$regex': identifier}}
                 ]
             })
                 .limit(10)
@@ -97,7 +97,7 @@ module.exports = function(context) {
         findByUniprotId: function(identifier) {
             var deferred = context.promises.defer();
 
-            localizationModel.findOne({uniprotac:  identifier})
+            localizationModel.findOne({uniprotId:  identifier})
                 .exec(function(error, result) {
                 if (error) {
                     console.error(error);
@@ -114,7 +114,7 @@ module.exports = function(context) {
             var deferred = context.promises.defer();
 
             localizationModel.find({
-                uniprotac: {
+                uniprotId: {
                     $in: accNumbers
                 }
             })
