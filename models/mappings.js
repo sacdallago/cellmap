@@ -15,6 +15,11 @@ module.exports = function(context) {
             required: true,
             unique: true
         },
+        origin: {
+            type: String,
+            required: true,
+            unique: true
+        },
         entryName:{
             type: String,
             required: true,

@@ -38,7 +38,8 @@ if (cluster.isMaster) {
                 var loc = {
                     localizations: localizations,
                     uniprotId: element.uniprotac,
-                    geneName: element.approvedsymbol
+                    geneName: element.approvedsymbol,
+                    origin: 'Riken'
                 }
 
                 subcellLocAgesProteinsDao.update(loc).then(function(result){

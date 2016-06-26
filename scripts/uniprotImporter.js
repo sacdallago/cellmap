@@ -22,7 +22,8 @@ const context = require(__dirname + "/../" + "index").connect(function(context){
             uniprotId: "test",
             entryName: "test",
             proteinName: "test",
-            geneName: "test"
+            geneName: "test",
+            origin: 'test'
         }).then(function(testItem){
             console.log("Ensured schema works, spawning workers");
 
@@ -66,7 +67,8 @@ const context = require(__dirname + "/../" + "index").connect(function(context){
                     proteinName: element['protein names'].split(/\s\(/)[0],
                     geneName: element['gene names  (primary )'],
                     createdAt: now,
-                    updatedAt: now
+                    updatedAt: now,
+                    origin: 'Uniprot'
                 };
 
                 deferred.resolve(newobj);

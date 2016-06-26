@@ -13,7 +13,8 @@ const context = require(__dirname + "/../" + "index").connect(function(context){
 
         interactionsDao.create({
             edges: ["test", "test2"],
-            score: 0.5
+            score: 0.5,
+            origin: 'test'
         }).then(function(testItem){
             console.log("Ensured schema works, spawning workers");
 
@@ -53,7 +54,8 @@ const context = require(__dirname + "/../" + "index").connect(function(context){
                     ],
                     score: parseFloat(element.val4),
                     createdAt: now,
-                    updatedAt: now
+                    updatedAt: now,
+                    origin: 'Hippie'
                 };
 
                 deferred.resolve(newobj);

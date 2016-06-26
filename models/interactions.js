@@ -20,6 +20,11 @@ module.exports = function(context) {
             min: 0,
             max: 1
         },
+        origin: {
+            type: String,
+            required: true,
+            unique: true
+        },
         createdAt : {
             type: Date,
             default: Date.now,
