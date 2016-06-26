@@ -1,40 +1,55 @@
 // Parallelize
 const numCPUs = require('os').cpus().length;
 const cluster = require('cluster');
+const now = Date.now();
+const context = require(__dirname + "/../" + "index").connect(function(context){
+    const mappingDao = context.component('daos').module('mappings');
 
-// To get the file: 
-// 1. Take all "uniprot ACs" IDs from Riken data
-// 2. Paste here: http://www.uniprot.org/uploadlists/
-// 3. Map form UniProtKB AC/ID > UniProtKB
-// 4. Change columns and select: Emtry, Entry name, Protein names and Gene Names (primary)
-// 5. Download all results as Tab-separated
-// 6. Use parsjs (npm) to convert from TSV to JSON
+    // To get the file: 
+    // 1. Take all "uniprot ACs" IDs from Riken data
+    // 2. Paste here: http://www.uniprot.org/uploadlists/
+    // 3. Map form UniProtKB AC/ID > UniProtKB
+    // 4. Change columns and select: Emtry, Entry name, Protein names and Gene Names (primary)
+    // 5. Download all results as Tab-separated
+    // 6. Use parsjs (npm) to convert from TSV to JSON
 
-const mappingSource = require(__dirname + "/../" + 'data/' + 'proteinMapping.json');
+    const mappingSource = require(__dirname + "/../" + 'data/' + 'proteinMapping.json');
 
-if (cluster.isMaster) {
-    var step = Math.ceil(mappingSource.length/numCPUs);
+    if (cluster.isMaster) {
+        var step = Math.ceil(mappingSource.length/numCPUs);
 
-    // Fork workers.
-    for (var i = 0; i < numCPUs; i++) {
-        var from = i*step;
-        var to = ((i*step)+step > mappingSource.length ? mappingSource.length : (i*step)+step);
-        var worker = cluster.fork({
-            from: from,
-            to: to
+        mappingDao.create({
+            uniprotId: "test",
+            entryName: "test",
+            proteinName: "test",
+            geneName: "test"
+        }).then(function(testItem){
+            console.log("Ensured schema works, spawning workers");
+
+            // Fork workers.
+            for (var i = 0; i < numCPUs; i++) {
+                var from = i*step;
+                var to = ((i*step)+step > mappingSource.length ? mappingSource.length : (i*step)+step);
+                var worker = cluster.fork({
+                    from: from,
+                    to: to
+                });
+                console.log("Spwaning worker " + worker.id);
+            }
+            
+            mappingDao.remove(testItem).then(function(){
+                console.log('Removed test item');
+            });
         });
-        console.log("Spwaning worker " + worker.id);
-    }
 
-    cluster.on('exit', (worker, code, signal) => {
-        console.log(`worker ${worker.process.pid} ended`);
-    });
-} else {
-    const context = require(__dirname + "/../" + "index").connect(function(context){
+
+
+        cluster.on('exit', (worker, code, signal) => {
+            console.log(`worker ${worker.process.pid} ended`);
+        });
+    } else {
+
         var promises = [];
-
-        const mappingDao = context.component('daos').module('mappings');
-        const now = Date.now();
 
         if(mappingSource){
             mappingSource.slice(process.env.from, process.env.to).forEach(function(element){
@@ -70,6 +85,5 @@ if (cluster.isMaster) {
                 process.exit();
             });
         });
-
-    });
-}
+    }
+});

@@ -23,6 +23,20 @@ module.exports = function(context) {
 
             return deferred.promise;
         },
+        
+        remove: function(item) {
+            var deferred = context.promises.defer();
+
+            mappingsModel.findOneAndRemove({_id: item._id}, function(error, removedItem) {
+                if (error) {
+                    console.error(error);
+                    deferred.reject(error);
+                }
+                deferred.resolve(removedItem);
+            });
+
+            return deferred.promise;
+        },
 
         update: function(item) {
             var deferred = context.promises.defer();

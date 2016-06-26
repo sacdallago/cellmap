@@ -24,6 +24,20 @@ module.exports = function(context) {
             return deferred.promise;
         },
 
+        remove: function(item) {
+            var deferred = context.promises.defer();
+
+            interactionModel.findOneAndRemove({"_id": item._id}, function(error, removedItem) {
+                if (error) {
+                    console.error(error);
+                    deferred.reject(error);
+                }
+                deferred.resolve(removedItem);
+            });
+
+            return deferred.promise;
+        },
+
         update: function(item) {
             var deferred = context.promises.defer();
 
@@ -62,8 +76,8 @@ module.exports = function(context) {
 
             interactionModel
                 .find({
-                    edges: uniprotId
-                })
+                edges: uniprotId
+            })
                 .exec(function(error, interactions) {
                 if (error) {
                     console.error(error);
