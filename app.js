@@ -41,7 +41,7 @@ if (cluster.isMaster) {
     const googleStrategy    = require('passport-google-oauth2').Strategy;
     const universalAnalytics= require('universal-analytics');
     const session           = require('express-session');
-    const MongoStore        = require('connect-mongo')(session);
+    const SQLiteStore       = require('connect-sqlite3')(session);
 
 
     consoleStamp(console, {
@@ -88,8 +88,8 @@ if (cluster.isMaster) {
         app.use(cookieParser());
         app.use(session({
             secret: context.config.sessionSecret || 'catLolLog',
-            store: new MongoStore({
-                url: context.mongoConnectionString
+            store: new SQLiteStore({
+                dir: path.join(__dirname, "private")
             }),
             resave: true,
             saveUninitialized: true
