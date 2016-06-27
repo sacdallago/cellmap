@@ -39,6 +39,7 @@ data/*
 !data/hippie.json
 
 private/*
+!private/README
 cache/*
 
 config.json
