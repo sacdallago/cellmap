@@ -10,13 +10,16 @@ block fistContent
             div(style="height: 100%;")
                 #map
 block content
-    .ui.header Legend
-    table.ui.celled.table
-        thead
-            tr
-                th Color
-                th Localization
-        tbody(id="localizationList")
+    #spacedText
+        .ui.header Legend
+        table.ui.celled.table
+            thead
+                tr
+                    th Color
+                    th Localization
+            tbody(id="localizationList")
+    #title
+        a(href="/") CellMap
 block scripts
     script(type="text/javascript", src="https://leafletjs-cdn.s3.amazonaws.com/content/leaflet/master/leaflet.js")
     script(type="text/javascript", src="/public/draw/leaflet.draw.js")

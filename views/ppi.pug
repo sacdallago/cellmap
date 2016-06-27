@@ -12,45 +12,48 @@ block fistContent
                         .results
                 #map
 block content
-    div(style="z-index:999999").ui.fluid.input.search
-        input(type="text", name="prot", placeholder="Search protein").prompt
-        .results
-    .ui.accordion
-        .title
-            i.dropdown.icon
-            | Protein localization information
-        .content.active
-            table.ui.celled.table
-                thead
-                    tr
-                        th Protein
-                        th Mapped
-                        th Unmapped
-                tbody(id="proteinLocalizationList")
-    .ui.accordion
-        .title
-            i.dropdown.icon
-            | Protein UniProt ID mapping information
-        .content.active
-            table.ui.celled.table
-                thead
-                    tr
-                        th Uniprot ID
-                        th Entry Name
-                        th Protein Name
-                        th Gene Name (primary)
-                tbody(id="proteinMappingList")
-    .ui.accordion
-        .title
-            i.dropdown.icon
-            | Legend
-        .content
-            table.ui.celled.table
-                thead
-                    tr
-                        th Color
-                        th Localization
-                tbody(id="localizationList")
+    #spacedText
+        div(style="z-index:999999").ui.fluid.input.search
+            input(type="text", name="prot", placeholder="Search protein").prompt
+            .results
+        .ui.accordion
+            .title
+                i.dropdown.icon
+                | Protein localization information
+            .content.active
+                table.ui.celled.table
+                    thead
+                        tr
+                            th Protein
+                            th Mapped
+                            th Unmapped
+                    tbody(id="proteinLocalizationList")
+        .ui.accordion
+            .title
+                i.dropdown.icon
+                | Protein UniProt ID mapping information
+            .content.active
+                table.ui.celled.table
+                    thead
+                        tr
+                            th Uniprot ID
+                            th Entry Name
+                            th Protein Name
+                            th Gene Name (primary)
+                    tbody(id="proteinMappingList")
+        .ui.accordion
+            .title
+                i.dropdown.icon
+                | Legend
+            .content
+                table.ui.celled.table
+                    thead
+                        tr
+                            th Color
+                            th Localization
+                    tbody(id="localizationList")
+    #title
+        a(href="/") CellMap
 block scripts
     script(type="text/javascript", src="https://leafletjs-cdn.s3.amazonaws.com/content/leaflet/master/leaflet.js")
     script(type="text/javascript", src="/public/underscore.js")
