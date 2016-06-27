@@ -36,6 +36,21 @@ module.exports = function(context) {
             return deferred.promise;
         },
 
+        findById: function(id) {
+            var deferred = context.promises.defer();
+
+            usersModel.findById(id, function(error, user) {
+                if (error) {
+                    console.error(error);
+                    deferred.reject(error);
+                } else {
+                    deferred.resolve(user);
+                }
+            });
+
+            return deferred.promise;
+        },
+
         findByGoogleId: function(googleId) {
             var deferred = context.promises.defer();
 

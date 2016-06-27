@@ -1,3 +1,28 @@
 extends base
 
 block content
+    #full
+        if displayName
+            p
+                | Hello, 
+                span.green #{displayName}
+                |.
+            p
+                |You can 
+                a(href="/auth/logout").item logout
+                |  or 
+                a(href="/maps").item view the maps.
+        else
+            p
+                | Hello, 
+                span.green User
+                |.
+            p
+                | I suggest you to 
+                a(href="/auth/google").item login
+                |  so that your session will be saved.
+            p
+                | Otherwise you can view our pubblicly available data at our 
+                a(href="/maps").item maps.
+                
+    #title CellMap

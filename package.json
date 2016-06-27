@@ -32,7 +32,8 @@
         "cookie-parser": "latest",
         "universal-analytics": "latest",
         "express-session": "latest",
-        "connect-mongo": "latest"
+        "connect-mongo": "latest",
+        "node-uuid": "latest"
     },
     "devDependencies": {
     },

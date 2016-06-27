@@ -4,7 +4,7 @@ module.exports = function(context) {
     var localizationsDao = context.component('daos').module('localizations');
 
     return {
-        home: function(request, response) {
+        index: function(request, response) {
             response.render('index', {
                 title: 'Home'
             });
@@ -14,18 +14,18 @@ module.exports = function(context) {
                 title: 'About'
             });
         },
-        images: function(request, response) {
+        maps: function(request, response) {
             context.gridFs.files.find().toArray(function (err, files) {
                 if (err) {
                     response.render('error', {
                         title: 'Error',
-                        message: "Unable to retrieve images metadata",
+                        message: "Unable to retrieve maps metadata",
                         error: error
                     });
                 }
-                response.render('images', {
-                    title: 'images',
-                    images: files
+                response.render('maps', {
+                    title: 'Maps',
+                    maps: files
                 });
             })
         },
@@ -46,6 +46,13 @@ module.exports = function(context) {
                     message: "Unable to retrieve images metadata",
                     error: error
                 });
+            });
+        },
+        error: function(request, response) {
+            response.render('error', {
+                title: 'Error',
+                message: "There was an unknown error with your request.",
+                error: "There was an unknown error with your request."
             });
         },
         ppi: function(request, response) {

@@ -41,7 +41,7 @@ var renderMap = function(imageId, callback) {
             featuresGeoJSON = results;
 
             var img = new Image();
-            img.src = '/images/'+imageId;
+            img.src = '/maps/' + imageId;
 
             // Wait untill I have the image
             img.onload = function() {

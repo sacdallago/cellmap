@@ -1,5 +1,5 @@
 module.exports = function(context) {
-    const imagesService = context.component('services').module('images');
+    const mapsService = context.component('services').module('maps');
     const frontendService = context.component('services').module('frontend');
     const featuresService = context.component('services').module('features');
     const localizationsService = context.component('services').module('localizations');

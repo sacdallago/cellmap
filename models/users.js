@@ -15,6 +15,9 @@ module.exports = function(context) {
             required: true,
             unique: true
         },
+        displayName : {
+            type: String
+        },
         localizationsOrigins: {
             type: [String],
             required: true,

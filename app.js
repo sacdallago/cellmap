@@ -85,6 +85,10 @@ if (cluster.isMaster) {
 
         // Use
         app.use(compression());
+
+        // Export static folders
+        app.use("/public", express.static(path.join(__dirname, "public")));
+
         app.use(cookieParser());
         app.use(session({
             secret: context.config.sessionSecret || 'catLolLog',
@@ -102,16 +106,22 @@ if (cluster.isMaster) {
         app.use(passport.session());
 
         // Configure passport
-        const userDao = context.component('daos').module('users');
+        const usersDao = context.component('daos').module('users');
+        const loginsDao = context.component('daos').module('logins');
+
         const google = new googleStrategy({
             clientID            : context.config.passport.google.clientId,
             clientSecret        : context.config.passport.google.clientSecret,
             callbackURL         : address + "/auth/google/callback",
             passReqToCallback   : true
         }, function(request, accessToken, refreshToken, profile, done) {
-            userDao.findOrCreate({ googleId: profile.id })
+            usersDao.findOrCreate({ googleId: profile.id, displayName: profile.displayName })
                 .then(function(user){
-                return done(null, user);
+                loginsDao.login(user._id).then(function(loginId){
+                    return done(null, loginId);
+                }, function(error){
+                    return done(error, null);
+                });
             }, function(error){
                 return done(error, null);
             });
@@ -119,42 +129,57 @@ if (cluster.isMaster) {
 
         passport.use(google);
 
-        passport.serializeUser(function(user, done) {
-            userDao.findOrCreate(user)
-                .then(function(user){
-                return done(null, user.googleId);
-            }, function(error){
-                return done(error, null);
+        app.get('/auth/logout', function(request, response){
+            loginsDao.logout(request.user._id).then(function(){
+                request.logout();
+                return response.redirect('/');
             });
         });
 
-        passport.deserializeUser(function(user, done) {
-            userDao.findByGoogleId(user)
-                .then(function(user){
-                return done(null, user);
+        passport.deserializeUser(function(loginId, done) {
+            loginsDao.findById(loginId)
+                .then(function(userId){
+                usersDao.findById(userId).then(function(user){
+                    return done(null, user);
+                }, function(error){
+                    return done(error, null);
+                });
             }, function(error){
-                return done(error, null);
+                // Means login has expired!
+                if(error == "No open session"){
+                    done(null, null);
+                } else {
+                    return done(error, null);
+                }
             });
+        });
+
+        passport.serializeUser(function(loginId, done) {
+            done(null, loginId);
         });
 
         app.get('/auth/google', passport.authenticate('google', { scope: ['profile'] }));
-
-        app.get('/auth/logout', function(request, response){
-            request.logout();
-            response.redirect('/');
-        });
 
         app.get('/auth/google/callback', passport.authenticate('google', { failureRedirect: '/error' }), function(request, response) {
             // Successful authentication, redirect home.
             response.redirect('/');
         });
 
-        // Export static folders
-        app.use("/public", express.static(path.join(__dirname, "public")));
-
         // Create routers
         context.router = new express.Router();
         context.api = new express.Router();
+
+        app.use(function(request, response, next) {
+            if (request.method === 'GET') {
+                return next();
+            } else {
+                response.render('error', {
+                    title: 'Error',
+                    message: "Can only GET",
+                    error: "Can only GET"
+                });
+            }
+        });
 
         // Router listens on / and /api
         app.use('/api', function(request, response, next) {
@@ -162,8 +187,14 @@ if (cluster.isMaster) {
             request.visitor.pageview(request.path).send();
             return next();
         }, context.api);
-        
-        app.use('/', context.router);
+
+        app.use('/', function(request, response, next) {
+            if(request.user){
+                response.locals.displayName = request.user.displayName;
+            }
+
+            return next();
+        }, context.router);
 
         if(process.env.NODE_ENV != 'production'){
             context.router.use(function(request, response, next) {

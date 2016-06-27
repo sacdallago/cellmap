@@ -5,7 +5,7 @@ var mapId;
 var renderMap = function(imageId) {
     renderProgress();
     var img = new Image();
-    img.src = '/images/'+imageId;
+    img.src = '/maps/'+imageId;
 
     img.onload = function() {
         var width = this.width;

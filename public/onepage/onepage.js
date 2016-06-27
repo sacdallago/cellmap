@@ -192,24 +192,24 @@ function onePageScroll(element, options) {
   			var deltaX = startX - touches[0].pageX;
   			var deltaY = startY - touches[0].pageY;
   
-  			if (deltaX >= 50) {
+  			if (deltaX >= 300) {
   			  var event = new Event('swipeLeft');
   			  document.dispatchEvent(event);
   			}
-  			if (deltaX <= -50) {
+  			if (deltaX <= -300) {
   			  var event = new Event('swipeRight');
   			  document.dispatchEvent(event);
   			}
-  			if (deltaY >= 50) {
+  			if (deltaY >= 300) {
   			  var event = new Event('swipeUp');
   			  document.dispatchEvent(event);
   			}
-  			if (deltaY <= -50) {
+  			if (deltaY <= -300) {
   			  var event = new Event('swipeDown');
   			  document.dispatchEvent(event);
   			}
   
-  			if (Math.abs(deltaX) >= 50 || Math.abs(deltaY) >= 50) {
+  			if (Math.abs(deltaX) >= 300 || Math.abs(deltaY) >= 300) {
   				document.removeEventListener('touchmove', touchmove);
   			}
   		}
