@@ -32,8 +32,7 @@
         "cookie-parser": "latest",
         "universal-analytics": "latest",
         "express-session": "latest",
-        "knex": "latest",
-        "connect-session-knex": "latest"
+        "connect-sqlite3": "latest"
     },
     "devDependencies": {
     },

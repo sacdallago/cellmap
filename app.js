@@ -41,7 +41,7 @@ if (cluster.isMaster) {
     const googleStrategy    = require('passport-google-oauth2').Strategy;
     const universalAnalytics= require('universal-analytics');
     const session           = require('express-session');
-    const SQLiteStore       = require('connect-session-knex')(session);
+    const SQLiteStore       = require('connect-sqlite3')(session);
 
 
     consoleStamp(console, {
@@ -89,12 +89,7 @@ if (cluster.isMaster) {
         app.use(session({
             secret: context.config.sessionSecret || 'catLolLog',
             store: new SQLiteStore({
-                knex: require('knex')({
-                    client: 'sqlite3',
-                    connection: {
-                        filename: path.join(__dirname, "private", "session.sqlite")
-                    }
-                })
+                dir: path.join(__dirname, "private")
             }),
             resave: true,
             saveUninitialized: true
@@ -167,7 +162,7 @@ if (cluster.isMaster) {
             request.visitor.pageview(request.path).send();
             return next();
         }, context.api);
-
+        
         app.use('/', context.router);
 
         if(process.env.NODE_ENV != 'production'){
