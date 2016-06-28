@@ -194,6 +194,11 @@ if (cluster.isMaster) {
             if(request.user){
                 response.locals.displayName = request.user.displayName;
             }
+            
+            if(context.config.analytics && context.config.analytics.google && context.config.analytics.google.trackingId){
+                response.locals.analytics = context.config.analytics.google.trackingId;
+            }
+            
 
             return next();
         }, context.router);
