@@ -60,11 +60,24 @@ html
         each s in scripts
             script(type="text/javascript", src=s)
     block scripts
-    script.
-        onePageScroll(".main", {
-            sectionContainer : "section",
-            loop : true,
-            updateURL: false,
-            pagination: false,
-            responsiveFallback : false
-        });
+    
+    //- Delta is defined in all pages not implementing leaflet (eg index.pug, about.pug) in the scripts block
+    if delta
+        script.
+            onePageScroll(".main", {
+                sectionContainer : "section",
+                loop : true,
+                updateURL: false,
+                pagination: false,
+                responsiveFallback : false,
+                delta: !{delta}
+            });
+    else
+        script.
+            onePageScroll(".main", {
+                sectionContainer : "section",
+                loop : true,
+                updateURL: false,
+                pagination: false,
+                responsiveFallback : false
+            });
