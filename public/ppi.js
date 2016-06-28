@@ -3,6 +3,7 @@ var overlayProteins = {};
 var map;
 var controlLayers;
 var underlayingFeatureLayer;
+var connections = {};
 
 var PPINButton = function(map){
     L.easyButton({
@@ -187,7 +188,7 @@ var renderMap = function(imageId, callback) {
 };
 
 var addToMappingsTable = function(protienMapping, proteinToBeMapped, callback){
-    
+
     var callback = callback || function(){};
 
     // If I already have the protein mapping, I don't need to request it another time!
@@ -212,7 +213,7 @@ var addToMappingsTable = function(protienMapping, proteinToBeMapped, callback){
         tr.appendChild(geneName);
 
         container.appendChild(tr);
-        
+
         callback(protienMapping);
     } else {
         $.ajax({
@@ -240,7 +241,7 @@ var addToMappingsTable = function(protienMapping, proteinToBeMapped, callback){
                 tr.appendChild(geneName);
 
                 container.appendChild(tr);
-                
+
                 callback(protienMapping);
             }
         });
@@ -274,6 +275,11 @@ var addToMapAndLocalizationsTable = function(protein, proteinEntryName){
             });
         }
     });
+
+    // Free the connecitons variable if there are new proteins in the viz. This will ensure that if the network is displayed again, it will recalculate data.
+    if(mapped.length > 0){
+        connections = {};
+    }
 
     // Create selection for localizations
     var menu;
@@ -388,19 +394,63 @@ var addToMapAndLocalizationsTable = function(protein, proteinEntryName){
                         // Load dropdown selector
                         // When new location selected, change opacity + interactive
                         $('.ui.dropdown.locselecter').dropdown({
-                            onChange: function(value, text, $selectedItem) {                
+                            onChange: function(value, text, $selectedItem) {
                                 var newLocPoint = _.find(overlayProteins[value].points, function(point){
                                     return point.location == text;
                                 });
                                 overlayProteins[value].layer.clearLayers();
                                 overlayProteins[value].layer.addLayer(newLocPoint);
+
+                                // Reset precalculated connections layers for point, as point has changed position
+                                connections[value] = undefined;
                             }
                         });
 
                         var locs = e.popup.locations;
                         var interactionPartners = e.popup.interactionPartners;
-                        
-                        console.log(interactionPartners);
+
+                        if(connections[proteinEntryName] !== undefined){
+
+                        } else {
+                            // Initiaize lines container
+                            connections[proteinEntryName] = L.layerGroup();
+                            
+                            for(var potentialInteractor in overlayProteins){
+                                var interactionPartner = _.find(interactionPartners, function(proteinInteractors){
+                                    return proteinInteractors.interactor === potentialInteractor;
+                                });
+
+                                if(interactionPartner){
+                                    var latlngs = Array();
+
+                                    //Get latlng from first marker, that is being displayed on the map!!!
+                                    latlngs.push(overlayProteins[proteinEntryName].layer.getLayers()[0].getLatLng());
+
+                                    //Get latlng from second marker
+                                    latlngs.push(overlayProteins[interactionPartner.interactor].layer.getLayers()[0].getLatLng());
+
+                                    //You can just keep adding markers
+
+                                    //From documentation http://leafletjs.com/reference.html#polyline
+                                    // create a red polyline from an arrays of LatLng points
+                                    var polyline = L.polyline(latlngs, {
+                                        color: 'black',
+                                        weight: Math.log(interactionPartner.score*100)
+                                    });
+                                    polyline.setText(JSON.stringify(interactionPartner.score*100), {
+                                        center: true,
+                                        attributes: {
+                                            style: "font-size: 3em;",
+                                            fill: "white",
+                                            stroke: "black"
+                                        }
+                                    });
+
+                                    connections[proteinEntryName].addLayer(polyline);
+                                }
+                                connections[proteinEntryName].addTo(map);
+                            }
+                        }
 
                         locs.forEach(function(loc){
                             var object = _.find(underlayingFeatureLayer._layers,function(object){
@@ -417,6 +467,8 @@ var addToMapAndLocalizationsTable = function(protein, proteinEntryName){
                     });
 
                     marker.on('popupclose', function(e) {
+                        map.removeLayer(connections[proteinEntryName]);
+                        
                         var locs = e.popup.locations;
 
                         locs.forEach(function(loc){

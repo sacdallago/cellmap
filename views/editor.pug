@@ -1,8 +1,10 @@
 extends base
 
-block styles
+block preStyles
+    link(rel='stylesheet', href='/public/leaflet/style.css')
     link(rel='stylesheet', href='/public/draw/leaflet.draw.css')
     link(rel='stylesheet', href='/public/easy-button/easy-button.css')
+    
 
 block fistContent
     section
@@ -21,7 +23,7 @@ block content
     #title
         a(href="/") CellMap
 block scripts
-    script(type="text/javascript", src="https://leafletjs-cdn.s3.amazonaws.com/content/leaflet/master/leaflet.js")
+    script(type="text/javascript", src="/public/leaflet/script.js")
     script(type="text/javascript", src="/public/draw/leaflet.draw.js")
     script(type="text/javascript", src="/public/underscore.js")
     script(type="text/javascript", src="/public/easy-button/easy-button.js")

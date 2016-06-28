@@ -175,7 +175,7 @@ if (cluster.isMaster) {
             if (request.method === 'GET') {
                 return next();
             } else {
-                response.render('error', {
+                response.status(403).render('error', {
                     title: 'Error',
                     message: "Can only GET",
                     error: "Can only GET"
