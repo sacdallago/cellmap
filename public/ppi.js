@@ -406,20 +406,25 @@ var addToMapAndLocalizationsTable = function(protein, proteinEntryName){
                                     }
                                     
 
-                                    //You can just keep adding markers
+                                    // Sometimes, the score can be 0. This can mess up things, so assign 0.01 if score is < 0.00
+                                    var score = interactionPartner.score > 0.00 ? interactionPartner.score : 0.01;
 
                                     //From documentation http://leafletjs.com/reference.html#polyline
                                     // create a red polyline from an arrays of LatLng points
                                     var polyline = L.polyline(latlngs, {
                                         color: 'black',
-                                        weight: Math.log(interactionPartner.score*100)
+                                        opacity: .6,
+                                        dashArray: (interactionPartner.score*100) + ", 15",
+                                        // Minimum line width is 2
+                                        weight: Math.log(score*100) > 1 ? Math.log(score*100) : 2
                                     });
-                                    polyline.setText(JSON.stringify(interactionPartner.score*100), {
+                                    polyline.setText(JSON.stringify(score*100), {
                                         center: true,
                                         attributes: {
-                                            style: "font-size: 3em;",
+                                            style: "font-size: 2.5em;",
                                             fill: "white",
-                                            stroke: "black"
+                                            stroke: "black",
+                                            "stroke-width": "1"
                                         }
                                     });
 
@@ -431,7 +436,9 @@ var addToMapAndLocalizationsTable = function(protein, proteinEntryName){
                     });
 
                     marker.on('popupclose', function(e) {
-                        map.removeLayer(connections[proteinEntryName]);
+                        if(connections[proteinEntryName] !== undefined){
+                            map.removeLayer(connections[proteinEntryName]);
+                        }
                     });
 
                     points.push(marker);
@@ -546,8 +553,13 @@ $('.ui.search').search({
     },
     minCharacters : 2,
     onSelect: function(result, response) {
-
+        
         renderProgress();
+        
+        for(proteinEntryName in connections){
+            map.removeLayer(connections[proteinEntryName]);
+        }
+        
         addToMappingsTable(result);
 
         $.ajax({
