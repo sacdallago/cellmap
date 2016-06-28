@@ -2,7 +2,6 @@ var featuresGeoJSON;
 var overlayProteins = {};
 var map;
 var controlLayers;
-var underlayingFeatureLayer;
 var connections = {};
 
 var PPINButton = function(map){
@@ -147,38 +146,6 @@ var renderMap = function(imageId, callback) {
                 });
 
                 controlLayers.addOverlay(featuresLayer, "Localizations");
-
-                underlayingFeatureLayer = L.geoJson(featuresGeoJSON, {
-                    pointToLayer: function (feature, latlng) {
-                        return L.circle(latlng, {
-                            radius: feature.properties.radius || 6,
-                            interactive: false
-                        });
-                    },
-                    style: function(feature) {
-                        if(feature.geometry.type == "LineString") {
-                            return {
-                                fillColor: "#a7adba",
-                                color: "#a7adba",
-                                weight: 4,
-                                opacity: 0,
-                                fillOpacity: 0,
-                                interactive: false
-                            };
-                        } else {
-                            return {
-                                fillColor: "#a7adba",
-                                color: "#a7adba",
-                                weight: 0,
-                                opacity: 0,
-                                fillOpacity: 0,
-                                interactive: false
-                            };
-                        }
-                    }
-                });
-
-                underlayingFeatureLayer.addTo(map);
 
                 hideProgress();
                 callback();
@@ -401,8 +368,8 @@ var addToMapAndLocalizationsTable = function(protein, proteinEntryName){
                                 overlayProteins[value].layer.clearLayers();
                                 overlayProteins[value].layer.addLayer(newLocPoint);
 
-                                // Reset precalculated connections layers for point, as point has changed position
-                                connections[value] = undefined;
+                                // Reset precalculated connections layers for all-points, as one point has changed position, and both in- and out-bound conenctions might be broken
+                                connections = {};
                             }
                         });
 
@@ -410,7 +377,7 @@ var addToMapAndLocalizationsTable = function(protein, proteinEntryName){
                         var interactionPartners = e.popup.interactionPartners;
 
                         if(connections[proteinEntryName] !== undefined){
-
+                            connections[proteinEntryName].addTo(map);
                         } else {
                             // Initiaize lines container
                             connections[proteinEntryName] = L.layerGroup();
@@ -424,10 +391,20 @@ var addToMapAndLocalizationsTable = function(protein, proteinEntryName){
                                     var latlngs = Array();
 
                                     //Get latlng from first marker, that is being displayed on the map!!!
-                                    latlngs.push(overlayProteins[proteinEntryName].layer.getLayers()[0].getLatLng());
+                                    var pt1 = overlayProteins[proteinEntryName].layer.getLayers()[0].getLatLng();
 
                                     //Get latlng from second marker
-                                    latlngs.push(overlayProteins[interactionPartner.interactor].layer.getLayers()[0].getLatLng());
+                                    var pt2 = overlayProteins[interactionPartner.interactor].layer.getLayers()[0].getLatLng();
+                                    
+                                    // Always display text from left to right
+                                    if(pt1.lng < pt2.lng){
+                                        latlngs.push(pt1);
+                                        latlngs.push(pt2);
+                                    } else {
+                                        latlngs.push(pt2);
+                                        latlngs.push(pt1);
+                                    }
+                                    
 
                                     //You can just keep adding markers
 
@@ -451,38 +428,10 @@ var addToMapAndLocalizationsTable = function(protein, proteinEntryName){
                                 connections[proteinEntryName].addTo(map);
                             }
                         }
-
-                        locs.forEach(function(loc){
-                            var object = _.find(underlayingFeatureLayer._layers,function(object){
-                                return object.feature.properties.localization == loc;
-                            });
-
-                            if(object){
-                                object.setStyle({
-                                    opacity: .8,
-                                    fillOpacity: .8,
-                                });
-                            }
-                        });
                     });
 
                     marker.on('popupclose', function(e) {
                         map.removeLayer(connections[proteinEntryName]);
-                        
-                        var locs = e.popup.locations;
-
-                        locs.forEach(function(loc){
-                            var object = _.find(underlayingFeatureLayer._layers,function(object){
-                                return object.feature.properties.localization == loc;
-                            });
-
-                            if(object){
-                                object.setStyle({
-                                    opacity: 0,
-                                    fillOpacity: 0,
-                                });
-                            }
-                        });
                     });
 
                     points.push(marker);
