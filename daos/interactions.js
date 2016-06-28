@@ -71,12 +71,12 @@ module.exports = function(context) {
             return deferred.promise;
         },
 
-        findByUniprotId: function(uniprotId) {
+        findByUniprotEntryName: function(uniprotEntryName) {
             var deferred = context.promises.defer();
 
             interactionModel
                 .find({
-                edges: uniprotId
+                edges: uniprotEntryName
             })
                 .exec(function(error, interactions) {
                 if (error) {
