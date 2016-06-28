@@ -3,7 +3,7 @@
 Protein Localization and Protein-Protein Interaction (PPI) visualization tool.
 
 ## Live example:
-[cell.dallago.us](http://example.dallago.us)
+[cell.dallago.us](http://cell.dallago.us)
 
 ## Prerequisites:
 
