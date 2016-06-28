@@ -418,7 +418,9 @@ var addToMapAndLocalizationsTable = function(protein, proteinEntryName){
                                         // Minimum line width is 2
                                         weight: Math.log(score*100) > 1 ? Math.log(score*100) : 2
                                     });
-                                    polyline.setText(JSON.stringify(score*100), {
+                                    
+                                    // For the text, even if I use 0, it's fine. They can look up what it means in Hippie's data
+                                    polyline.setText(JSON.stringify(interactionPartner.score*100), {
                                         center: true,
                                         attributes: {
                                             style: "font-size: 2.5em;",
