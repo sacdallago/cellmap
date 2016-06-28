@@ -42,6 +42,7 @@ if (cluster.isMaster) {
     const universalAnalytics= require('universal-analytics');
     const session           = require('express-session');
     const MongoStore        = require('connect-mongo')(session);
+    const favicon           = require('serve-favicon');
 
 
     consoleStamp(console, {
@@ -88,6 +89,7 @@ if (cluster.isMaster) {
 
         // Export static folders
         app.use("/public", express.static(path.join(__dirname, "public")));
+        app.use(favicon(path.join(__dirname, "public", "cell.ico")));
 
         app.use(cookieParser());
         app.use(session({
