@@ -163,7 +163,7 @@ var renderMap = function(imageId, callback) {
 
                 map = L.map('map', {
                     maxZoom: 4,
-                    minZoom: 1,
+                    minZoom: 0,
                     maxBounds: [[-100, width+100], [height+100, -100]],
                     crs: L.CRS.Simple
                 }).setView([height/2, width/2], 1);
