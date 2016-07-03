@@ -79,7 +79,9 @@ html
                 updateURL: false,
                 pagination: false,
                 responsiveFallback : false,
-                delta: !{delta}
+                delta: !{delta},
+                // This will avoid nasty behaviours on mobile on non-map pages
+                element: document.getElementById('progressBarContainer')
             });
     else
         script.

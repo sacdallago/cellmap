@@ -31,6 +31,21 @@ var randomPointInPoly = function(polygon, vs) {
     }
 };
 
+var gotoInteractionsButton = function(map){
+    L.easyButton({
+        position: 'topright',
+        states: [{
+            stateName: 'gotoInteractions',   // name the state
+            icon:      'asterisk icon',          // and define its properties
+            title:     'Go to interactions', // like its title
+            onClick: function(btn, map) {  // and its callback
+                var currentUri = URI(window.location.href);
+                window.location.href = '/ppi/' + currentUri.filename() + currentUri.search();
+            }
+        }]
+    }).addTo(map);
+};
+
 var renderMap = function(imageId, callback) {
     renderProgress();
     // Wait till I have the localizations
@@ -80,6 +95,7 @@ var renderMap = function(imageId, callback) {
 
                 // Add fading button
                 loadFadingButton(map);
+                gotoInteractionsButton(map);
 
                 // Add features highlight
 

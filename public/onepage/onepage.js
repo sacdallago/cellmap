@@ -59,11 +59,11 @@ function onePageScroll(element, options) {
     }
     
   	_swipeEvents(el);
-  	document.addEventListener("swipeDown",  function(event){
+  	(settings.element || document).addEventListener("swipeDown",  function(event){
   	  if (!_hasClass(body, "disabled-onepage-scroll")) event.preventDefault();
   		moveUp(el);
   	});
-  	document.addEventListener("swipeUp", function(event){
+  	(settings.element || document).addEventListener("swipeUp", function(event){
   		if (!_hasClass(body, "disabled-onepage-scroll")) event.preventDefault();
   		moveDown(el);
   	});
@@ -129,8 +129,8 @@ function onePageScroll(element, options) {
   		if (!_hasClass(body, "disabled-onepage-scroll")) _init_scroll(event, delta);
   	}
     
-  	//document.addEventListener('mousewheel', _mouseWheelHandler);
-  	//document.addEventListener('DOMMouseScroll', _mouseWheelHandler);
+  	//(settings.element || document).addEventListener('mousewheel', _mouseWheelHandler);
+  	//(settings.element || document).addEventListener('DOMMouseScroll', _mouseWheelHandler);
     
     
   	if(settings.responsiveFallback != false) {
@@ -174,21 +174,22 @@ function onePageScroll(element, options) {
   	var startX,
   		startY;
   
-    document.addEventListener("touchstart", touchstart);  
+    (settings.element || document).addEventListener("touchstart", touchstart);  
   
   	function touchstart(event) {
   		var touches = event.touches;
   		if (touches && touches.length) {
   			startX = touches[0].pageX;
   			startY = touches[0].pageY;
-  			document.addEventListener("touchmove", touchmove);
+  			(settings.element || document).addEventListener("touchmove", touchmove);
   		}
   	}
   
   	function touchmove(event) {
   		var touches = event.touches;
   		if (touches && touches.length) {
-  		  event.preventDefault();
+          // No preventDefault = long scroll to move pages, short scroll to scroll in-page
+  		  // event.preventDefault();
   			var deltaX = startX - touches[0].pageX;
   			var deltaY = startY - touches[0].pageY;
   
@@ -329,17 +330,17 @@ function onePageScroll(element, options) {
       
 
 			_swipeEvents(el);
-			document.addEventListener("swipeDown",  function(event){
+			(settings.element || document).addEventListener("swipeDown",  function(event){
 			  if (!_hasClass(body, "disabled-onepage-scroll")) event.preventDefault();
 				moveUp(el);
 			});
-			document.addEventListener("swipeUp", function(event){
+			(settings.element || document).addEventListener("swipeUp", function(event){
 				if (!_hasClass(body, "disabled-onepage-scroll")) event.preventDefault();
 				moveDown(el);
 			});
       
-      document.addEventListener('mousewheel', _mouseWheelHandler);
-  		document.addEventListener('DOMMouseScroll', _mouseWheelHandler);
+      (settings.element || document).addEventListener('mousewheel', _mouseWheelHandler);
+  		(settings.element || document).addEventListener('DOMMouseScroll', _mouseWheelHandler);
 			
 		}
 	}

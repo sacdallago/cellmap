@@ -35,6 +35,21 @@ var PPINButton = function(map){
     }).addTo(map);
 };
 
+var gotoLocalizationsButton = function(map){
+    L.easyButton({
+        position: 'topright',
+        states: [{
+            stateName: 'gotoLocalizations',   // name the state
+            icon:      'Map Outline icon',          // and define its properties
+            title:     'Go to localizations', // like its title
+            onClick: function(btn, map) {  // and its callback
+                var currentUri = URI(window.location.href);
+                window.location.href = '/map/' + currentUri.filename() + currentUri.search();
+            }
+        }]
+    }).addTo(map);
+};
+
 var randomPointInPoly = function(polygon, vs) {
     var bounds = polygon.getBounds(); 
     var x_min  = bounds.getEast();
@@ -111,6 +126,7 @@ var renderMap = function(imageId, callback) {
 
                 // Add fading button
                 PPINButton(map);
+                gotoLocalizationsButton(map);
                 loadFadingButton(map);
 
                 // Add features highlight
@@ -381,7 +397,7 @@ var addToMapAndLocalizationsTable = function(protein, proteinEntryName){
                         } else {
                             // Initiaize lines container
                             connections[proteinEntryName] = L.layerGroup();
-                            
+
                             for(var potentialInteractor in overlayProteins){
                                 var interactionPartner = _.find(interactionPartners, function(proteinInteractors){
                                     return proteinInteractors.interactor === potentialInteractor;
@@ -395,7 +411,7 @@ var addToMapAndLocalizationsTable = function(protein, proteinEntryName){
 
                                     //Get latlng from second marker
                                     var pt2 = overlayProteins[interactionPartner.interactor].layer.getLayers()[0].getLatLng();
-                                    
+
                                     // Always display text from left to right
                                     if(pt1.lng < pt2.lng){
                                         latlngs.push(pt1);
@@ -404,7 +420,7 @@ var addToMapAndLocalizationsTable = function(protein, proteinEntryName){
                                         latlngs.push(pt2);
                                         latlngs.push(pt1);
                                     }
-                                    
+
 
                                     // Sometimes, the score can be 0. This can mess up things, so assign 0.01 if score is < 0.00
                                     var score = interactionPartner.score > 0.00 ? interactionPartner.score : 0.01;
@@ -418,7 +434,7 @@ var addToMapAndLocalizationsTable = function(protein, proteinEntryName){
                                         // Minimum line width is 2
                                         weight: Math.log(score*100) > 1 ? Math.log(score*100) : 2
                                     });
-                                    
+
                                     // For the text, even if I use 0, it's fine. They can look up what it means in Hippie's data
                                     polyline.setText(JSON.stringify(interactionPartner.score*100), {
                                         center: true,
@@ -555,13 +571,13 @@ $('.ui.search').search({
     },
     minCharacters : 2,
     onSelect: function(result, response) {
-        
+
         renderProgress();
-        
+
         for(proteinEntryName in connections){
             map.removeLayer(connections[proteinEntryName]);
         }
-        
+
         addToMappingsTable(result);
 
         $.ajax({
