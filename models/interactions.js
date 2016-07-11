@@ -27,7 +27,7 @@ module.exports = function(context) {
         createdAt : {
             type: Date,
             default: Date.now,
-            required: true,
+            required: true
         },
         updatedAt : {
             type: Date,

@@ -1,28 +1,28 @@
 module.exports = function(context) {
 
     // Imports
-    var mappingsDao = context.component('daos').module('mappings');
+    var proteinsDao = context.component('daos').module('proteins');
 
     return {
-        getProteinsMappings: function(request, response) {
+        getProteins: function(request, response) {
             const identifier = request.params.id.toUpperCase();
 
             if(identifier === undefined){
                 response.send([]);
             } else {
-                mappingsDao.findProteinNames(identifier).then(function(proteins){
+                proteinsDao.findProteinNames(identifier).then(function(proteins){
                     response.send(proteins);
                 }, function(error){
                     response.status(500).send(error);
                 });
             }
         },
-        getProteinMappingByUniProtID: function(request, response) {
+        getProteinByUniProtID: function(request, response) {
             const identifier = request.params.id.toUpperCase();
 
-            mappingsDao.findByUniprotId(identifier).then(function(mapping){
+            proteinsDao.findByUniprotId(identifier).then(function(protein){
                 if(mapping){
-                    response.send(mapping);
+                    response.send(protein);
                 } else {
                     response.status(404).send();
                 }

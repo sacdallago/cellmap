@@ -1,0 +1,17 @@
+extends base
+
+block preStyles
+    link(rel='stylesheet', href='/public/leaflet/style.css')
+
+block content
+    #spacedText
+        div !{protein}
+    #title
+        a(href="/") CellMap
+        
+
+block scripts
+    script(type="text/javascript", src="/public/leaflet/script.js")
+    script(type="text/javascript", src="/public/leaflet.TextPath/leaflet.TextPath.js")
+    script(type="text/javascript", src="/public/regression.js")
+    script(type="text/javascript", src="/public/protein.js")

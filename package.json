@@ -43,6 +43,7 @@
         "kuesterImporter": "node scripts/kuesterImporter.js",
         "hippieImporter": "node scripts/hippieImporter.js",
         "uniprotImporter": "node scripts/uniprotImporter.js",
+        "proteins": "node scripts/proteinImporter.js",
         "start": "node app.js"
     }
 }

@@ -9,6 +9,11 @@
     height: 100%;
 }
 
+#miniMap {
+    width: 100%;
+    height: 7em;
+}
+
 #title {
     position: relative;
     font-size: 5rem;
@@ -47,7 +52,7 @@
 #full {
     margin-left: 8rem;
     line-height: 3rem;
-	font-size: 3rem;
+    font-size: 3rem;
     min-height: 16rem;
 }
 #full > p {
@@ -81,4 +86,26 @@
     -webkit-transition: opacity 0.5s ease-in-out;
     -moz-transition: opacity 0.5s ease-in-out;
     transition: opacity 0.5s ease-in-out;
+}
+
+/* grid */
+
+.grid-item {
+    text-align: center;
+    line-height: 8em;
+    min-width: 10em;
+    min-height: 10em;
+    border: 1px solid black;
+}
+
+.cubescontainer {
+    display: inline-flex;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.cube {
+    width: 2em;
+    height: 2em;
 }

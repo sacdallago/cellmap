@@ -2,6 +2,7 @@ module.exports = function(context) {
 
     // Imports
     var localizationsDao = context.component('daos').module('localizations');
+    var proteinsDao = context.component('daos').module('proteins');
 
     return {
         index: function(request, response) {
@@ -66,7 +67,7 @@ module.exports = function(context) {
                     requestProteins: requestProteins,
                     localizations: context.constants.localizations
                 });
-            },function(error){
+            }, function(error){
                 response.render('error', {
                     title: 'Error',
                     message: "Unable to retrieve images metadata",
@@ -81,6 +82,31 @@ module.exports = function(context) {
                 iid: imageId,
                 localizations: context.constants.localizations
             });
+        },
+        search: function(request, response) {
+            response.render('search', {
+                title: 'Search for proteins',
+                localizations: context.constants.localizations
+            });
+        },
+
+        protein: function(request, response) {
+            const uniprotId = request.params.uniprotId;
+
+            proteinsDao.findByUniprotId(uniprotId).then(function(requestProtein){
+                response.render('protein', {
+                    title: uniprotId,
+                    localizations: context.constants.localizations,
+                    protein: requestProtein
+                });
+            }, function(error){
+                response.render('error', {
+                    title: 'Error',
+                    message: "Unable to retrieve protein data",
+                    error: error
+                });
+            });
+
         }
     }
 }

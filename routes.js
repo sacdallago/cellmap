@@ -5,4 +5,5 @@ module.exports = function(context) {
     const localizationsService = context.component('services').module('localizations');
     const interactionsService = context.component('services').module('interactions');
     const mappingsService = context.component('services').module('mappings');
+    const proteinsService = context.component('services').module('proteins');
 }

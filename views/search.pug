@@ -1,0 +1,19 @@
+extends base
+
+block content
+    #spacedText
+        .ui.fluid.input.search
+            input(type="text", name="prot", placeholder="Search protein").prompt
+        br
+        .grid
+    #title
+        a(href="/") CellMap
+        
+block scripts
+    - var delta = 50
+    script(type="text/javascript", src="/public/isotope/isotope.js")
+    script(type="text/javascript", src="/public/isotope/packery.js")
+    script(type="text/javascript", src="/public/utilities.js")
+    script(type="text/javascript", src="/public/search.js")
+    script().
+        var localizations = initializeLocalizations(!{JSON.stringify(localizations)});

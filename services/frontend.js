@@ -7,5 +7,7 @@ module.exports = function(context) {
         .get('/editor/:iid', frontendController.editor)
         .get('/ppi/:iid', frontendController.ppi)
         .get('/error', frontendController.error)
+        .get('/search', frontendController.search)
+        .get('/protein/:uniprotId', frontendController.protein)
         .get('/about', frontendController.about);
 }
