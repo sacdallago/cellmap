@@ -92,10 +92,13 @@
 
 .grid-item {
     text-align: center;
-    line-height: 8em;
-    min-width: 10em;
     min-height: 10em;
+    min-width: 10em;
     border: 1px solid black;
+}
+
+.grid-item > p {
+    line-height: 10em;
 }
 
 .cubescontainer {
@@ -110,4 +113,10 @@
 .cube {
     width: 2em;
     height: 2em;
+}
+
+.interactionCount {
+    position: absolute;
+    bottom: 1px;
+    right: 3px;
 }

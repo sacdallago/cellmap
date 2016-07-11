@@ -62,7 +62,7 @@ $('.ui.search').search({
         var items = [];
 
         response.forEach(function(protein){
-            var html = '<div class="grid-item">' + protein.uniprotId + '<div class="cubescontainer">';
+            var html = '<div class="grid-item"><p>' + protein.uniprotId + '</p><div class="cubescontainer">';
 
             if(protein.localizations && protein.localizations.localizations && protein.localizations.localizations.length > 0){
                 console.log('fere');
@@ -70,17 +70,19 @@ $('.ui.search').search({
                     html += '<div class="cube" style="background-color:' + localizations[localization].color + ';"></div>'
                 });
             }
+            
+            html += '</div>';
+            
+            if(protein.interactions && protein.interactions.partners && protein.interactions.partners.length > 0){
+                html += '<div class="interactionCount">' + protein.interactions.partners.length + '</div>'
+            }
 
-            html += '</div></div>';
+            html += '</div>';
 
             var element = $(html);
-
             element.data("protein", protein);
-
             items.push(element[0]);
         });
-
-        //grid.append(items).isotope('appended', items).isotope('shuffle');
 
         grid.isotope('insert', items);
 
