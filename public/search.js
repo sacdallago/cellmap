@@ -12,11 +12,6 @@ const grid = $('.grid').isotope({
     layoutMode: 'packery',
     packery: {
         gutter: 10
-    },
-    // options for cellsByRow layout mode
-    cellsByRow: {
-        columnWidth: 200,
-        rowHeight: 150
     }
 });
 
@@ -62,10 +57,9 @@ $('.ui.search').search({
         var items = [];
 
         response.forEach(function(protein){
-            var html = '<div class="grid-item"><p>' + protein.uniprotId + '</p><div class="cubescontainer">';
+            var html = '<div class="grid-item" style="border-color:' + localizations[protein.localizations.localizations[0]].color + '"><p>' + protein.uniprotId + '</p><div class="cubescontainer">';
 
             if(protein.localizations && protein.localizations.localizations && protein.localizations.localizations.length > 0){
-                console.log('fere');
                 protein.localizations.localizations.forEach(function(localization){
                     html += '<div class="cube" style="background-color:' + localizations[localization].color + ';"></div>'
                 });

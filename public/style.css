@@ -94,11 +94,13 @@
     text-align: center;
     min-height: 10em;
     min-width: 10em;
-    border: 1px solid black;
+    border: 2px solid black;
 }
 
 .grid-item > p {
     line-height: 10em;
+    margin: 0;
+    font-weight: bold;
 }
 
 .cubescontainer {
@@ -113,10 +115,23 @@
 .cube {
     width: 2em;
     height: 2em;
+    margin-right: 2px;
 }
 
 .interactionCount {
     position: absolute;
     bottom: 1px;
     right: 3px;
+    font-size: 13pt;
+    opacity: .7;
+}
+
+.prompt.inline {
+    border: 0 !important;
+    font-size: 2em !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+    opacity: 1 !important;
+    color: black !important;
+    text-decoration: underline !important;
 }
