@@ -76,13 +76,19 @@ if (cluster.isMaster) {
                     if(interactions){
                         interactions = interactions.map(function(interaction){
                             if(interaction.val0 == protein.entryName){
+                                const interactor = mappingSource.find(function(mapping){
+                                    return mapping['entry name'] == interaction.val2;
+                                });
                                 return {
-                                    interactor: interaction.val2,
+                                    interactor: interactor['entry'],
                                     score: parseFloat(interaction.val4)
                                 };
                             } else {
+                                const interactor = mappingSource.find(function(mapping){
+                                    return mapping['entry name'] == interaction.val0;
+                                });
                                 return {
-                                    interactor: interaction.val0,
+                                    interactor: interactor['entry'],
                                     score: parseFloat(interaction.val4)
                                 };
                             }

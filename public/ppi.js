@@ -16,68 +16,72 @@ var PPINButton = function(map){
                 networkLayer = L.layerGroup();
 
                 for(var proteinEntryName in overlayProteins){
-                    const interactionPartners = overlayProteins[proteinEntryName].layer.getLayers()[0].interactionPartners;
+                    if(overlayProteins[proteinEntryName].layer){
+                        const interactionPartners = overlayProteins[proteinEntryName].layer.getLayers()[0].interactionPartners;
 
+                        if(connections[proteinEntryName] !== undefined){
+                            connections[proteinEntryName].addTo(networkLayer);
+                        } else {
+                            // Initiaize lines container
+                            connections[proteinEntryName] = L.layerGroup();
 
-                    if(connections[proteinEntryName] !== undefined){
-                        connections[proteinEntryName].addTo(networkLayer);
-                    } else {
-                        // Initiaize lines container
-                        connections[proteinEntryName] = L.layerGroup();
-
-                        for(var potentialInteractor in overlayProteins){
-                            var interactionPartner = _.find(interactionPartners, function(proteinInteractors){
-                                return proteinInteractors.interactor === potentialInteractor;
-                            });
-
-                            if(interactionPartner){
-                                var latlngs = Array();
-
-                                //Get latlng from first marker, that is being displayed on the map!!!
-                                var pt1 = overlayProteins[proteinEntryName].layer.getLayers()[0].getLatLng();
-
-                                //Get latlng from second marker
-                                var pt2 = overlayProteins[interactionPartner.interactor].layer.getLayers()[0].getLatLng();
-
-                                // Always display text from left to right
-                                if(pt1.lng < pt2.lng){
-                                    latlngs.push(pt1);
-                                    latlngs.push(pt2);
-                                } else {
-                                    latlngs.push(pt2);
-                                    latlngs.push(pt1);
-                                }
-
-
-                                // Sometimes, the score can be 0. This can mess up things, so assign 0.01 if score is < 0.00
-                                var score = interactionPartner.score > 0.00 ? interactionPartner.score : 0.01;
-
-                                //From documentation http://leafletjs.com/reference.html#polyline
-                                // create a red polyline from an arrays of LatLng points
-                                var polyline = L.polyline(latlngs, {
-                                    color: 'black',
-                                    opacity: .6,
-                                    dashArray: (interactionPartner.score*100) + ", 15",
-                                    // Minimum line width is 2
-                                    weight: Math.log(score*100) > 1 ? Math.log(score*100) : 2
+                            for(var potentialInteractor in overlayProteins){
+                                var interactionPartner = _.find(interactionPartners, function(proteinInteractors){
+                                    return proteinInteractors.interactor === potentialInteractor;
                                 });
 
-                                // For the text, even if I use 0, it's fine. They can look up what it means in Hippie's data
-                                polyline.setText(JSON.stringify(interactionPartner.score*100), {
-                                    center: true,
-                                    attributes: {
-                                        style: "font-size: 2.5em;",
-                                        fill: "white",
-                                        stroke: "black",
-                                        "stroke-width": "1"
+                                if(interactionPartner){
+                                    var latlngs = Array();
+
+                                    //Get latlng from first marker, that is being displayed on the map!!!
+                                    var pt1 = overlayProteins[proteinEntryName].layer.getLayers()[0].getLatLng();
+
+                                    //Get latlng from second marker
+                                    if(overlayProteins[interactionPartner.interactor].layer){
+
+                                        var pt2 = overlayProteins[interactionPartner.interactor].layer.getLayers()[0].getLatLng();
+
+                                        // Always display text from left to right
+                                        if(pt1.lng < pt2.lng){
+                                            latlngs.push(pt1);
+                                            latlngs.push(pt2);
+                                        } else {
+                                            latlngs.push(pt2);
+                                            latlngs.push(pt1);
+                                        }
+
+
+                                        // Sometimes, the score can be 0. This can mess up things, so assign 0.01 if score is < 0.00
+                                        var score = interactionPartner.score > 0.00 ? interactionPartner.score : 0.01;
+
+                                        //From documentation http://leafletjs.com/reference.html#polyline
+                                        // create a red polyline from an arrays of LatLng points
+                                        var polyline = L.polyline(latlngs, {
+                                            color: 'black',
+                                            opacity: .6,
+                                            dashArray: (interactionPartner.score*100) + ", 15",
+                                            // Minimum line width is 2
+                                            weight: Math.log(score*100) > 1 ? Math.log(score*100) : 2
+                                        });
+
+                                        // For the text, even if I use 0, it's fine. They can look up what it means in Hippie's data
+                                        polyline.setText(JSON.stringify(interactionPartner.score*100), {
+                                            center: true,
+                                            attributes: {
+                                                style: "font-size: 2.5em;",
+                                                fill: "white",
+                                                stroke: "black",
+                                                "stroke-width": "1"
+                                            }
+                                        });
+
+                                        connections[proteinEntryName].addLayer(polyline);
                                     }
-                                });
-
-                                connections[proteinEntryName].addLayer(polyline);
+                                }
                             }
+                            connections[proteinEntryName].addTo(networkLayer);
                         }
-                        connections[proteinEntryName].addTo(networkLayer);
-                    }
+                    } 
                 }
                 hideProgress();
                 networkLayer.addTo(map);

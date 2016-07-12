@@ -94,11 +94,29 @@ module.exports = function(context) {
             const uniprotId = request.params.uniprotId;
 
             proteinsDao.findByUniprotId(uniprotId).then(function(requestProtein){
-                response.render('protein', {
-                    title: uniprotId,
-                    localizations: context.constants.localizations,
-                    protein: requestProtein
-                });
+                if(requestProtein) {
+                    proteinsDao.getPartners(requestProtein).then(function(partners){
+                        response.render('protein', {
+                            title: uniprotId,
+                            localizations: context.constants.localizations,
+                            protein: requestProtein,
+                            partners: partners
+                        });
+                    }, function(error){
+                        response.render('error', {
+                            title: 'Error',
+                            message: "Unable to retrieve protein interacitons data",
+                            error: error
+                        });
+                    });
+                } else {
+                    response.render('404', {
+                        title: 'No protein',
+                        message: "No protein by that name",
+                        error: "No protein by that name"
+                    });
+                }
+
             }, function(error){
                 response.render('error', {
                     title: 'Error',
