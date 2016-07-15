@@ -325,8 +325,6 @@ var addToInteractionMap = function(protein, color){
                 var root = addToInteractionMap(protein, "blue");
 
                 if(root !== undefined){
-                    root.addTo(interMap);
-
                     // SET BOTH MAPS TO BE CENTERED IN FIRST LOC
                     interMap.setView(root.getLatLng());
                     locMap.setView(root.getLatLng());
@@ -345,6 +343,9 @@ var addToInteractionMap = function(protein, color){
                             polyline.addTo(interMap);
                         }
                     });
+                    
+                    // Add as last, so it's above everything else
+                    root.addTo(interMap);
                 }
 
                 // Fade
