@@ -7,7 +7,13 @@ const grid = $('.grid').isotope({
     layoutMode: 'packery',
     packery: {
         gutter: 10
-    }
+    },
+    getSortData: {
+        interactionsStrength: '.interactionStrength parseFloat'
+    },
+    // sort by color then number
+    sortBy: 'interactionsStrength',
+    sortAscending: false
 });
 
 const modal = function(protein){
@@ -35,23 +41,58 @@ grid.on( 'click', '.grid-item', function() {
     modal($(this).data('protein'));
 });
 
+grid.on('click', '.cube', function(event) {
+    // Will avoid opening the modal!
+    event.stopPropagation();
+
+    // Filter only by selected localization type
+    grid.isotope({ filter: "." + $(this).data('localization') })
+
+    // Change button color, text
+    $('.locButton').text("Viewing: " + $(this).data('localization') + ", click to view all");
+});
+
+$('.locButton').on('click', function(){
+    grid.isotope({ filter: "*"});
+    $(this).text("");
+});
+
 (function(){
     var items = [];
 
+    var originalProtein = protein;
+
     partners.forEach(function(protein){
-        var html = '<div class="grid-item" style="border-color:' + localizations[protein.localizations.localizations[0]].color + '"><p>' + protein.uniprotId + '</p><div class="cubescontainer">';
+
+        var thisProteinInOriginalProteinInteractionPartners = originalProtein.interactions.partners.find(function(partner){
+            return partner.interactor == protein.uniprotId;
+        });
+
+        var html = '';
 
         if(protein.localizations && protein.localizations.localizations && protein.localizations.localizations.length > 0){
-            protein.localizations.localizations.forEach(function(localization){
-                html += '<div class="cube" style="background-color:' + localizations[localization].color + ';"></div>'
-            });
-        }
+            if(!(protein.localizations.localizations.length > 1)){
+                html += '<div class="grid-item ' + protein.localizations.localizations[0] + '" style="border-color:' + localizations[protein.localizations.localizations[0]].color + '"><p>' + protein.uniprotId + '</p><div class="cubescontainer">';
+            } else {
+                html += '<div class="grid-item ' + protein.localizations.localizations.map(function(localization){
+                    return localization.replace(/\s|\//g, "_")
+                }).join(' ') + '"><p>' + protein.uniprotId + '</p><div class="cubescontainer">';
+            }
 
-        html += '</div>';
+            protein.localizations.localizations.forEach(function(localization){
+                html += '<div class="cube" data-localization="' + localization.replace(/\s|\//g, "_") + '" style="background-color:' + localizations[localization].color + ';"></div>';
+            });
+
+            html += '</div>';
+        } else {
+            html += '<div class="grid-item"><p>' + protein.uniprotId + '</p>'
+        }
 
         if(protein.interactions && protein.interactions.partners && protein.interactions.partners.length > 0){
             html += '<div class="interactionCount">' + protein.interactions.partners.length + '</div>'
         }
+
+        html += '<div class="interactionStrength">' + thisProteinInOriginalProteinInteractionPartners.score + '</div>'
 
         html += '</div>';
 
@@ -285,6 +326,11 @@ var addToInteractionMap = function(protein, color){
 
                 if(root !== undefined){
                     root.addTo(interMap);
+
+                    // SET BOTH MAPS TO BE CENTERED IN FIRST LOC
+                    interMap.setView(root.getLatLng());
+                    locMap.setView(root.getLatLng());
+
                     partners.forEach(function(partner){
                         var p = addToInteractionMap(partner);
                         if(p !== undefined){
@@ -295,7 +341,7 @@ var addToInteractionMap = function(protein, color){
                                 dashArray: "1, 15",
                                 weight: 2
                             });
-                            
+
                             polyline.addTo(interMap);
                         }
                     });

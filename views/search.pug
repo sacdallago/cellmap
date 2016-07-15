@@ -2,9 +2,10 @@ extends base
 
 block content
     #spacedText
-        .ui.fluid.input.search
+        .ui.label.locButton
+        .ui.input.search
             input(type="text", name="prot", placeholder="Search protein").prompt.inline
-        br
+        .space
         .grid
             .grid-item(style="opacity:.5; border-style: dashed;")
                 p Protein 1
@@ -30,6 +31,6 @@ block scripts
     script(type="text/javascript", src="/public/isotope/isotope.js")
     script(type="text/javascript", src="/public/isotope/packery.js")
     script(type="text/javascript", src="/public/utilities.js")
-    script(type="text/javascript", src="/public/search.js")
     script().
         var localizations = initializeLocalizations(!{JSON.stringify(localizations)});
+    script(type="text/javascript", src="/public/search.js")
