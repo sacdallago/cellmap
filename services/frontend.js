@@ -3,8 +3,10 @@ module.exports = function(context) {
     context.router
         .get('/', frontendController.index)
         .get('/maps', frontendController.maps)
+        .get('/map', frontendController.map)
         .get('/map/:iid', frontendController.map)
         .get('/editor/:iid', frontendController.editor)
+        .get('/ppi', frontendController.ppi)
         .get('/ppi/:iid', frontendController.ppi)
         .get('/error', frontendController.error)
         .get('/search', frontendController.search)

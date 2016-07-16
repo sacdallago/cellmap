@@ -6,25 +6,25 @@ module.exports = function(context) {
 
     return {
         index: function(request, response) {
-            response.render('index', {
+            return response.render('index', {
                 title: 'Home'
             });
         },
         about: function(request, response) {
-            response.render('about', {
+            return response.render('about', {
                 title: 'About'
             });
         },
         maps: function(request, response) {
-            context.gridFs.files.find().toArray(function (err, files) {
+            return context.gridFs.files.find().toArray(function (err, files) {
                 if (err) {
-                    response.render('error', {
+                    return response.render('error', {
                         title: 'Error',
                         message: "Unable to retrieve maps metadata",
                         error: error
                     });
                 }
-                response.render('maps', {
+                return response.render('maps', {
                     title: 'Maps',
                     maps: files
                 });
@@ -32,25 +32,57 @@ module.exports = function(context) {
         },
         map: function(request, response) {
             const imageId = request.params.iid;
-            const proteins = request.query.p;
+            const proteins = (function(){
+                if (request.query.p !== undefined){
+                    if (request.query.p.constructor === Array){
+                        return request.query.p
+                    } else {
+                        return [request.query.p]
+                    }
+                } else {
+                    return undefined;
+                }
+            })();
 
-            localizationsDao.findProteins(proteins).then(function(requestProteins){
-                response.render('map', {
-                    title: 'Protein interaction visualizer',
-                    iid: imageId,
-                    requestProteins: requestProteins,
-                    localizations: context.constants.localizations
+            if(imageId !== undefined){
+                return localizationsDao.findProteins(proteins).then(function(requestProteins){
+                    return response.render('map', {
+                        title: 'Protein interaction visualizer',
+                        iid: imageId,
+                        requestProteins: requestProteins,
+                        localizations: context.constants.localizations
+                    });
+                },function(error){
+                    return response.render('error', {
+                        title: 'Error',
+                        message: "Unable to retrieve images metadata",
+                        error: error
+                    });
                 });
-            },function(error){
-                response.render('error', {
-                    title: 'Error',
-                    message: "Unable to retrieve images metadata",
-                    error: error
+            } else if(request.user && request.user.map){
+                return response.redirect('/map/' + request.user.map + (proteins !== undefined ? "?p=" + proteins.join('&p=') : '' ));
+            } else {
+                return context.gridFs.findOne({},function(error, element){
+                    if(error){
+                        return response.status(500).render('error', {
+                            title: '500',
+                            message: "Cannot retrieve an image",
+                            error: error
+                        });
+                    } else if(element === null){
+                        return response.status(404).render('404', {
+                            title: '404',
+                            message: "Cannot retrieve an image",
+                            error: error
+                        });
+                    } else {
+                        return response.redirect('/map/' + element._id + (proteins !== undefined ? "?p=" + proteins.join('&p=') : '' ));
+                    }
                 });
-            });
+            }
         },
         error: function(request, response) {
-            response.render('error', {
+            return response.render('error', {
                 title: 'Error',
                 message: "There was an unknown error with your request.",
                 error: "There was an unknown error with your request."
@@ -58,33 +90,66 @@ module.exports = function(context) {
         },
         ppi: function(request, response) {
             const imageId = request.params.iid;
-            const proteins = request.query.p;
+            const proteins = (function(){
+                if (request.query.p !== undefined){
+                    if (request.query.p.constructor === Array){
+                        return request.query.p
+                    } else {
+                        return [request.query.p]
+                    }
+                } else {
+                    return undefined;
+                }
+            })();
 
-            localizationsDao.findProteins(proteins).then(function(requestProteins){
-                response.render('ppi', {
-                    title: 'Protein interaction visualizer',
-                    iid: imageId,
-                    requestProteins: requestProteins,
-                    localizations: context.constants.localizations
+            if(imageId !== undefined){
+                return localizationsDao.findProteins(proteins).then(function(requestProteins){
+                    return response.render('ppi', {
+                        title: 'Protein interaction visualizer',
+                        iid: imageId,
+                        requestProteins: requestProteins,
+                        localizations: context.constants.localizations
+                    });
+                }, function(error){
+                    return response.render('error', {
+                        title: 'Error',
+                        message: "Unable to retrieve images metadata",
+                        error: error
+                    });
                 });
-            }, function(error){
-                response.render('error', {
-                    title: 'Error',
-                    message: "Unable to retrieve images metadata",
-                    error: error
+            } else if(request.user && request.user.map){
+                return response.redirect('/ppi/' + request.user.map + (proteins !== undefined ? "?p=" + proteins.join('&p=') : '' ));
+            } else {
+                return context.gridFs.findOne({},function(error, element){
+                    if(error){
+                        return response.status(500).render('error', {
+                            title: '500',
+                            message: "Cannot retrieve an image",
+                            error: error
+                        });
+                    } else if(element === null){
+                        return response.status(404).render('404', {
+                            title: '404',
+                            message: "Cannot retrieve an image",
+                            error: error
+                        });
+                    } else {
+                        return response.redirect('/ppi/' + element._id + (proteins !== undefined ? "?p=" + proteins.join('&p=') : '' ));
+                    }
                 });
-            });
+            }
+
         },
         editor: function(request, response) {
             const imageId = request.params.iid;
-            response.render('editor', {
+            return response.render('editor', {
                 title: 'Protein interaction visualizer',
                 iid: imageId,
                 localizations: context.constants.localizations
             });
         },
         search: function(request, response) {
-            response.render('search', {
+            return response.render('search', {
                 title: 'Search for proteins',
                 localizations: context.constants.localizations
             });
@@ -93,24 +158,24 @@ module.exports = function(context) {
         protein: function(request, response) {
             const uniprotId = request.params.uniprotId;
 
-            proteinsDao.findByUniprotId(uniprotId).then(function(requestProtein){
+            return proteinsDao.findByUniprotId(uniprotId).then(function(requestProtein){
                 if(requestProtein) {
-                    proteinsDao.getPartners(requestProtein).then(function(partners){
-                        response.render('protein', {
+                    return proteinsDao.getPartners(requestProtein).then(function(partners){
+                        return response.render('protein', {
                             title: uniprotId,
                             localizations: context.constants.localizations,
                             protein: requestProtein,
                             partners: partners
                         });
                     }, function(error){
-                        response.render('error', {
+                        return response.render('error', {
                             title: 'Error',
                             message: "Unable to retrieve protein interacitons data",
                             error: error
                         });
                     });
                 } else {
-                    response.render('404', {
+                    return response.render('404', {
                         title: 'No protein',
                         message: "No protein by that name",
                         error: "No protein by that name"
@@ -118,7 +183,7 @@ module.exports = function(context) {
                 }
 
             }, function(error){
-                response.render('error', {
+                return response.render('error', {
                     title: 'Error',
                     message: "Unable to retrieve protein data",
                     error: error
