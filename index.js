@@ -80,18 +80,18 @@ module.exports = {
         // If the connection throws an error
         db.on('error', function (err) {
             console.log('Mongoose default connection error: ' + err);
-            process.exit(1);
+            return process.exit(1);
         });
 
         // When the connection is disconnected
         db.on('disconnected', function () {
             console.log('Mongoose default connection disconnected');
-            process.exit(1);
+            return process.exit(1);
         });
 
         db.on('open', function () {
             context.gridFs = gridFs(db.db, context.mongoose.mongo);
-            callback(context);
+            return callback(context);
         });
     }
 }

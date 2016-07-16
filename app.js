@@ -234,6 +234,7 @@ if (cluster.isMaster) {
         path.join(__dirname, "services"),
         path.join(__dirname, "controllers"),
         path.join(__dirname, "daos"),
+        path.join(__dirname, "models"),
         path.join(__dirname, "app.js"),
         path.join(__dirname, "index.js"),
     ], function(filename) {

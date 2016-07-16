@@ -44,6 +44,7 @@
         "hippieImporter": "node scripts/hippieImporter.js",
         "uniprotImporter": "node scripts/uniprotImporter.js",
         "proteins": "node scripts/proteinImporter.js",
-        "start": "node app.js"
+        "start": "node app.js",
+        "build": "node scripts/build.js"
     }
 }

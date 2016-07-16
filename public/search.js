@@ -77,7 +77,7 @@ $('.ui.search').search({
 
             if(protein.localizations && protein.localizations.localizations && protein.localizations.localizations.length > 0){
                 if(!(protein.localizations.localizations.length > 1)){
-                    html += '<div class="grid-item ' + protein.localizations.localizations[0] + '" style="border-color:' + localizations[protein.localizations.localizations[0]].color + '"><p>' + protein.uniprotId + '</p><div class="cubescontainer">';
+                    html += '<div class="grid-item ' + protein.localizations.localizations[0].replace(/\s|\//g, "_") + '" style="border-color:' + localizations[protein.localizations.localizations[0]].color + '"><p>' + protein.uniprotId + '</p><div class="cubescontainer">';
                 } else {
                     html += '<div class="grid-item ' + protein.localizations.localizations.map(function(localization){
                         return localization.replace(/\s|\//g, "_")
