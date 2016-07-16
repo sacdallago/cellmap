@@ -4,7 +4,7 @@ block content
     #spacedText 
         if displayName
             .ui.header Upload a new map
-            form(action="/maps", method="post", enctype="multipart/form-data").ui.form
+            form(action="/api/maps", method="post", enctype="multipart/form-data").ui.form
                 input(type="file", name="image", placeholder="/path/to/img.png")
                 button(type="submit").ui.green.button Submit
             if maps
@@ -19,7 +19,7 @@ block content
                                             a(href="/ppi/" + map._id).ui.button.attached Protein-Protein interactions
                                             a(href="/editor/" + map._id).ui.button.attached Modify Localizations
                                             .ui.red.button.attached Delete
-                                img(src="/maps/" + map._id)
+                                img(src="/api/maps/" + map._id)
         else
             if maps
                  .ui.special.cards
@@ -31,7 +31,7 @@ block content
                                         .center
                                             a(href="/map/" + map._id).ui.button.attached Localizations
                                             a(href="/ppi/" + map._id).ui.button.attached Protein-Protein interactions
-                                img(src="/maps/" + map._id)
+                                img(src="/api/maps/" + map._id)
     #title
         a(href="/") CellMap
 block scripts

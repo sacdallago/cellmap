@@ -4,21 +4,42 @@ module.exports = function(context) {
         getImage: function(request, response) {
             const imageId = request.params.iid;
 
-            var readstream = context.gridFs.createReadStream({
-                _id: imageId
-            });
-
-            readstream.on('error', function (error) {
-
-                response.render('404', {
-                    title: '404',
-                    message: "Unable to find image",
-                    error: error
+            if(imageId !== undefined){
+                var readstream = context.gridFs.createReadStream({
+                    _id: imageId
                 });
 
-            });
+                readstream.on('error', function (error) {
+                    response.status(404).render('404', {
+                        title: '404',
+                        message: "Unable to find image",
+                        error: error
+                    });
 
-            readstream.pipe(response);
+                });
+
+                return readstream.pipe(response);
+            } else if(request.user && request.user.map){
+                return response.redirect('/api/maps/' + request.user.map);
+            } else {
+                return context.gridFs.findOne({},function(error, element){
+                    if(error){
+                        response.status(500).render('error', {
+                            title: '500',
+                            message: "Cannot retrieve an image",
+                            error: error
+                        });
+                    } else if(element === null){
+                        response.status(404).render('404', {
+                            title: '404',
+                            message: "Cannot retrieve an image",
+                            error: error
+                        });
+                    } else {
+                        return response.redirect('/api/maps/' + element._id);
+                    }
+                });
+            }
         },
         insertImage: function(request, response) {
             if(request.is('multipart/form-data')) {
@@ -39,7 +60,7 @@ module.exports = function(context) {
                     }
 
                     if (image.type != 'image/png' && image.type != 'image/jpeg') {
-                        response.render('error', {
+                        response.status(500).render('error', {
                             title: 'Error',
                             message: "Unable to post request",
                             error: "Allowed calls include:\n - multipart/form-data\n With attributes 'image' in jpeg or png format"
@@ -52,7 +73,7 @@ module.exports = function(context) {
                     source.pipe(destination);
 
                     destination.on('error', function (error) {
-                        response.render('error', {
+                        response.status(500).render('error', {
                             title: 'Error',
                             message: "Not able to write file",
                             error: error
@@ -63,7 +84,7 @@ module.exports = function(context) {
                     });
                 });
             } else {
-                response.render('error', {
+                response.status(403).render('error', {
                     title: 'Error',
                     message: "Unable to post request",
                     error: "Allowed calls include:\n - multipart/form-data\n With attributes 'image' in jpeg or png format"

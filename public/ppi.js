@@ -145,13 +145,13 @@ var renderMap = function(imageId, callback) {
     renderProgress();
     // Wait till I have the localizations
     $.ajax({
-        url: '/features/' + imageId,
+        url: '/api/features/' + imageId,
         type: 'GET',
         success: function(results) {
             featuresGeoJSON = results;
 
             var img = new Image();
-            img.src = '/maps/'+imageId;
+            img.src = '/api/maps/'+imageId;
 
             // Wait untill I have the image
             img.onload = function() {

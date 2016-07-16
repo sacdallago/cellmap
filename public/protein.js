@@ -1,108 +1,110 @@
 // Build the grid
-
-const grid = $('.grid').isotope({
-    // main isotope options
-    itemSelector: '.grid-item',
-    // set layoutMode
-    layoutMode: 'packery',
-    packery: {
-        gutter: 10
-    },
-    getSortData: {
-        interactionsStrength: '.interactionStrength parseFloat'
-    },
-    // sort by color then number
-    sortBy: 'interactionsStrength',
-    sortAscending: false
-});
-
-const modal = function(protein){
-    var html = '<div class="ui modal">';
-    // '<i class="close icon"></i>';
-    html += '<div class="header">' + protein.uniprotId + '</div>';
-    html += '<div class="content">';
-    html += '<p><strong>Primary gene:</strong> ' + protein.geneName + '</p>';
-    if(protein.proteinName){
-        html += '<p><strong>Protein name:</strong> ' + protein.proteinName + '</p>';
-    }
-    if(protein.localizations && protein.localizations.localizations && protein.localizations.localizations.length > 0){
-        html += '<p><strong>Localizations:</strong> ' + protein.localizations.localizations.map(function(element){return element + " "}) + '</p>';
-    }
-    if(protein.interactions && protein.interactions.partners && protein.interactions.partners.length > 0){
-        html += '<p><strong>Interaction partners:</strong> ' + protein.interactions.partners.map(function(element){return element.interactor + " "}) + '</p>';
-    }
-    html += '</div>';
-    html += '<div class="actions"><a href="/protein/' + protein.uniprotId + '" class="ui approve button">Go to protein page</a></div>';
-    html += '</div>';
-    $(html).modal('show');
-}
-
-grid.on( 'click', '.grid-item', function() {
-    modal($(this).data('protein'));
-});
-
-grid.on('click', '.cube', function(event) {
-    // Will avoid opening the modal!
-    event.stopPropagation();
-
-    // Filter only by selected localization type
-    grid.isotope({ filter: "." + $(this).data('localization') })
-
-    // Change button color, text
-    $('.locButton').text("Viewing: " + $(this).data('localization') + ", click to view all");
-});
-
-$('.locButton').on('click', function(){
-    grid.isotope({ filter: "*"});
-    $(this).text("");
-});
-
-(function(){
-    var items = [];
-
-    var originalProtein = protein;
-
-    partners.forEach(function(protein){
-
-        var thisProteinInOriginalProteinInteractionPartners = originalProtein.interactions.partners.find(function(partner){
-            return partner.interactor == protein.uniprotId;
-        });
-
-        var html = '';
-
-        if(protein.localizations && protein.localizations.localizations && protein.localizations.localizations.length > 0){
-            if(!(protein.localizations.localizations.length > 1)){
-                html += '<div class="grid-item ' + protein.localizations.localizations[0].replace(/\s|\//g, "_") + '" style="border-color:' + localizations[protein.localizations.localizations[0]].color + '"><p>' + protein.uniprotId + '</p><div class="cubescontainer">';
-            } else {
-                html += '<div class="grid-item ' + protein.localizations.localizations.map(function(localization){
-                    return localization.replace(/\s|\//g, "_")
-                }).join(' ') + '"><p>' + protein.uniprotId + '</p><div class="cubescontainer">';
-            }
-
-            protein.localizations.localizations.forEach(function(localization){
-                html += '<div class="cube" data-localization="' + localization.replace(/\s|\//g, "_") + '" style="background-color:' + localizations[localization].color + ';"></div>';
-            });
-
-            html += '</div>';
-        } else {
-            html += '<div class="grid-item"><p>' + protein.uniprotId + '</p>'
-        }
-
-        if(protein.interactions && protein.interactions.partners && protein.interactions.partners.length > 0){
-            html += '<div class="interactionCount">' + protein.interactions.partners.length + '</div>'
-        }
-
-        html += '<div class="interactionStrength">' + thisProteinInOriginalProteinInteractionPartners.score + '</div>'
-
-        html += '</div>';
-
-        var element = $(html);
-        element.data("protein", protein);
-        items.push(element[0]);
+if(partners.length > 0){
+    const grid = $('.grid').isotope({
+        // main isotope options
+        itemSelector: '.grid-item',
+        // set layoutMode
+        layoutMode: 'packery',
+        packery: {
+            gutter: 10
+        },
+        getSortData: {
+            interactionsStrength: '.interactionStrength parseFloat'
+        },
+        // sort by color then number
+        sortBy: 'interactionsStrength',
+        sortAscending: false
     });
 
-    grid.isotope('insert', items);
-})();
+    const modal = function(protein){
+        var html = '<div class="ui modal">';
+        // '<i class="close icon"></i>';
+        html += '<div class="header">' + protein.uniprotId + '</div>';
+        html += '<div class="content">';
+        html += '<p><strong>Primary gene:</strong> ' + protein.geneName + '</p>';
+        if(protein.proteinName){
+            html += '<p><strong>Protein name:</strong> ' + protein.proteinName + '</p>';
+        }
+        if(protein.localizations && protein.localizations.localizations && protein.localizations.localizations.length > 0){
+            html += '<p><strong>Localizations:</strong> ' + protein.localizations.localizations.map(function(element){return element + " "}) + '</p>';
+        }
+        if(protein.interactions && protein.interactions.partners && protein.interactions.partners.length > 0){
+            html += '<p><strong>Interaction partners:</strong> ' + protein.interactions.partners.map(function(element){return element.interactor + " "}) + '</p>';
+        }
+        html += '</div>';
+        html += '<div class="actions"><a href="/protein/' + protein.uniprotId + '" class="ui approve button">Go to protein page</a></div>';
+        html += '</div>';
+        $(html).modal('show');
+    }
+
+    grid.on( 'click', '.grid-item', function() {
+        modal($(this).data('protein'));
+    });
+
+    grid.on('click', '.cube', function(event) {
+        // Will avoid opening the modal!
+        event.stopPropagation();
+
+        // Filter only by selected localization type
+        grid.isotope({ filter: "." + $(this).data('localization') })
+
+        // Change button color, text
+        $('.locButton').text("Viewing: " + $(this).data('localization') + ", click to view all");
+    });
+
+    $('.locButton').on('click', function(){
+        grid.isotope({ filter: "*"});
+        $(this).text("");
+    });
+
+
+    (function(){
+        var items = [];
+
+        var originalProtein = protein;
+
+        partners.forEach(function(protein){
+
+            var thisProteinInOriginalProteinInteractionPartners = originalProtein.interactions.partners.find(function(partner){
+                return partner.interactor == protein.uniprotId;
+            });
+
+            var html = '';
+
+            if(protein.localizations && protein.localizations.localizations && protein.localizations.localizations.length > 0){
+                if(!(protein.localizations.localizations.length > 1)){
+                    html += '<div class="grid-item ' + protein.localizations.localizations[0].replace(/\s|\//g, "_") + '" style="border-color:' + localizations[protein.localizations.localizations[0]].color + '"><p>' + protein.uniprotId + '</p><div class="cubescontainer">';
+                } else {
+                    html += '<div class="grid-item ' + protein.localizations.localizations.map(function(localization){
+                        return localization.replace(/\s|\//g, "_")
+                    }).join(' ') + '"><p>' + protein.uniprotId + '</p><div class="cubescontainer">';
+                }
+
+                protein.localizations.localizations.forEach(function(localization){
+                    html += '<div class="cube" data-localization="' + localization.replace(/\s|\//g, "_") + '" style="background-color:' + localizations[localization].color + ';"></div>';
+                });
+
+                html += '</div>';
+            } else {
+                html += '<div class="grid-item"><p>' + protein.uniprotId + '</p>'
+            }
+
+            if(protein.interactions && protein.interactions.partners && protein.interactions.partners.length > 0){
+                html += '<div class="interactionCount">' + protein.interactions.partners.length + '</div>'
+            }
+
+            html += '<div class="interactionStrength">' + thisProteinInOriginalProteinInteractionPartners.score + '</div>'
+
+            html += '</div>';
+
+            var element = $(html);
+            element.data("protein", protein);
+            items.push(element[0]);
+        });
+
+        grid.isotope('insert', items);
+    })();
+}
 
 var locMap;
 var interMap;
@@ -221,18 +223,17 @@ var addToInteractionMap = function(protein, color){
 };
 
 // Build maps
-(function(imageId) {
+(function() {
     renderProgress();
-    imageId = "573c87c182a9e1ae1e37d08e";
     // Wait till I have the localizations
     $.ajax({
-        url: '/features/' + imageId,
+        url: '/api/features',
         type: 'GET',
         success: function(results) {
             featuresGeoJSON = results;
 
             var img = new Image();
-            img.src = '/maps/' + imageId;
+            img.src = '/api/maps';
 
             // Wait untill I have the image
             img.onload = function() {
@@ -301,51 +302,53 @@ var addToInteractionMap = function(protein, color){
 
                 featuresLayer.addTo(locMap);
 
-                // INTERACTIONS MAP
-                interMap = L.map('interMap', {
-                    maxZoom: 4,
-                    minZoom: 0,
-                    maxBounds: [[-100, width+100], [height+100, -100]],
-                    crs: L.CRS.Simple,
-                    zoomControl: false 
-                }).setView([height/2, width/2], 1);
+                if(partners.length > 0){
+                    // INTERACTIONS MAP
+                    interMap = L.map('interMap', {
+                        maxZoom: 4,
+                        minZoom: 0,
+                        maxBounds: [[-100, width+100], [height+100, -100]],
+                        crs: L.CRS.Simple,
+                        zoomControl: false 
+                    }).setView([height/2, width/2], 1);
 
-                L.imageOverlay(this.src, imageBounds).addTo(interMap);
+                    L.imageOverlay(this.src, imageBounds).addTo(interMap);
 
-                // Disable drag and zoom handlers.
-                //map.dragging.disable();
-                interMap.touchZoom.disable();
-                interMap.doubleClickZoom.disable();
-                interMap.scrollWheelZoom.disable();
-                interMap.keyboard.disable();
+                    // Disable drag and zoom handlers.
+                    //map.dragging.disable();
+                    interMap.touchZoom.disable();
+                    interMap.doubleClickZoom.disable();
+                    interMap.scrollWheelZoom.disable();
+                    interMap.keyboard.disable();
 
-                // Disable tap handler, if present.
-                if (interMap.tap) interMap.tap.disable();
+                    // Disable tap handler, if present.
+                    if (interMap.tap) interMap.tap.disable();
 
-                var root = addToInteractionMap(protein, "blue");
+                    var root = addToInteractionMap(protein, "blue");
 
-                if(root !== undefined){
-                    // SET BOTH MAPS TO BE CENTERED IN FIRST LOC
-                    interMap.setView(root.getLatLng());
-                    locMap.setView(root.getLatLng());
+                    if(root !== undefined){
+                        // SET BOTH MAPS TO BE CENTERED IN FIRST LOC
+                        interMap.setView(root.getLatLng());
+                        locMap.setView(root.getLatLng());
 
-                    partners.forEach(function(partner){
-                        var p = addToInteractionMap(partner);
-                        if(p !== undefined){
-                            p.addTo(interMap);
-                            var polyline = L.polyline([root.getLatLng(),p.getLatLng()], {
-                                color: 'gray',
-                                opacity: .5,
-                                dashArray: "1, 15",
-                                weight: 2
-                            });
+                        partners.forEach(function(partner){
+                            var p = addToInteractionMap(partner);
+                            if(p !== undefined){
+                                p.addTo(interMap);
+                                var polyline = L.polyline([root.getLatLng(),p.getLatLng()], {
+                                    color: 'gray',
+                                    opacity: .5,
+                                    dashArray: "1, 15",
+                                    weight: 2
+                                });
 
-                            polyline.addTo(interMap);
-                        }
-                    });
-                    
-                    // Add as last, so it's above everything else
-                    root.addTo(interMap);
+                                polyline.addTo(interMap);
+                            }
+                        });
+
+                        // Add as last, so it's above everything else
+                        root.addTo(interMap);
+                    }
                 }
 
                 // Fade

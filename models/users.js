@@ -18,6 +18,9 @@ module.exports = function(context) {
         displayName : {
             type: String
         },
+        map : {
+            type: String
+        },
         localizationsOrigins: {
             type: [String],
             required: true,

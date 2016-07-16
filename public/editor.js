@@ -5,7 +5,7 @@ var mapId;
 var renderMap = function(imageId) {
     renderProgress();
     var img = new Image();
-    img.src = '/maps/'+imageId;
+    img.src = '/api/maps/'+imageId;
 
     img.onload = function() {
         var width = this.width;
@@ -98,7 +98,7 @@ var renderMap = function(imageId) {
                     btn.addEventListener('click', function(event){
                         var target = $(event.target)[0];
                         $.ajax({
-                            url: '/features/' + target.dataset.id,
+                            url: '/api/features/' + target.dataset.id,
                             type: 'DELETE',
                             success: function(results) {
                                 var object = _.find(featuresLayer._layers,function(object){
@@ -151,7 +151,7 @@ var renderMap = function(imageId) {
 
         // Get all the localizations that are already stored on the db.
         $.ajax({
-            url: '/features/' + imageId,
+            url: '/api/features/' + imageId,
             type: 'GET',
             success: function(results) {
                 featuresLayer.addData(results);

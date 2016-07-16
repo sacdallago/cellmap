@@ -39,11 +39,33 @@ module.exports = function(context) {
         getFeatures: function(request, response) {
             const imageId = request.params.iid;
 
-            featuresDao.find(imageId).then(function(features){
-                response.send(features);
-            }, function(error){
-                response.send(error);
-            });
+            if(imageId !== undefined){
+                return featuresDao.find(imageId).then(function(features){
+                    response.send(features);
+                }, function(error){
+                    response.send(error);
+                });
+            } else if(request.user && request.user.map){
+                return response.redirect('/api/features/' + request.user.map);
+            } else {
+                return context.gridFs.findOne({},function(error, element){
+                    if(error){
+                        response.status(500).render('error', {
+                            title: '500',
+                            message: "Cannot retrieve an image",
+                            error: error
+                        });
+                    } else if(element === null){
+                        response.status(404).render('404', {
+                            title: '404',
+                            message: "Cannot retrieve an image",
+                            error: error
+                        });
+                    } else {
+                        return response.redirect('/api/features/' + element._id);
+                    }
+                });
+            }
         },
     }
 }
