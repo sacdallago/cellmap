@@ -6,7 +6,7 @@ const interactionsSource = require(__dirname + "/../" + 'data/' + 'hippie.json')
 const mappingSource = require(__dirname + "/../" + 'data/' + 'proteinMapping.json');
 
 
-if (cluster.isMaster) {
+if (cluster.isMaster && !process.env.NOPARALLEL) {
     var step = Math.ceil(subcellLocAgesProteinsSource.length/numCPUs);
     var count = numCPUs;
 
@@ -36,7 +36,7 @@ if (cluster.isMaster) {
         //const mappingDao = context.component('daos').module('mappings');
 
         if(subcellLocAgesProteinsSource){
-            subcellLocAgesProteinsSource.slice(process.env.from, process.env.to).forEach(function(element){
+            subcellLocAgesProteinsSource.slice(process.env.from || 0, process.env.to || subcellLocAgesProteinsSource.length).forEach(function(element){
                 var deferred = context.promises.defer();
                 promises.push(deferred.promise);
 
@@ -73,7 +73,8 @@ if (cluster.isMaster) {
                             return false;
                         }
                     });
-                    if(interactions){
+
+                    if(interactions && interactions.length > 0){
                         interactions = interactions.map(function(interaction){
                             if(interaction.val0 == protein.entryName){
                                 const interactor = mappingSource.find(function(mapping){
@@ -93,10 +94,24 @@ if (cluster.isMaster) {
                                 };
                             }
                         });
-                        protein.interactions = {
-                            partners: interactions,
-                            notes: "Data from Hippie"
-                        };
+
+                        // Remove duplicates!
+                        uniqueInteractions = [];
+                        interactions.forEach(function(interaction){
+                            if(!uniqueInteractions.find(function(element){
+                                return element.interactor == interaction.interactor;
+                            })) {
+                                uniqueInteractions.push(interaction);
+                            }
+                        });
+
+                        // Should always evaluate to true, but you never now
+                        if(uniqueInteractions.length > 0){
+                            protein.interactions = {
+                                partners: uniqueInteractions,
+                                notes: "Data from Hippie"
+                            };
+                        }
                     }
                 }
 
