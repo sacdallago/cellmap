@@ -406,7 +406,7 @@ $('.ui.search').search({
         var currentUri = URI(window.location.href);
         currentUri.addSearch({'p':result.uniprotId});
 
-        window.history.pushState({'p':result.uniprotId}, "CellMap", currentUri.resource());
+        window.history.replaceState({'p':result.uniprotId}, "CellMap", currentUri.resource());
 
         return true;
     }

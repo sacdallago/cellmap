@@ -34,4 +34,7 @@ block scripts
     script(type="text/javascript", src="/public/utilities.js")
     script().
         var localizations = initializeLocalizations(!{JSON.stringify(localizations)});
+    if proteins
+        script().    
+            var queryProteins = !{JSON.stringify(proteins)};
     script(type="text/javascript", src="/public/search.js")

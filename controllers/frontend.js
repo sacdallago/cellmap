@@ -149,10 +149,42 @@ module.exports = function(context) {
             });
         },
         search: function(request, response) {
-            return response.render('search', {
-                title: 'Search for proteins',
-                localizations: context.constants.localizations
-            });
+
+            // Standardize query element: Either undefined or array.
+            const query = (function(){
+                if (request.query.q !== undefined){
+                    if (request.query.q.constructor === Array){
+                        return request.query.q
+                    } else {
+                        return [request.query.q]
+                    }
+                } else {
+                    return undefined;
+                }
+            })();
+
+            if(query !== undefined && query.length > 0 && query[0].length > 1){
+                // !!! ONLY TAKE FIRST ELEMENT OF QUERY!
+                const queryString = query[0].toUpperCase();
+                proteinsDao.findProteinNames(queryString).then(function(proteins){
+                    return response.render('search', {
+                        title: 'Search for proteins',
+                        localizations: context.constants.localizations,
+                        proteins: proteins
+                    });
+                }, function(error){
+                    return response.status(500).render('error', {
+                        title: '500',
+                        message: "Cannot retrieve proteins",
+                        error: error
+                    });
+                });
+            } else {
+                return response.render('search', {
+                    title: 'Search for proteins',
+                    localizations: context.constants.localizations
+                });
+            }
         },
 
         protein: function(request, response) {
