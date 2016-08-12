@@ -1,5 +1,7 @@
 # CellMap
 
+[![Join the chat at https://gitter.im/sacdallago/cellmap](https://badges.gitter.im/sacdallago/cellmap.svg)](https://gitter.im/sacdallago/cellmap?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Protein Localization and Protein-Protein Interaction (PPI) visualization tool.
 
 ## Live example:
