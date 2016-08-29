@@ -7,8 +7,8 @@ WORKDIR /usr/src/app
 # Bundle app source
 COPY . /usr/src/app
 
-# ReadOnly database access
-RUN echo "{\"database\" : {\"username\": \"cellmap\",\"password\": \"readonly+123\",\"port\": \"13280\",\"uri\": \"ds013280.mlab.com\",\"collection\": \"guided\"}}" > config.json
+# Use defaults or ENV file
+RUN mv config.js.template config.js
 
 RUN npm install
 
