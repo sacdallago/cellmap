@@ -65,7 +65,7 @@ var PPINButton = function(map){
                                         });
 
                                         // For the text, even if I use 0, it's fine. They can look up what it means in Hippie's data
-                                        polyline.setText(JSON.stringify(interactionPartner.score*100), {
+                                        polyline.setText(JSON.stringify(interactionPartner.score), {
                                             center: true,
                                             attributes: {
                                                 style: "font-size: 2.5em;",
@@ -501,7 +501,7 @@ var addToMapAndLocalizationsTable = function(protein, proteinEntryName){
                                     });
 
                                     // For the text, even if I use 0, it's fine. They can look up what it means in Hippie's data
-                                    polyline.setText(JSON.stringify(interactionPartner.score*100), {
+                                    polyline.setText(JSON.stringify(interactionPartner.score), {
                                         center: true,
                                         attributes: {
                                             style: "font-size: 2.5em;",
