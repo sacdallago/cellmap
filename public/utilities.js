@@ -28,6 +28,20 @@ var loadFadingButton = function(map){
     }).addTo(map);
 };
 
+var addHomeButton = function(map){
+    L.easyButton({
+        position: 'topleft',
+        states: [{
+            stateName: 'gohome',   // name the state
+            icon:      'Home icon',          // and define its properties
+            title:     'Go home', // like its title
+            onClick: function(btn, map) {  // and its callback
+                window.location.href = '/';
+            }
+        }]
+    }).addTo(map);
+};
+
 var initializeLocalizations = function(localizationsArray){
     var localizations = {};
 

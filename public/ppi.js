@@ -101,7 +101,7 @@ var PPINButton = function(map){
 
 var gotoLocalizationsButton = function(map){
     L.easyButton({
-        position: 'topright',
+        position: 'topleft',
         states: [{
             stateName: 'gotoLocalizations',   // name the state
             icon:      'Map Outline icon',          // and define its properties
@@ -188,13 +188,22 @@ var renderMap = function(imageId, callback) {
                 // Disable tap handler, if present.
                 if (map.tap) map.tap.disable();
 
-                // Add fading button
-                PPINButton(map);
+                // Add home button
+                addHomeButton(map);
+
+                // Add goto localizations button
                 gotoLocalizationsButton(map);
+
+                // Add fading button
                 loadFadingButton(map);
 
-                // Add features highlight
+                // Re-place zoom button
+                map.zoomControl.setPosition('topleft');
 
+                // Add calculate global PPI button
+                PPINButton(map);
+
+                // Add features highlight
                 var featuresLayer = L.geoJson(featuresGeoJSON, {
                     pointToLayer: function (feature, latlng) {
                         return L.circle(latlng, {
