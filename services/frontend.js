@@ -1,7 +1,7 @@
 module.exports = function(context) {
     const frontendController = context.component('controllers').module('frontend');
     context.router
-        .get('/', frontendController.index)
+        .get('/', frontendController.search)
         .get('/maps', frontendController.maps)
         .get('/map', frontendController.map)
         .get('/map/:iid', frontendController.map)
