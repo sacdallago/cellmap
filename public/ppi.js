@@ -389,9 +389,11 @@ var addToMapAndLocalizationsTable = function(protein, proteinEntryName){
                             }
                             break;
                         case "LineString":
-                            var position = Math.floor(Math.random() * geoLoc.geometry.coordinates.length);
+                            var position = Math.floor(Math.random() * (geoLoc.geometry.coordinates.length - 1));
+
                             var a = geoLoc.geometry.coordinates[position];
                             var b = geoLoc.geometry.coordinates[position+1];
+
                             var reg = regression('linear',[a,b]);
 
                             var x_max = a[0];
@@ -526,10 +528,8 @@ var addToMapAndLocalizationsTable = function(protein, proteinEntryName){
 
                     points.push(marker);
                 } catch (e) {
-                    // Need to make something smarter here: case point calculation exceeedes heap. Very likely with Polygons!
                     console.log(e);
-                    console.log("Will reload");
-                    window.location.reload();
+                    // window.location.reload();
                 }
             }
 
