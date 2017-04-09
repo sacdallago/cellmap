@@ -66,8 +66,12 @@ module.exports = {
             dbConnection += databaseParams.username + ":" + databaseParams.password + "@";
         }
         dbConnection += databaseParams.uri + ":" + databaseParams.port + "/" + databaseParams.collection;
+
+        dbConnection += (databaseParams.ssl !== undefined && databaseParams.ssl === true) ? "?ssl=true" : "";
         
         context.mongoConnectionString = dbConnection;
+
+        console.log("Connecting to " + context.mongoConnectionString);
 
         context.mongoose.connect(dbConnection);
         var db = context.mongoose.connection;

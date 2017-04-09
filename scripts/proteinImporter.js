@@ -7,13 +7,13 @@ const mappingSource = require(__dirname + "/../" + 'data/' + 'proteinMapping.jso
 
 
 if (cluster.isMaster && !process.env.NOPARALLEL) {
-    var step = Math.ceil(subcellLocAgesProteinsSource.length/numCPUs);
+    var step = Math.ceil(mappingSource.length/numCPUs);
     var count = numCPUs;
 
     // Fork workers.
     for (var i = 0; i < numCPUs; i++) {
         var from = i*step;
-        var to = ((i*step)+step > subcellLocAgesProteinsSource.length ? subcellLocAgesProteinsSource.length : (i*step)+step);
+        var to = ((i*step)+step > mappingSource.length ? mappingSource.length : (i*step)+step);
         var worker = cluster.fork({
             from: from,
             to: to
@@ -21,48 +21,55 @@ if (cluster.isMaster && !process.env.NOPARALLEL) {
         console.log("Spwaning worker " + worker.id);
     }
 
-    cluster.on('exit', (worker, code, signal) => {
-        console.log(`worker ${worker.process.pid} ended`);
-        if(--count == 0){
+    cluster.on('exit', function(worker, code, signal){
+        console.log("Worker " + worker.process.pid + " ended");
+        if (--count === 0) {
             console.log('All ended. dying');
         }
     });
 } else {
-    const context = require(__dirname + "/../" + "index").connect(function(context){
+    require(__dirname + "/../" + "index").connect(function(context){
         var promises = [];
 
         // Riken Ligand/Receptor Expression data
         const proteinsDao = context.component('daos').module('proteins');
         //const mappingDao = context.component('daos').module('mappings');
 
-        if(subcellLocAgesProteinsSource){
-            subcellLocAgesProteinsSource.slice(process.env.from || 0, process.env.to || subcellLocAgesProteinsSource.length).forEach(function(element){
+        if(mappingSource){
+            mappingSource.slice(process.env.from || 0, process.env.to || mappingSource.length).forEach(function(element){
                 var deferred = context.promises.defer();
                 promises.push(deferred.promise);
 
-                var localizations = element.consensus_sl.split(". ");
-
                 var protein = {
-                    uniprotId: element.uniprotac,
-                    geneName: element.approvedsymbol,
-                    origin: "default",
-                    localizations: {
-                        localizations: localizations,
-                        notes: "Data taken form original riken publication"
-                    }
+                    uniprotId: element['entry'],
+                    geneName: element['gene names'].split(/\s\(/)[0],
+                    entryName: element['entry name'],
+                    proteinName: element['protein names'].split(/\s\(/)[0],
+                    origin: "default"
                 };
 
-                const mapping = mappingSource.find(function(mapping){
-                    return mapping['entry'] == element.uniprotac;
+                // keys[0] matches search query on uniprot mapping service, something like "yourlist:m2017040883c3dd8ce55183c76102dc5d3a26728bcb7727o"
+                const originalMappingElementKey = Object.keys(element)[0];
+
+                const localizationsMatch = subcellLocAgesProteinsSource.find(function(subcellLoc){
+                    return subcellLoc.uniprotac == element[originalMappingElementKey];
                 });
 
-                if(mapping){
-                    protein.entryName = mapping['entry name'];
-                    protein.proteinName = mapping['protein names'].split(/\s\(/)[0];
+                if(localizationsMatch == undefined || localizationsMatch.length < 1){
+                    console.error("[" + element[originalMappingElementKey] + "] Could not map back to localizations");
+                }
 
-                    var interactions = interactionsSource.filter(function(interaction){
+                protein.localizations = {
+                    localizations: localizationsMatch.consensus_sl.split(". "),
+                    notes: "Data taken form original riken publication"
+                };
+
+                var interactions = interactionsSource
+                    .filter(function(interaction){
                         if(interaction.val0 == protein.entryName){
+                            // Make sure that also the partner exists in the mappings table
                             return mappingSource.find(function(mapping){
+                                // If the partner exists, this evaluates to true, thus the complete interaction ( val0, val2, score) makes it into the interactors
                                 return mapping['entry name'] == interaction.val2;
                             });
                         } else if(interaction.val2 == protein.entryName){
@@ -72,51 +79,43 @@ if (cluster.isMaster && !process.env.NOPARALLEL) {
                         } else {
                             return false;
                         }
-                    });
-
-                    if(interactions && interactions.length > 0){
-                        interactions = interactions.map(function(interaction){
-                            if(interaction.val0 == protein.entryName){
-                                const interactor = mappingSource.find(function(mapping){
-                                    return mapping['entry name'] == interaction.val2;
-                                });
-                                return {
-                                    interactor: interactor['entry'],
-                                    score: parseFloat(interaction.val4)
-                                };
-                            } else {
-                                const interactor = mappingSource.find(function(mapping){
-                                    return mapping['entry name'] == interaction.val0;
-                                });
-                                return {
-                                    interactor: interactor['entry'],
-                                    score: parseFloat(interaction.val4)
-                                };
-                            }
-                        });
-
-                        // Remove duplicates!
-                        uniqueInteractions = [];
-                        interactions.forEach(function(interaction){
-                            if(!uniqueInteractions.find(function(element){
-                                return element.interactor == interaction.interactor;
-                            })) {
-                                uniqueInteractions.push(interaction);
-                            }
-                        });
-
-                        // Should always evaluate to true, but you never now
-                        if(uniqueInteractions.length > 0){
-                            protein.interactions = {
-                                partners: uniqueInteractions,
-                                notes: "Data from Hippie"
+                    })
+                    // Map so that I only store partner and score
+                    .map(function(interaction){
+                        if(interaction.val0 == protein.entryName){
+                            const interactor = mappingSource.find(function(mapping){
+                                return mapping['entry name'] == interaction.val2;
+                            });
+                            return {
+                                interactor: interactor['entry'],
+                                score: parseFloat(interaction.val4)
+                            };
+                        } else {
+                            const interactor = mappingSource.find(function(mapping){
+                                return mapping['entry name'] == interaction.val0;
+                            });
+                            return {
+                                interactor: interactor['entry'],
+                                score: parseFloat(interaction.val4)
                             };
                         }
-                    }
-                }
+                    })
+                    // Remove duplicates
+                    .filter(function(element, index, self){
+                        return self.findIndex(function(current){
+                                return current.interactor === element.interactor;
+                            }) === index;
+                    });
 
-                proteinsDao.update(protein).then(function(result){
-                    console.log("[protein] Inserted " + protein.uniprotId);
+                protein.interactions = {
+                    partners: interactions,
+                    notes: "Data from Hippie"
+                };
+
+
+                // console.log("[" + protein.uniprotId + "] Inserting..");
+                proteinsDao.enrich(protein).then(function(result){
+                    console.log("[" + protein.uniprotId + "] Inserted");
                     deferred.resolve();
                 }, function(error){
                     console.error("[protein] Error with " + protein.uniprotId);
@@ -128,7 +127,7 @@ if (cluster.isMaster && !process.env.NOPARALLEL) {
 
         context.promises.all(promises).then(function(results) {
             console.log("Finished.");
-            process.exit();
+            process.exit(0);
         });
 
     });
