@@ -24,6 +24,20 @@ module.exports = function(context) {
             return deferred.promise;
         },
 
+        remove: function(item) {
+            var deferred = context.promises.defer();
+
+            proteinsModel.findOneAndRemove({_id: item._id}, function(error, removedItem) {
+                if (error) {
+                    console.error(error);
+                    deferred.reject(error);
+                }
+                deferred.resolve(removedItem);
+            });
+
+            return deferred.promise;
+        },
+
         update: function(item) {
             var deferred = context.promises.defer();
 
@@ -48,8 +62,7 @@ module.exports = function(context) {
 
             item.updatedAt = Date.now();
 
-            proteinsModel.findOne({uniprotId:  item.uniprotId})
-                .exec(function(error, result) {
+            proteinsModel.findOne({uniprotId:  item.uniprotId}, function(error, result) {
                     if (error) {
                         console.error(error);
                         deferred.reject(error);
@@ -74,8 +87,8 @@ module.exports = function(context) {
 
                             item.localizations.localizations = item.localizations.localizations.concat(result.localizations.localizations)
                             // Remove duplicates
-                                .filter(function(item, pos) {
-                                    return a.indexOf(item) === pos;
+                                .filter(function(item, pos, self) {
+                                    return self.indexOf(item) === pos;
                                 });
 
                             proteinsModel.update({"uniprotId": item.uniprotId}, item, {
