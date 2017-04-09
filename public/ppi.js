@@ -65,7 +65,7 @@ var PPINButton = function(map){
                                         });
 
                                         // For the text, even if I use 0, it's fine. They can look up what it means in Hippie's data
-                                        polyline.setText(JSON.stringify(interactionPartner.score*100), {
+                                        polyline.setText(JSON.stringify(interactionPartner.score), {
                                             center: true,
                                             attributes: {
                                                 style: "font-size: 2.5em;",
@@ -101,7 +101,7 @@ var PPINButton = function(map){
 
 var gotoLocalizationsButton = function(map){
     L.easyButton({
-        position: 'topright',
+        position: 'topleft',
         states: [{
             stateName: 'gotoLocalizations',   // name the state
             icon:      'Map Outline icon',          // and define its properties
@@ -188,13 +188,22 @@ var renderMap = function(imageId, callback) {
                 // Disable tap handler, if present.
                 if (map.tap) map.tap.disable();
 
-                // Add fading button
-                PPINButton(map);
+                // Add home button
+                addHomeButton(map);
+
+                // Add goto localizations button
                 gotoLocalizationsButton(map);
+
+                // Add fading button
                 loadFadingButton(map);
 
-                // Add features highlight
+                // Re-place zoom button
+                map.zoomControl.setPosition('topleft');
 
+                // Add calculate global PPI button
+                PPINButton(map);
+
+                // Add features highlight
                 var featuresLayer = L.geoJson(featuresGeoJSON, {
                     pointToLayer: function (feature, latlng) {
                         return L.circle(latlng, {
@@ -389,9 +398,11 @@ var addToMapAndLocalizationsTable = function(protein, proteinEntryName){
                             }
                             break;
                         case "LineString":
-                            var position = Math.floor(Math.random() * geoLoc.geometry.coordinates.length);
+                            var position = Math.floor(Math.random() * (geoLoc.geometry.coordinates.length - 1));
+
                             var a = geoLoc.geometry.coordinates[position];
                             var b = geoLoc.geometry.coordinates[position+1];
+
                             var reg = regression('linear',[a,b]);
 
                             var x_max = a[0];
@@ -501,7 +512,7 @@ var addToMapAndLocalizationsTable = function(protein, proteinEntryName){
                                     });
 
                                     // For the text, even if I use 0, it's fine. They can look up what it means in Hippie's data
-                                    polyline.setText(JSON.stringify(interactionPartner.score*100), {
+                                    polyline.setText(JSON.stringify(interactionPartner.score), {
                                         center: true,
                                         attributes: {
                                             style: "font-size: 2.5em;",
@@ -526,10 +537,8 @@ var addToMapAndLocalizationsTable = function(protein, proteinEntryName){
 
                     points.push(marker);
                 } catch (e) {
-                    // Need to make something smarter here: case point calculation exceeedes heap. Very likely with Polygons!
                     console.log(e);
-                    console.log("Will reload");
-                    window.location.reload();
+                    // window.location.reload();
                 }
             }
 

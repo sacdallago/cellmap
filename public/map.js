@@ -33,7 +33,7 @@ var randomPointInPoly = function(polygon, vs) {
 
 var gotoInteractionsButton = function(map){
     L.easyButton({
-        position: 'topright',
+        position: 'topleft',
         states: [{
             stateName: 'gotoInteractions',   // name the state
             icon:      'asterisk icon',          // and define its properties
@@ -93,9 +93,17 @@ var renderMap = function(imageId, callback) {
                 // Disable tap handler, if present.
                 if (map.tap) map.tap.disable();
 
+                // Add home button
+                addHomeButton(map);
+
+                // Add goto PPI button
+                gotoInteractionsButton(map);
+
                 // Add fading button
                 loadFadingButton(map);
-                gotoInteractionsButton(map);
+
+                // Re-place zoom button
+                map.zoomControl.setPosition('topleft');
 
                 // Add features highlight
 

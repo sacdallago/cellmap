@@ -56,13 +56,12 @@
 
 #full {
     margin-left: 8rem;
-    line-height: 3rem;
-    font-size: 3rem;
     min-height: 16rem;
 }
-#full > p {
+#full > span {
     margin-bottom: 1rem;
     line-height: 3rem;
+    font-size: 3rem;
     text-align: justify;
 }
 
@@ -142,7 +141,7 @@
 
 .prompt.inline {
     border: 0 !important;
-    font-size: 2em !important;
+
     padding: 0 !important;
     border-radius: 0 !important;
     opacity: 1 !important;

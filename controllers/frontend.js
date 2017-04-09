@@ -5,11 +5,6 @@ module.exports = function(context) {
     var proteinsDao = context.component('daos').module('proteins');
 
     return {
-        index: function(request, response) {
-            return response.render('index', {
-                title: 'Home'
-            });
-        },
         about: function(request, response) {
             return response.render('about', {
                 title: 'About'
