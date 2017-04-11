@@ -257,7 +257,7 @@ var addToMapAndTable = function (protein) {
                 });
 
                 // Bind popup to marker and add overlay of feature when clicked.
-                var popup = L.popup().setContent('<p><strong>' + protein.uniprotId + "</strong><br><strong>Localizations:</strong> " + protein.localizations + '</p>');
+                var popup = L.popup().setContent('<p><strong>' + protein.uniprotId + "</strong><br><strong>Localizations:</strong> " + protein.localizations.localizations + '</p>');
                 popup.locations = protein.localizations.localizations;
                 marker.bindPopup(popup);
 
