@@ -19,21 +19,21 @@ if (cluster.isMaster) {
     } );
 
     // Fork workers.
-    for (var i = 0; i < numCPUs; i++) {
-        var worker = cluster.fork();
+    for (let i = 0; i < numCPUs; i++) {
+        let worker = cluster.fork();
         console.log("Spwaning worker " + worker.id);
     }
 
-    cluster.on('exit', (worker, code, signal) => {
+    cluster.on('exit', function(worker, code, signal) {
         console.log(`worker ${worker.process.pid} died`);
-        var newWorker = cluster.fork();
+        let newWorker = cluster.fork();
         console.log("Spwaning worker " + newWorker.id);
     });
 
 } else {
     // Spawn various workers to listen and answer requests
     const express           = require('express');
-    const cookieParser      = require('cookie-parser')
+    const cookieParser      = require('cookie-parser');
     const path              = require('path');
     const compression       = require('compression');
     const watch             = require('node-watch');
@@ -174,6 +174,8 @@ if (cluster.isMaster) {
         app.use(function(request, response, next) {
             if (request.method === 'GET') {
                 return next();
+            } else if(request.user.googleId == context.config.passport.admin){
+                return next();
             } else {
                 response.status(403).render('error', {
                     title: 'Error',
@@ -216,8 +218,8 @@ if (cluster.isMaster) {
         context.component('.').module('routes');
 
         // Global variables:
-        const localizationDao = context.component('daos').module('localizations');
-        localizationDao.getLocalizations().then(function(localizations){
+        const proteinsDao = context.component('daos').module('proteins');
+        proteinsDao.getLocalizations().then(function(localizations){
             context.constants.localizations = localizations;
 
             // Make the server listen
@@ -236,8 +238,8 @@ if (cluster.isMaster) {
         path.join(__dirname, "daos"),
         path.join(__dirname, "models"),
         path.join(__dirname, "app.js"),
-        path.join(__dirname, "index.js"),
-    ], function(filename) {
+        path.join(__dirname, "index.js")
+    ], function() {
         console.log('File changed. Worker is gonna perform harakiri.');
         cluster.worker.kill();
     });

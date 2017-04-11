@@ -11,7 +11,8 @@ module.exports = {
         "google" : {
             "clientId": process.env.googleclientid || "",
             "clientSecret": process.env.googleclientsecret || ""
-        }
+        },
+        "admin": process.env.admin || "110148531637552433176"
     },
     "application" : {
         "protocol": process.env.applicationprotocol || "http",
