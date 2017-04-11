@@ -73,7 +73,7 @@ if(partners.length > 0){
 
             if(protein.localizations && protein.localizations.localizations && protein.localizations.localizations.length > 0){
                 if(!(protein.localizations.localizations.length > 1)){
-                    html += '<div class="grid-item ' + protein.localizations.localizations[0].replace(/\s|\//g, "_") + '" style="border-color:' + localizations[protein.localizations.localizations[0]].color + '"><p>' + protein.uniprotId + '</p><div class="cubescontainer">';
+                    html += '<div class="grid-item ' + protein.localizations.localizations[0].replace(/\s|\//g, "_") + '" style="border-color:' + protein.localizations.localizations[0].getHashCode().intToHSL() + '"><p>' + protein.uniprotId + '</p><div class="cubescontainer">';
                 } else {
                     html += '<div class="grid-item ' + protein.localizations.localizations.map(function(localization){
                         return localization.replace(/\s|\//g, "_")
@@ -81,7 +81,7 @@ if(partners.length > 0){
                 }
 
                 protein.localizations.localizations.forEach(function(localization){
-                    html += '<div class="cube" data-localization="' + localization.replace(/\s|\//g, "_") + '" style="background-color:' + localizations[localization].color + ';"></div>';
+                    html += '<div class="cube" data-localization="' + localization.replace(/\s|\//g, "_") + '" style="background-color:' + localization.getHashCode().intToHSL() + ';"></div>';
                 });
 
                 html += '</div>';
@@ -282,16 +282,16 @@ var addToInteractionMap = function(protein, color){
                     style: function(feature) {
                         if(feature.geometry.type == "LineString") {
                             return {
-                                fillColor: localizations[feature.properties.localization].color,
-                                color: localizations[feature.properties.localization].color,
+                                fillColor: feature.properties.localization.getHashCode().intToHSL(),
+                                color: feature.properties.localization.getHashCode().intToHSL(),
                                 weight: 4,
                                 opacity: .8,
                                 fillOpacity: .8
                             };
                         } else {
                             return {
-                                fillColor: localizations[feature.properties.localization].color,
-                                color: localizations[feature.properties.localization].color,
+                                fillColor: feature.properties.localization.getHashCode().intToHSL(),
+                                color: feature.properties.localization.getHashCode().intToHSL(),
                                 weight: 0,
                                 opacity: .8,
                                 fillOpacity: .8

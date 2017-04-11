@@ -4,4 +4,4 @@ module.exports = function(context) {
         .get('/maps', mapsController.getImage)
         .get('/maps/:iid/', mapsController.getImage)
         .post('/maps', mapsController.insertImage);
-}
+};

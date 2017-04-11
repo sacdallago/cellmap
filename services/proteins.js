@@ -3,4 +3,4 @@ module.exports = function(context) {
     context.api
         .get('/proteins/uniprot/:id', proteinsController.getProteinByUniProtID)
         .get('/proteins/search/:id', proteinsController.getProteins);
-}
+};

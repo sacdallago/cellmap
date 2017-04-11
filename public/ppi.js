@@ -81,7 +81,7 @@ var PPINButton = function(map){
                             }
                             connections[proteinEntryName].addTo(networkLayer);
                         }
-                    } 
+                    }
                 }
                 hideProgress();
                 networkLayer.addTo(map);
@@ -115,7 +115,7 @@ var gotoLocalizationsButton = function(map){
 };
 
 var randomPointInPoly = function(polygon, vs) {
-    var bounds = polygon.getBounds(); 
+    var bounds = polygon.getBounds();
     var x_min  = bounds.getEast();
     var x_max  = bounds.getWest();
     var y_min  = bounds.getSouth();
@@ -130,7 +130,7 @@ var randomPointInPoly = function(polygon, vs) {
         var xj = vs[j][0], yj = vs[j][1];
 
         var intersect = ((yi > y) != (yj > y))
-        && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+            && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
         if (intersect) inside = !inside;
     }
 
@@ -214,8 +214,8 @@ var renderMap = function(imageId, callback) {
                     style: function(feature) {
                         if(feature.geometry.type == "LineString") {
                             return {
-                                fillColor: localizations[feature.properties.localization].color,
-                                color: localizations[feature.properties.localization].color,
+                                fillColor: feature.properties.localization.getHashCode().intToHSL(),
+                                color: feature.properties.localization.getHashCode().intToHSL(),
                                 weight: 4,
                                 opacity: .8,
                                 fillOpacity: .8,
@@ -223,8 +223,8 @@ var renderMap = function(imageId, callback) {
                             };
                         } else {
                             return {
-                                fillColor: localizations[feature.properties.localization].color,
-                                color: localizations[feature.properties.localization].color,
+                                fillColor: feature.properties.localization.getHashCode().intToHSL(),
+                                color: feature.properties.localization.getHashCode().intToHSL(),
                                 weight: 0,
                                 opacity: .8,
                                 fillOpacity: .8,
@@ -243,71 +243,39 @@ var renderMap = function(imageId, callback) {
     });
 };
 
-var addToMappingsTable = function(protienMapping, proteinToBeMapped, callback){
+var addToMappingsTable = function(protein, callback){
 
     var callback = callback || function(){};
 
     // If I already have the protein mapping, I don't need to request it another time!
-    if(proteinToBeMapped === undefined){
-        var container = document.getElementById('proteinMappingList');
-        var tr = document.createElement("tr");
+    var container = document.getElementById('proteinMappingList');
+    var tr = document.createElement("tr");
 
-        var proteinTd = document.createElement("td");
-        proteinTd.appendChild(document.createTextNode(protienMapping.uniprotId));
-        tr.appendChild(proteinTd);
+    var proteinTd = document.createElement("td");
+    proteinTd.appendChild(document.createTextNode(protein.uniprotId));
+    tr.appendChild(proteinTd);
 
-        var entryName = document.createElement("td");
-        entryName.appendChild(document.createTextNode(protienMapping.entryName));
-        tr.appendChild(entryName);
+    var entryName = document.createElement("td");
+    entryName.appendChild(document.createTextNode(protein.entryName));
+    tr.appendChild(entryName);
 
-        var proteinName = document.createElement("td");
-        proteinName.appendChild(document.createTextNode(protienMapping.proteinName));
-        tr.appendChild(proteinName);
+    var proteinName = document.createElement("td");
+    proteinName.appendChild(document.createTextNode(protein.proteinName));
+    tr.appendChild(proteinName);
 
-        var geneName = document.createElement("td");
-        geneName.appendChild(document.createTextNode(protienMapping.geneName));
-        tr.appendChild(geneName);
+    var geneName = document.createElement("td");
+    geneName.appendChild(document.createTextNode(protein.geneName));
+    tr.appendChild(geneName);
 
-        container.appendChild(tr);
+    container.appendChild(tr);
 
-        callback(protienMapping);
-    } else {
-        $.ajax({
-            url: '/api/mappings/uniprot/' + proteinToBeMapped.uniprotId,
-            type: 'GET',
-            success: function(protienMapping) {
+    callback(protein);
+};
 
-                var container = document.getElementById('proteinMappingList');
-                var tr = document.createElement("tr");
-
-                var proteinTd = document.createElement("td");
-                proteinTd.appendChild(document.createTextNode(protienMapping.uniprotId));
-                tr.appendChild(proteinTd);
-
-                var entryName = document.createElement("td");
-                entryName.appendChild(document.createTextNode(protienMapping.entryName));
-                tr.appendChild(entryName);
-
-                var proteinName = document.createElement("td");
-                proteinName.appendChild(document.createTextNode(protienMapping.proteinName));
-                tr.appendChild(proteinName);
-
-                var geneName = document.createElement("td");
-                geneName.appendChild(document.createTextNode(protienMapping.geneName));
-                tr.appendChild(geneName);
-
-                container.appendChild(tr);
-
-                callback(protienMapping);
-            }
-        });
-    }
-}
-
-var addToMapAndLocalizationsTable = function(protein, proteinEntryName){
+var addToMapAndLocalizationsTable = function(protein, proteinUniprotId){
 
     // If the protein is already there, don't add it again!
-    if(overlayProteins[proteinEntryName] !== undefined){
+    if(overlayProteins[proteinUniprotId] !== undefined){
         return;
     }
 
@@ -317,7 +285,7 @@ var addToMapAndLocalizationsTable = function(protein, proteinEntryName){
     // Array for the different locations
     var points = [];
 
-    protein.localizations.forEach(function(element){
+    protein.localizations.localizations.forEach(function(element){
         var geoLoc = _.find(featuresGeoJSON, function(geoLoc){
             return geoLoc.properties.localization == element;
         });
@@ -347,269 +315,244 @@ var addToMapAndLocalizationsTable = function(protein, proteinEntryName){
         menu += '<div class="menu">';
 
         mapped.forEach(function(locationObject){
-            menu += '<div class="item" data-value="' + proteinEntryName + '">' + locationObject.loc + '</div>';
+            menu += '<div class="item" data-value="' + proteinUniprotId + '">' + locationObject.loc + '</div>';
         });
 
         menu += '</div></div>';
     }
 
-    // Get interaction partners for protein --> Long request!
-    $.ajax({
-        url: '/api/interactions/' + proteinEntryName,
-        type: 'GET',
-        dataType: "json",
-        success: function(interactionPartners) {
+    const interactionPartners = protein.interactions.partners;
 
-            for(var i=0; i < mapped.length; i++){
+    for(var i=0; i < mapped.length; i++){
 
-                var location = mapped[i].loc;
-                var geoLoc = mapped[i].geoLoc;
+        var location = mapped[i].loc;
+        var geoLoc = mapped[i].geoLoc;
 
-                try {
+        try {
 
-                    var x = 0;
-                    var y = 0;
+            var x = 0;
+            var y = 0;
 
-                    switch(geoLoc.geometry.type){
-                        case "Polygon":
-                            var coords = randomPointInPoly(L.polygon(geoLoc.geometry.coordinates), geoLoc.geometry.coordinates[0]);
-                            x = coords[1];
-                            y = coords[0];
-                            break;
-                        case "Point":
-                            // http://stackoverflow.com/questions/481144/equation-for-testing-if-a-point-is-inside-a-circle
-                            var center = geoLoc.geometry.coordinates;
-                            var radius = geoLoc.properties.radius;
-                            var x_max = center[0]+radius;
-                            var x_min = center[0]-radius;
+            switch(geoLoc.geometry.type){
+                case "Polygon":
+                    var coords = randomPointInPoly(L.polygon(geoLoc.geometry.coordinates), geoLoc.geometry.coordinates[0]);
+                    x = coords[1];
+                    y = coords[0];
+                    break;
+                case "Point":
+                    // http://stackoverflow.com/questions/481144/equation-for-testing-if-a-point-is-inside-a-circle
+                    var center = geoLoc.geometry.coordinates;
+                    var radius = geoLoc.properties.radius;
+                    var x_max = center[0]+radius;
+                    var x_min = center[0]-radius;
 
-                            var y_max = center[1]+radius;
-                            var y_min = center[1]-radius;
+                    var y_max = center[1]+radius;
+                    var y_min = center[1]-radius;
 
-                            x = x_min + (Math.random() * (x_max - x_min));
-                            y = y_min + (Math.random() * (y_max - y_min));
+                    x = x_min + (Math.random() * (x_max - x_min));
+                    y = y_min + (Math.random() * (y_max - y_min));
 
-                            x = x_max;
-                            y = y_max;
+                    x = x_max;
+                    y = y_max;
 
-                            while(Math.pow(x - center[0],2) + Math.pow(y - center[1], 2) > Math.pow(radius, 2)){
-                                x = x_min + (Math.random() * (x_max - x_min));
-                                y = y_min + (Math.random() * (y_max - y_min));
-                            }
-                            break;
-                        case "LineString":
-                            var position = Math.floor(Math.random() * (geoLoc.geometry.coordinates.length - 1));
+                    while(Math.pow(x - center[0],2) + Math.pow(y - center[1], 2) > Math.pow(radius, 2)){
+                        x = x_min + (Math.random() * (x_max - x_min));
+                        y = y_min + (Math.random() * (y_max - y_min));
+                    }
+                    break;
+                case "LineString":
+                    var position = Math.floor(Math.random() * (geoLoc.geometry.coordinates.length - 1));
 
-                            var a = geoLoc.geometry.coordinates[position];
-                            var b = geoLoc.geometry.coordinates[position+1];
+                    var a = geoLoc.geometry.coordinates[position];
+                    var b = geoLoc.geometry.coordinates[position+1];
 
-                            var reg = regression('linear',[a,b]);
+                    var reg = regression('linear',[a,b]);
 
-                            var x_max = a[0];
-                            var x_min = b[0];
+                    var x_max = a[0];
+                    var x_min = b[0];
 
-                            if(x_max < b[0]) {
-                                x_max = b[0];
-                                x_min = a[0];
-                            }
-
-                            x = x_min + (Math.random() * (x_max - x_min));
-
-                            y = reg.equation[0]*x + reg.equation[1];
-
-                            break;
+                    if(x_max < b[0]) {
+                        x_max = b[0];
+                        x_min = a[0];
                     }
 
+                    x = x_min + (Math.random() * (x_max - x_min));
 
-                    var marker = L.circleMarker([y,x],{
-                        radius: 6,
-                        fillColor: localizations[location].color,
-                        color: localizations[location].color,
-                        // Only show first localization, but draw them all
-                        opacity: 1, 
-                        fillOpacity: 1
-                    });
+                    y = reg.equation[0]*x + reg.equation[1];
 
-                    // Assign a location to the marker, so to then highlight it if needed:
-                    marker.location = location;
-                    marker.interactionPartners = interactionPartners;
+                    break;
+            }
 
-                    // Bind popup to marker and add overlay of feature when clicked.
-                    var popup;
+            var marker = L.circleMarker([y,x],{
+                radius: 6,
+                fillColor: location.getHashCode().intToHSL(),
+                color: location.getHashCode().intToHSL(),
+                // Only show first localization, but draw them all
+                opacity: 1,
+                fillOpacity: 1
+            });
 
-                    if(mapped.length > 1){
-                        popup = L.popup().setContent('<p><strong>' + proteinEntryName + " - " + location + "</strong><br>" + menu + '</p>');
-                    } else {
-                        popup = L.popup().setContent('<p><strong>' + proteinEntryName + " - " + location + "</strong></p>");
+            // Assign a location to the marker, so to then highlight it if needed:
+            marker.location = location;
+            marker.interactionPartners = interactionPartners;
+
+            // Bind popup to marker and add overlay of feature when clicked.
+            var popup;
+
+            if(mapped.length > 1){
+                popup = L.popup().setContent('<p><strong>' + proteinUniprotId + " - " + location + "</strong><br>" + menu + '</p>');
+            } else {
+                popup = L.popup().setContent('<p><strong>' + proteinUniprotId + " - " + location + "</strong></p>");
+            }
+
+            popup.locations = protein.localizations.localizations;
+            popup.interactionPartners = interactionPartners;
+            marker.bindPopup(popup);
+
+            marker.on('popupopen', function(e) {
+                // Load dropdown selector
+                // When new location selected, change opacity + interactive
+                $('.ui.dropdown.locselecter').dropdown({
+                    onChange: function(value, text, $selectedItem) {
+                        var newLocPoint = _.find(overlayProteins[value].points, function(point){
+                            return point.location == text;
+                        });
+                        overlayProteins[value].layer.clearLayers();
+                        overlayProteins[value].layer.addLayer(newLocPoint);
+
+                        // Reset precalculated connections layers for all-points, as one point has changed position, and both in- and out-bound conenctions might be broken
+                        connections = {};
                     }
+                });
 
+                var locs = e.popup.locations;
+                var interactionPartners = e.popup.interactionPartners;
 
+                if(connections[proteinUniprotId] !== undefined){
+                    connections[proteinUniprotId].addTo(map);
+                } else {
+                    // Initiaize lines container
+                    connections[proteinUniprotId] = L.layerGroup();
 
-                    popup.locations = protein.localizations;
-                    popup.interactionPartners = interactionPartners;
-                    marker.bindPopup(popup);
-
-                    marker.on('popupopen', function(e) {
-                        // Load dropdown selector
-                        // When new location selected, change opacity + interactive
-                        $('.ui.dropdown.locselecter').dropdown({
-                            onChange: function(value, text, $selectedItem) {
-                                var newLocPoint = _.find(overlayProteins[value].points, function(point){
-                                    return point.location == text;
-                                });
-                                overlayProteins[value].layer.clearLayers();
-                                overlayProteins[value].layer.addLayer(newLocPoint);
-
-                                // Reset precalculated connections layers for all-points, as one point has changed position, and both in- and out-bound conenctions might be broken
-                                connections = {};
-                            }
+                    for(var potentialInteractor in overlayProteins){
+                        var interactionPartner = _.find(interactionPartners, function(proteinInteractors){
+                            return proteinInteractors.interactor === potentialInteractor;
                         });
 
-                        var locs = e.popup.locations;
-                        var interactionPartners = e.popup.interactionPartners;
+                        if(interactionPartner){
+                            var latlngs = Array();
 
-                        if(connections[proteinEntryName] !== undefined){
-                            connections[proteinEntryName].addTo(map);
-                        } else {
-                            // Initiaize lines container
-                            connections[proteinEntryName] = L.layerGroup();
+                            //Get latlng from first marker, that is being displayed on the map!!!
+                            var pt1 = overlayProteins[proteinUniprotId].layer.getLayers()[0].getLatLng();
 
-                            for(var potentialInteractor in overlayProteins){
-                                var interactionPartner = _.find(interactionPartners, function(proteinInteractors){
-                                    return proteinInteractors.interactor === potentialInteractor;
-                                });
+                            //Get latlng from second marker
+                            var pt2 = overlayProteins[interactionPartner.interactor].layer.getLayers()[0].getLatLng();
 
-                                if(interactionPartner){
-                                    var latlngs = Array();
-
-                                    //Get latlng from first marker, that is being displayed on the map!!!
-                                    var pt1 = overlayProteins[proteinEntryName].layer.getLayers()[0].getLatLng();
-
-                                    //Get latlng from second marker
-                                    var pt2 = overlayProteins[interactionPartner.interactor].layer.getLayers()[0].getLatLng();
-
-                                    // Always display text from left to right
-                                    if(pt1.lng < pt2.lng){
-                                        latlngs.push(pt1);
-                                        latlngs.push(pt2);
-                                    } else {
-                                        latlngs.push(pt2);
-                                        latlngs.push(pt1);
-                                    }
-
-
-                                    // Sometimes, the score can be 0. This can mess up things, so assign 0.01 if score is < 0.00
-                                    var score = interactionPartner.score > 0.00 ? interactionPartner.score : 0.01;
-
-                                    //From documentation http://leafletjs.com/reference.html#polyline
-                                    // create a red polyline from an arrays of LatLng points
-                                    var polyline = L.polyline(latlngs, {
-                                        color: 'black',
-                                        opacity: .6,
-                                        dashArray: (interactionPartner.score*100) + ", 15",
-                                        // Minimum line width is 2
-                                        weight: Math.log(score*100) > 1 ? Math.log(score*100) : 2
-                                    });
-
-                                    // For the text, even if I use 0, it's fine. They can look up what it means in Hippie's data
-                                    polyline.setText(JSON.stringify(interactionPartner.score), {
-                                        center: true,
-                                        attributes: {
-                                            style: "font-size: 2.5em;",
-                                            fill: "white",
-                                            stroke: "black",
-                                            "stroke-width": "1"
-                                        }
-                                    });
-
-                                    connections[proteinEntryName].addLayer(polyline);
-                                }
-                                connections[proteinEntryName].addTo(map);
+                            // Always display text from left to right
+                            if(pt1.lng < pt2.lng){
+                                latlngs.push(pt1);
+                                latlngs.push(pt2);
+                            } else {
+                                latlngs.push(pt2);
+                                latlngs.push(pt1);
                             }
-                        }
-                    });
 
-                    marker.on('popupclose', function(e) {
-                        if(connections[proteinEntryName] !== undefined){
-                            map.removeLayer(connections[proteinEntryName]);
-                        }
-                    });
+                            // Sometimes, the score can be 0. This can mess up things, so assign 0.01 if score is < 0.00
+                            var score = interactionPartner.score > 0.00 ? interactionPartner.score : 0.01;
 
-                    points.push(marker);
-                } catch (e) {
-                    console.log(e);
-                    // window.location.reload();
+                            //From documentation http://leafletjs.com/reference.html#polyline
+                            // create a red polyline from an arrays of LatLng points
+                            var polyline = L.polyline(latlngs, {
+                                color: 'black',
+                                opacity: .6,
+                                dashArray: (interactionPartner.score*100) + ", 15",
+                                // Minimum line width is 2
+                                weight: Math.log(score*100) > 1 ? Math.log(score*100) : 2
+                            });
+
+                            // For the text, even if I use 0, it's fine. They can look up what it means in Hippie's data
+                            polyline.setText(JSON.stringify(interactionPartner.score), {
+                                center: true,
+                                attributes: {
+                                    style: "font-size: 2.5em;",
+                                    fill: "white",
+                                    stroke: "black",
+                                    "stroke-width": "1"
+                                }
+                            });
+
+                            connections[proteinUniprotId].addLayer(polyline);
+                        }
+                        connections[proteinUniprotId].addTo(map);
+                    }
                 }
-            }
+            });
 
-            // HTML table telling which localizations are mapped for protein and which not
-            var container = document.getElementById('proteinLocalizationList');
-            var tr = document.createElement("tr");
+            marker.on('popupclose', function(e) {
+                if(connections[proteinUniprotId] !== undefined){
+                    map.removeLayer(connections[proteinUniprotId]);
+                }
+            });
 
-            var proteinTd = document.createElement("td");
-            proteinTd.appendChild(document.createTextNode(protein.uniprotId));
-            tr.appendChild(proteinTd);
-
-            var mappedTd = document.createElement("td");
-            mappedTd.appendChild(document.createTextNode(mapped.map(function(element){return element.loc})));
-            tr.appendChild(mappedTd);
-
-            var unmappedTd = document.createElement("td");
-            unmappedTd.appendChild(document.createTextNode(unmapped));
-            tr.appendChild(unmappedTd);
-
-            container.appendChild(tr);
-            // END of HTML table
-
-            if(points[0] !== undefined){
-                overlayProteins[proteinEntryName] = {
-                    layer : L.layerGroup(),
-                    points: points
-                };
-                overlayProteins[proteinEntryName].layer.addLayer(points[0]);
-            } else {
-                overlayProteins[proteinEntryName] = {
-                    layer : undefined,
-                    points: undefined
-                };
-            }
-
-            if(overlayProteins[proteinEntryName].layer !== undefined) {
-                overlayProteins[proteinEntryName].layer.addTo(map);
-                controlLayers.addOverlay(overlayProteins[proteinEntryName].layer, proteinEntryName);
-            }
-
-            hideProgress();
+            points.push(marker);
+        } catch (e) {
+            console.log(e);
         }
-    });
-}
+    }
+
+    // HTML table telling which localizations are mapped for protein and which not
+    var container = document.getElementById('proteinLocalizationList');
+    var tr = document.createElement("tr");
+
+    var proteinTd = document.createElement("td");
+    proteinTd.appendChild(document.createTextNode(protein.uniprotId));
+    tr.appendChild(proteinTd);
+
+    var mappedTd = document.createElement("td");
+    mappedTd.appendChild(document.createTextNode(mapped.map(function(element){return element.loc})));
+    tr.appendChild(mappedTd);
+
+    var unmappedTd = document.createElement("td");
+    unmappedTd.appendChild(document.createTextNode(unmapped));
+    tr.appendChild(unmappedTd);
+
+    container.appendChild(tr);
+    // END of HTML table
+
+    if(points[0] !== undefined){
+        overlayProteins[proteinUniprotId] = {
+            layer : L.layerGroup(),
+            points: points
+        };
+        overlayProteins[proteinUniprotId].layer.addLayer(points[0]);
+    } else {
+        overlayProteins[proteinUniprotId] = {
+            layer : undefined,
+            points: undefined
+        };
+    }
+
+    if(overlayProteins[proteinUniprotId].layer !== undefined) {
+        overlayProteins[proteinUniprotId].layer.addTo(map);
+        controlLayers.addOverlay(overlayProteins[proteinUniprotId].layer, proteinUniprotId);
+    }
+
+    hideProgress();
+};
 
 var addProteins = function(someProteins){
     someProteins.forEach(function(protein){
-        addToMappingsTable(null, protein, function(nameMapping){
-            addToMapAndLocalizationsTable(protein, nameMapping.entryName);
+        addToMappingsTable(protein, function(){
+            addToMapAndLocalizationsTable(protein, protein.uniprotId);
         });
     });
-}
+};
 
 $.fn.api.settings.api = {
-    'get from localizations': '/api/localizations/search/{query}',
-    'get from mappings': '/api/mappings/search/{query}',
+    'get from proteins': '/api/proteins/search/{query}'
 };
 
 $.fn.search.settings.templates.protein = function(response) {
-    var html = '';
-    $.each(response.results, function(index, result) {
-        html += '' + '<div class="result">';
-        html += '<span class="name">' + result.entryName + '</span>, ';
-        html += '<small> [UniProt ID] ' + result.uniprotId + '</small>';
-        html += ( (result.geneId && result.geneId.length > 0) ? ('<small> [Gene ID] ' + result.geneId + '</small>') : "" );
-        html += '</div>';
-    });
-    return html;
-}
-
-$.fn.search.settings.templates.mapping = function(response) {
     var html = '';
     $.each(response.results, function(index, result) {
         html += '' + '<div class="result">';
@@ -620,7 +563,7 @@ $.fn.search.settings.templates.mapping = function(response) {
         html += '</div>';
     });
     return html;
-}
+};
 
 $.fn.search.settings.templates.localization = function(response) {
     var html = '';
@@ -634,9 +577,9 @@ $.fn.search.settings.templates.localization = function(response) {
 }
 
 $('.ui.search').search({
-    type: 'mapping',
+    type: 'protein',
     apiSettings: {
-        action: 'get from mappings',
+        action: 'get from proteins',
         onResponse: function(response) {
             return {
                 results: response
@@ -654,13 +597,8 @@ $('.ui.search').search({
 
         addToMappingsTable(result);
 
-        $.ajax({
-            url: '/api/localizations/uniprotId/' + result.uniprotId,
-            type: 'GET',
-            success: function(uniprotLocProtein) {
-                addToMapAndLocalizationsTable(uniprotLocProtein, result.entryName);
-            }
-        });
+        addToMapAndLocalizationsTable(result, result.uniprotId);
+
 
         //Add protein to search query in URL
         var currentUri = URI(window.location.href);
@@ -674,7 +612,7 @@ $('.ui.search').search({
 
 $('.ui.accordion')
     .accordion({
-    selector: {
-        trigger: '.title'
-    }
-});
+        selector: {
+            trigger: '.title'
+        }
+    });

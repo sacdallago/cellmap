@@ -79,8 +79,8 @@ module.exports = function(context) {
                             error: error
                         });
                     });
-                    destination.on('close', function (file) {            
-                        response.redirect('images');
+                    destination.on('close', function () {
+                        response.status(200).send();
                     });
                 });
             } else {
