@@ -1,8 +1,7 @@
 module.exports = function(context) {
 
     // Imports
-    var localizationsDao = context.component('daos').module('localizations');
-    var proteinsDao = context.component('daos').module('proteins');
+    let proteinsDao = context.component('daos').module('proteins');
 
     return {
         about: function(request, response) {
@@ -40,7 +39,7 @@ module.exports = function(context) {
             })();
 
             if(imageId !== undefined){
-                return localizationsDao.findProteins(proteins).then(function(requestProteins){
+                return proteinsDao.findProteins(proteins).then(function(requestProteins){
                     return response.render('map', {
                         title: 'Protein interaction visualizer',
                         iid: imageId,
@@ -98,7 +97,7 @@ module.exports = function(context) {
             })();
 
             if(imageId !== undefined){
-                return localizationsDao.findProteins(proteins).then(function(requestProteins){
+                return proteinsDao.findProteins(proteins).then(function(requestProteins){
                     return response.render('ppi', {
                         title: 'Protein interaction visualizer',
                         iid: imageId,

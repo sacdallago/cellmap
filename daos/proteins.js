@@ -7,11 +7,11 @@
 module.exports = function(context) {
 
     // Imports
-    var proteinsModel = context.component('models').module('proteins');
+    let proteinsModel = context.component('models').module('proteins');
 
     return {
         create: function(item) {
-            var deferred = context.promises.defer();
+            let deferred = context.promises.defer();
 
             proteinsModel.create(item, function(error, insertedItem) {
                 if (error) {
@@ -25,7 +25,7 @@ module.exports = function(context) {
         },
 
         remove: function(item) {
-            var deferred = context.promises.defer();
+            let deferred = context.promises.defer();
 
             proteinsModel.findOneAndRemove({_id: item._id}, function(error, removedItem) {
                 if (error) {
@@ -39,7 +39,7 @@ module.exports = function(context) {
         },
 
         update: function(item) {
-            var deferred = context.promises.defer();
+            let deferred = context.promises.defer();
 
             item.updatedAt = Date.now();
 
@@ -58,7 +58,7 @@ module.exports = function(context) {
         },
 
         enrich: function(item) {
-            var deferred = context.promises.defer();
+            let deferred = context.promises.defer();
 
             item.updatedAt = Date.now();
 
@@ -108,7 +108,7 @@ module.exports = function(context) {
         },
 
         findByUniprotId: function(identifier) {
-            var deferred = context.promises.defer();
+            let deferred = context.promises.defer();
 
             proteinsModel.findOne({uniprotId:  identifier})
                 .exec(function(error, result) {
@@ -124,7 +124,7 @@ module.exports = function(context) {
         },
 
         findProteinNames: function(identifier) {
-            var deferred = context.promises.defer();
+            let deferred = context.promises.defer();
 
             proteinsModel.find({
                 $or: [
@@ -147,7 +147,7 @@ module.exports = function(context) {
         },
 
         getPartners: function(protein){
-            var deferred = context.promises.defer();
+            let deferred = context.promises.defer();
 
             proteinsModel.find({
                 uniprotId: {
@@ -164,6 +164,56 @@ module.exports = function(context) {
                 });
 
             return deferred.promise;
+        },
+
+        findProteins: function(proteinIdentifiers){
+            let deferred = context.promises.defer();
+
+            proteinsModel.find({
+                uniprotId: {
+                    $in: proteinIdentifiers
+                }
+            })
+                .exec(function(error, results) {
+                    if (error) {
+                        console.error(error);
+                        deferred.reject(error);
+                    } else {
+                        deferred.resolve(results);
+                    }
+                });
+
+            return deferred.promise;
+        },
+
+        getLocalizations: function() {
+            let deferred = context.promises.defer();
+
+            proteinsModel.find({},{
+                "localizations": 1
+            }, function(error, results) {
+                if (error) {
+                    console.error(error);
+                    deferred.reject(error);
+                }
+
+                let onlyLocalizations = [];
+
+                results.forEach(function(element){
+                    onlyLocalizations.push.apply(onlyLocalizations, element.localizations.localizations);
+                });
+
+                onlyLocalizations = onlyLocalizations.filter(function(elem, pos) {
+                    return onlyLocalizations.indexOf(elem) == pos;
+                });
+
+                onlyLocalizations.sort();
+
+                deferred.resolve(onlyLocalizations);
+            });
+
+            return deferred.promise;
         }
+
     };
 };

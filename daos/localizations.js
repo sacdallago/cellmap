@@ -7,11 +7,11 @@
 module.exports = function(context) {
 
     // Imports
-    var localizationModel = context.component('models').module('localizations');
+    let localizationModel = context.component('models').module('localizations');
 
     return {
         create: function(item) {
-            var deferred = context.promises.defer();
+            let deferred = context.promises.defer();
 
             localizationModel.create(item, function(error, insertedItem) {
                 if (error) {
@@ -25,7 +25,7 @@ module.exports = function(context) {
         },
 
         update: function(item) {
-            var deferred = context.promises.defer();
+            let deferred = context.promises.defer();
 
             item.updatedAt = Date.now();
 
@@ -44,7 +44,7 @@ module.exports = function(context) {
         },
 
         getLocalizations: function() {
-            var deferred = context.promises.defer();
+            let deferred = context.promises.defer();
 
             localizationModel.find({},{
                 "localizations": 1
@@ -54,7 +54,7 @@ module.exports = function(context) {
                     deferred.reject(error);
                 }
 
-                var onlyLocalizations = [];
+                let onlyLocalizations = [];
 
                 results.forEach(function(element){
                     onlyLocalizations.push.apply(onlyLocalizations, element.localizations);
@@ -73,7 +73,7 @@ module.exports = function(context) {
         },
 
         findProteinNames: function(identifier) {
-            var deferred = context.promises.defer();
+            let deferred = context.promises.defer();
 
             localizationModel.find({
                 $or: [
@@ -95,7 +95,7 @@ module.exports = function(context) {
         },
         
         findByUniprotId: function(identifier) {
-            var deferred = context.promises.defer();
+            let deferred = context.promises.defer();
 
             localizationModel.findOne({uniprotId:  identifier})
                 .exec(function(error, result) {
@@ -111,7 +111,7 @@ module.exports = function(context) {
         },
         
         findProteins: function(accNumbers) {
-            var deferred = context.promises.defer();
+            let deferred = context.promises.defer();
 
             localizationModel.find({
                 uniprotId: {

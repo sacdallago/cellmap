@@ -1,7 +1,7 @@
 module.exports = function(context) {
 
     // Imports
-    var proteinsDao = context.component('daos').module('proteins');
+    let proteinsDao = context.component('daos').module('proteins');
 
     return {
         getProteins: function(request, response) {
@@ -21,7 +21,7 @@ module.exports = function(context) {
             const identifier = request.params.id.toUpperCase();
 
             proteinsDao.findByUniprotId(identifier).then(function(protein){
-                if(mapping){
+                if(protein){
                     response.send(protein);
                 } else {
                     response.status(404).send();
@@ -29,7 +29,6 @@ module.exports = function(context) {
             }, function(error){
                 response.status(500).send(error);
             });
-
         }
     }
-}
+};
