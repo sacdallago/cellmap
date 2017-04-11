@@ -211,7 +211,7 @@ module.exports = function(context) {
 
                 deferred.resolve(onlyLocalizations);
             });
-
+          
             return deferred.promise;
         }
 

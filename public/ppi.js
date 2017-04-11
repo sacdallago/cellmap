@@ -457,7 +457,6 @@ var addToMapAndLocalizationsTable = function(protein, proteinUniprotId){
                                 latlngs.push(pt1);
                             }
 
-
                             // Sometimes, the score can be 0. This can mess up things, so assign 0.01 if score is < 0.00
                             var score = interactionPartner.score > 0.00 ? interactionPartner.score : 0.01;
 
