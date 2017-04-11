@@ -116,16 +116,16 @@ var renderMap = function (imageId, callback) {
                     style: function (feature) {
                         if (feature.geometry.type == "LineString") {
                             return {
-                                fillColor: localizations[feature.properties.localization].color,
-                                color: localizations[feature.properties.localization].color,
+                                fillColor: feature.properties.localization.getHashCode().intToHSL(),
+                                color: feature.properties.localization.getHashCode().intToHSL(),
                                 weight: 4,
                                 opacity: .8,
                                 fillOpacity: .8
                             };
                         } else {
                             return {
-                                fillColor: localizations[feature.properties.localization].color,
-                                color: localizations[feature.properties.localization].color,
+                                fillColor: feature.properties.localization.getHashCode().intToHSL(),
+                                color: feature.properties.localization.getHashCode().intToHSL(),
                                 weight: 0,
                                 opacity: .8,
                                 fillOpacity: .8
@@ -250,8 +250,8 @@ var addToMapAndTable = function (protein) {
 
                 var marker = L.circleMarker([y, x], {
                     radius: 6,
-                    fillColor: localizations[location].color,
-                    color: localizations[location].color,
+                    fillColor: location.getHashCode().intToHSL(),
+                    color: location.getHashCode().intToHSL(),
                     opacity: 1,
                     fillOpacity: 1,
                 });

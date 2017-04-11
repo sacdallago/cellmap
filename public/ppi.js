@@ -214,8 +214,8 @@ var renderMap = function(imageId, callback) {
                     style: function(feature) {
                         if(feature.geometry.type == "LineString") {
                             return {
-                                fillColor: localizations[feature.properties.localization].color,
-                                color: localizations[feature.properties.localization].color,
+                                fillColor: feature.properties.localization.getHashCode().intToHSL(),
+                                color: feature.properties.localization.getHashCode().intToHSL(),
                                 weight: 4,
                                 opacity: .8,
                                 fillOpacity: .8,
@@ -223,8 +223,8 @@ var renderMap = function(imageId, callback) {
                             };
                         } else {
                             return {
-                                fillColor: localizations[feature.properties.localization].color,
-                                color: localizations[feature.properties.localization].color,
+                                fillColor: feature.properties.localization.getHashCode().intToHSL(),
+                                color: feature.properties.localization.getHashCode().intToHSL(),
                                 weight: 0,
                                 opacity: .8,
                                 fillOpacity: .8,
@@ -385,8 +385,8 @@ var addToMapAndLocalizationsTable = function(protein, proteinUniprotId){
 
             var marker = L.circleMarker([y,x],{
                 radius: 6,
-                fillColor: localizations[location].color,
-                color: localizations[location].color,
+                fillColor: location.getHashCode().intToHSL(),
+                color: location.getHashCode().intToHSL(),
                 // Only show first localization, but draw them all
                 opacity: 1,
                 fillOpacity: 1
