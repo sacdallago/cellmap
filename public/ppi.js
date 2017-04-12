@@ -393,6 +393,7 @@ var addToMapAndLocalizationsTable = function(protein, proteinUniprotId){
             });
 
             // Assign a location to the marker, so to then highlight it if needed:
+            marker.uniprotId = proteinUniprotId;
             marker.location = location;
             marker.interactionPartners = interactionPartners;
 
@@ -408,6 +409,17 @@ var addToMapAndLocalizationsTable = function(protein, proteinUniprotId){
             popup.locations = protein.localizations.localizations;
             popup.interactionPartners = interactionPartners;
             marker.bindPopup(popup);
+
+            marker.on('mouseover', function(e){
+                console.log(e);
+                L.popup()
+                    .setLatLng(e.latlng)
+                    .setContent(e.target.uniprotId)
+                    .openOn(map);
+            });
+
+            marker.on('mouseout', function (e) {
+            });
 
             marker.on('popupopen', function(e) {
                 // Load dropdown selector
