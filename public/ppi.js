@@ -65,7 +65,7 @@ var PPINButton = function(map){
                                         });
 
                                         // For the text, even if I use 0, it's fine. They can look up what it means in Hippie's data
-                                        polyline.setText(JSON.stringify(interactionPartner.score.toFixed(2)), {
+                                        polyline.setText(interactionPartner.score.toFixed(2), {
                                             center: true,
                                             attributes: {
                                                 style: "font-size: 2.5em;",
@@ -411,11 +411,10 @@ var addToMapAndLocalizationsTable = function(protein, proteinUniprotId){
             marker.bindPopup(popup);
 
             marker.on('mouseover', function(e){
-                console.log(e);
-                L.popup()
+                new L.popup()
                     .setLatLng(e.latlng)
                     .setContent(e.target.uniprotId)
-                    .openOn(map);
+                    .openOn(e.target);
             });
 
             marker.on('mouseout', function (e) {
@@ -483,7 +482,7 @@ var addToMapAndLocalizationsTable = function(protein, proteinUniprotId){
                             });
 
                             // For the text, even if I use 0, it's fine. They can look up what it means in Hippie's data
-                            polyline.setText(JSON.stringify(interactionPartner.score), {
+                            polyline.setText(interactionPartner.score.toFixed(2), {
                                 center: true,
                                 attributes: {
                                     style: "font-size: 2.5em;",
