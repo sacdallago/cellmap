@@ -1,9 +1,6 @@
 $.fn.api.settings.api = {
-    'get from localizations': '/api/localizations/search/{query}',
-    'get from mappings': '/api/mappings/search/{query}',
-    'get from proteins': '/api/proteins/search/{query}',
+    'get from proteins': '/api/proteins/search/{query}'
 };
-
 
 const grid = $('.grid').isotope({
     // main isotope options
@@ -34,7 +31,7 @@ const modal = function(protein){
     html += '<div class="actions"><a href="/protein/' + protein.uniprotId + '" class="ui approve button">Go to protein page</a></div>';
     html += '</div>';
     $(html).modal('show');
-}
+};
 
 grid.on('click', '.grid-item', function() {
     modal($(this).data('protein'));
@@ -173,4 +170,12 @@ $('.ui.search').search({
 
         return false;
     },
+});
+
+// Set show tooltip on hover over username (to logout) or "User" (to login)
+$('.item.green').popup({});
+$('.ui.label.locButton').popup({
+    delay: {
+        show: 500
+    }
 });

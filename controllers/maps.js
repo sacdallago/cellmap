@@ -41,6 +41,7 @@ module.exports = function(context) {
                 });
             }
         },
+
         insertImage: function(request, response) {
             if(request.is('multipart/form-data')) {
                 const formidable = context.formidable;
@@ -92,4 +93,4 @@ module.exports = function(context) {
             }
         }
     }
-}
+};

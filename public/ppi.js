@@ -65,7 +65,7 @@ var PPINButton = function(map){
                                         });
 
                                         // For the text, even if I use 0, it's fine. They can look up what it means in Hippie's data
-                                        polyline.setText(JSON.stringify(interactionPartner.score), {
+                                        polyline.setText(interactionPartner.score.toFixed(2), {
                                             center: true,
                                             attributes: {
                                                 style: "font-size: 2.5em;",
@@ -393,6 +393,7 @@ var addToMapAndLocalizationsTable = function(protein, proteinUniprotId){
             });
 
             // Assign a location to the marker, so to then highlight it if needed:
+            marker.uniprotId = proteinUniprotId;
             marker.location = location;
             marker.interactionPartners = interactionPartners;
 
@@ -408,6 +409,7 @@ var addToMapAndLocalizationsTable = function(protein, proteinUniprotId){
             popup.locations = protein.localizations.localizations;
             popup.interactionPartners = interactionPartners;
             marker.bindPopup(popup);
+            marker.bindTooltip(proteinUniprotId);
 
             marker.on('popupopen', function(e) {
                 // Load dropdown selector
@@ -425,7 +427,6 @@ var addToMapAndLocalizationsTable = function(protein, proteinUniprotId){
                     }
                 });
 
-                var locs = e.popup.locations;
                 var interactionPartners = e.popup.interactionPartners;
 
                 if(connections[proteinUniprotId] !== undefined){
@@ -471,7 +472,7 @@ var addToMapAndLocalizationsTable = function(protein, proteinUniprotId){
                             });
 
                             // For the text, even if I use 0, it's fine. They can look up what it means in Hippie's data
-                            polyline.setText(JSON.stringify(interactionPartner.score), {
+                            polyline.setText(interactionPartner.score.toFixed(2), {
                                 center: true,
                                 attributes: {
                                     style: "font-size: 2.5em;",
