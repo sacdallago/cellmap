@@ -174,4 +174,8 @@ $('.ui.search').search({
 
 // Set show tooltip on hover over username (to logout) or "User" (to login)
 $('.item.green').popup({});
-$('.ui.label.locButton').popup({});
+$('.ui.label.locButton').popup({
+    delay: {
+        show: 500
+    }
+});
