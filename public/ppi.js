@@ -409,16 +409,7 @@ var addToMapAndLocalizationsTable = function(protein, proteinUniprotId){
             popup.locations = protein.localizations.localizations;
             popup.interactionPartners = interactionPartners;
             marker.bindPopup(popup);
-
-            marker.on('mouseover', function(e){
-                new L.popup()
-                    .setLatLng(e.latlng)
-                    .setContent(e.target.uniprotId)
-                    .openOn(e.target);
-            });
-
-            marker.on('mouseout', function (e) {
-            });
+            marker.bindTooltip(proteinUniprotId);
 
             marker.on('popupopen', function(e) {
                 // Load dropdown selector
@@ -436,7 +427,6 @@ var addToMapAndLocalizationsTable = function(protein, proteinUniprotId){
                     }
                 });
 
-                var locs = e.popup.locations;
                 var interactionPartners = e.popup.interactionPartners;
 
                 if(connections[proteinUniprotId] !== undefined){
