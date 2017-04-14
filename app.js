@@ -179,8 +179,8 @@ if (cluster.isMaster) {
             } else {
                 response.status(403).render('error', {
                     title: 'Error',
-                    message: "Can only GET",
-                    error: "Can only GET"
+                    message: "Whos! Something went wrong. It appears your user is only allowed to perform GET requests. To be allowed to send data to the server, you need to be administrator.",
+                    error: "Only GET allowed."
                 });
             }
         });
