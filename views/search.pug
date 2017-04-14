@@ -5,29 +5,22 @@ block content
         if displayName
             span
                 | Hello,&nbsp;
-                a(href="/auth/logout").item.green #{displayName}
+                a(href="/auth/logout", data-content="Click to logout").item.green #{displayName}
                 | .
-            br
-            span
-                a(href="/maps").item View the maps
-                |  or&nbsp;
-                .ui.label.locButton
-                | &nbsp;
-                .ui.input.search
-                    input(type="text", name="prot", placeholder="search protein (uniprot)").prompt.inline
         else
             span
                 | Hello,&nbsp;
-                a(href="/auth/google").item.green User
+                a(href="/auth/google", data-content="Click to login").item.green User
                 | .
-            br
-            span
-                a(href="/maps").item View the maps
-                |  or&nbsp;
-                .ui.label.locButton
-                | &nbsp;
-                .ui.input.search
-                    input(type="text", name="prot", placeholder="search protein (uniprot)").prompt.inline
+        br
+        br
+        span
+            a(href="/maps").item View the maps
+            |  or&nbsp;
+            .ui.label.locButton(data-content="This button becomes active when filtering for a specific sub-cellular compartment.")
+            | &nbsp;
+            .ui.input.search
+                input(type="text", name="prot", placeholder="search protein (uniprot)").prompt.inline
         .space
         .grid
 

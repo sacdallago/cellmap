@@ -78,6 +78,10 @@
     color: rgba(75, 208, 106, 0.66);
 }
 
+a.green:hover {
+    text-decoration: underline;
+    color: rgba(75, 208, 106, 0.66);
+}
 
 .leaflet-container {
     background: #fff;
