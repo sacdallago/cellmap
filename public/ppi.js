@@ -65,7 +65,7 @@ var PPINButton = function(map){
                                         });
 
                                         // For the text, even if I use 0, it's fine. They can look up what it means in Hippie's data
-                                        polyline.setText(JSON.stringify(interactionPartner.score), {
+                                        polyline.setText(JSON.stringify(interactionPartner.score.toFixed(2)), {
                                             center: true,
                                             attributes: {
                                                 style: "font-size: 2.5em;",
