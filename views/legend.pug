@@ -1,0 +1,23 @@
+extends base
+
+block content
+    #full
+        .title
+            i.dropdown.icon
+            | Legend
+        .content
+            table.ui.celled.table
+                thead
+                    tr
+                        th Color
+                        th Localization
+                tbody(id="localizationList")
+    #title
+        a(href="/") CellMap
+        
+block scripts
+    - var delta = 50
+    script(type="text/javascript", src="/public/utilities.js")
+    script().
+        var localizations = initializeLocalizations(!{JSON.stringify(localizations)});
+        localizationsTable(localizations);

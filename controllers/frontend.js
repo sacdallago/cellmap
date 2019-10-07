@@ -142,6 +142,12 @@ module.exports = function(context) {
                 localizations: context.constants.localizations
             });
         },
+        legend: function(request, response) {
+            return response.render('legend', {
+                title: 'Color legend',
+                localizations: context.constants.localizations
+            });
+        },
         search: function(request, response) {
 
             // Standardize query element: Either undefined or array.

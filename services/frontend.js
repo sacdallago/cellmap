@@ -11,5 +11,6 @@ module.exports = function(context) {
         .get('/error', frontendController.error)
         .get('/search', frontendController.search)
         .get('/protein/:uniprotId', frontendController.protein)
-        .get('/about', frontendController.about);
+        .get('/about', frontendController.about)
+        .get('/legend', frontendController.legend);
 }
