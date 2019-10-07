@@ -36,8 +36,7 @@
         "node-uuid": "latest",
         "serve-favicon": "latest"
     },
-    "devDependencies": {
-    },
+    "devDependencies": {},
     "scripts": {
         "rikenImporter": "node scripts/rikenImporter.js",
         "kuesterImporter": "node scripts/kuesterImporter.js",
