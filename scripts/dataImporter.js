@@ -33,7 +33,9 @@ require(__dirname + "/../" + "index").connect(function(context){
                         entryName: row['Entry name'],
                         proteinName: row['Protein names'],
                         localizations: {
-                            localizations: row['Consensus_SL'].substring(1,row['Consensus_SL'].length-1).split(", "),
+                            localizations: row['Consensus_SL']
+                                .substring(1, row['Consensus_SL'].length-1)
+                                .split(", "),
                             note: "Data from https://www.nature.com/articles/ncomms8866"
                         },
                         interactions: {
@@ -54,22 +56,26 @@ require(__dirname + "/../" + "index").connect(function(context){
                         origin: "Public data (https://github.com/sacdallago/cellmap/tree/develop/data)"
                     };
 
-                    proteinsDao.enrich(protein).then(function(result){
-                        console.log("[" + protein.uniprotId + "] Inserted");
-                        deferred.resolve();
-                    }, function(error){
-                        console.error("[" + protein.uniprotId + "] Error");
-                        deferred.resolve();
-                    });
+                    if(protein.uniprotId === "Q969X1"){
+                        console.log(row);
+                        console.log(protein)
+                    }
 
+                    // proteinsDao.enrich(protein).then(function(result){
+                    //     console.log("[" + protein.uniprotId + "] Inserted");
+                    //     deferred.resolve();
+                    // }, function(error){
+                    //     console.error("[" + protein.uniprotId + "] Error");
+                    //     deferred.resolve();
+                    // });
                 })
                 .on('end', () => {
                     console.log('CSV file successfully processed');
 
-                    context.promises.all(promises).then(function(results) {
-                        console.log("Finished.");
-                        process.exit(0);
-                    });
+                    // context.promises.all(promises).then(function(results) {
+                    //     console.log("Finished.");
+                    //     process.exit(0);
+                    // });
                 });
         });
     });
