@@ -51,7 +51,7 @@ require(__dirname + "/../" + "index").connect(function(context){
                                 }),
                             notes: "Data from HIPPIE (http://cbdm-01.zdv.uni-mainz.de/~mschaefer/hippie)"
                         },
-                        origin: "Public data, see https://github.com/sacdallago/cellmap/tree/develop/data"
+                        origin: "Public data (https://github.com/sacdallago/cellmap/tree/develop/data)"
                     };
 
                     proteinsDao.enrich(protein).then(function(result){
