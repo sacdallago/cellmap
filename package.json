@@ -36,14 +36,11 @@
         "node-uuid": "latest",
         "serve-favicon": "latest"
     },
-    "devDependencies": {},
+    "devDependencies": {
+        "csv-parser": "^2.3.1"
+    },
     "scripts": {
-        "rikenImporter": "node scripts/rikenImporter.js",
-        "kuesterImporter": "node scripts/kuesterImporter.js",
-        "hippieImporter": "node scripts/hippieImporter.js",
-        "uniprotImporter": "node scripts/uniprotImporter.js",
-        "proteins": "node scripts/proteinImporter.js",
-        "start": "node app.js",
-        "build": "node scripts/build.js"
+        "build:database": "node scripts/dataImporter.js",
+        "start": "node app.js"
     }
 }
