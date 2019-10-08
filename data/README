@@ -1,0 +1,16 @@
+1. Raw data
+
+Raw data is obtained by:
+
+- Location data:
+  - Downloading supplementary data 1 from https://www.nature.com/articles/ncomms8866
+- Protein name and additional data:
+  - Copy-pasting the UniprotAcc from Supplementary Data 1 into the UniProt Mapping service
+    - Selecting: Entry, Entry name, Protein names, Gene names
+    - Selecting Active only entries
+- Interaction data:
+  - Downloading the latest version from http://cbdm-01.zdv.uni-mainz.de/~mschaefer/hippie/download.php
+
+2. Processing
+
+Processing the data into a single file (data.csv) is done via the jupyter notebook in this folder

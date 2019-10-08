@@ -32,12 +32,6 @@ node_modules
 # Optional REPL history
 .node_repl_history
 
-data/*
-!data/README
-!data/SubcelLoc.Ages.Proteins.json
-!data/proteinMapping.json
-!data/hippie.json
-
 private/*
 !private/README
 cache/*
@@ -47,3 +41,5 @@ config.js
 
 .idea
 .DS_Store
+
+.ipynb_checkpoints
