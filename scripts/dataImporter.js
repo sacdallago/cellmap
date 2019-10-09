@@ -19,7 +19,6 @@ require(__dirname + "/../" + "index").connect(function(context){
             let promises = [];
 
             data.forEach(row => {
-
                 let deferred = context.promises.defer();
                 promises.push(deferred.promise);
 
@@ -29,7 +28,7 @@ require(__dirname + "/../" + "index").connect(function(context){
                     entryName: row['Entry name'],
                     proteinName: row['Protein names'],
                     localizations: {
-                        localizations: row['Consensus_SL'] || [],
+                        localizations: row['Consensus_SL'] || ["unknown"],
                         note: "Data from https://www.nature.com/articles/ncomms8866"
                     },
                     interactions: {
@@ -45,7 +44,6 @@ require(__dirname + "/../" + "index").connect(function(context){
                     deferred.resolve({status: -1, protein: protein.uniprotId, error: error});
                 });
             });
-
 
             context.promises.all(promises).then(function(results) {
                 let successful = results.filter(e => e.status === 0);
