@@ -36,11 +36,9 @@
         "node-uuid": "latest",
         "serve-favicon": "latest"
     },
-    "devDependencies": {
-        "csv-parser": "^2.3.1"
-    },
+    "devDependencies": {},
     "scripts": {
-        "build:database": "node scripts/dataImporter.js",
+        "build:database": "node --max_old_space_size=8192 scripts/dataImporter.js",
         "start": "node app.js"
     }
 }

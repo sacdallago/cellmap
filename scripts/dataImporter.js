@@ -1,8 +1,5 @@
 // Parallelize
-const numCPUs = require('os').cpus().length;
-const cluster = require('cluster');
-const csv = require('csv-parser');
-const fs = require('fs');
+const data = require(__dirname + "/../" + 'data/' + 'data.json');
 
 require(__dirname + "/../" + "index").connect(function(context){
 
@@ -21,62 +18,43 @@ require(__dirname + "/../" + "index").connect(function(context){
             console.log('Removed test item');
             let promises = [];
 
-            fs.createReadStream(__dirname + "/../" + 'data/' + 'data.csv')
-                .pipe(csv())
-                .on('data', (row) => {
-                    let deferred = context.promises.defer();
-                    promises.push(deferred.promise);
+            data.forEach(row => {
 
-                    let protein = {
-                        uniprotId: row['Entry'],
-                        geneName: row['Gene names'],
-                        entryName: row['Entry name'],
-                        proteinName: row['Protein names'],
-                        localizations: {
-                            localizations: row['Consensus_SL']
-                                .substring(1, row['Consensus_SL'].length-1)
-                                .split(", "),
-                            note: "Data from https://www.nature.com/articles/ncomms8866"
-                        },
-                        interactions: {
-                            partners: JSON.parse(
-                                row['partners']
-                                    .replace(/\(/g,'[')
-                                    .replace(/\)/g,']')
-                                    .replace(/'/g, '\"')
-                            )
-                                .map(interaction => {
-                                    return {
-                                        interactor: interaction[0],
-                                        score: interaction[1]
-                                    }
-                                }),
-                            notes: "Data from HIPPIE (http://cbdm-01.zdv.uni-mainz.de/~mschaefer/hippie)"
-                        },
-                        origin: "Public data (https://github.com/sacdallago/cellmap/tree/develop/data)"
-                    };
+                let deferred = context.promises.defer();
+                promises.push(deferred.promise);
 
-                    if(protein.uniprotId === "Q969X1"){
-                        console.log(row);
-                        console.log(protein)
-                    }
+                let protein = {
+                    uniprotId: row['Entry'],
+                    geneName: row['Gene names'],
+                    entryName: row['Entry name'],
+                    proteinName: row['Protein names'],
+                    localizations: {
+                        localizations: row['Consensus_SL'] || [],
+                        note: "Data from https://www.nature.com/articles/ncomms8866"
+                    },
+                    interactions: {
+                        partners: row['partners'],
+                        notes: "Data from HIPPIE (http://cbdm-01.zdv.uni-mainz.de/~mschaefer/hippie)"
+                    },
+                    origin: "Public data (https://github.com/sacdallago/cellmap/tree/develop/data)"
+                };
 
-                    // proteinsDao.enrich(protein).then(function(result){
-                    //     console.log("[" + protein.uniprotId + "] Inserted");
-                    //     deferred.resolve();
-                    // }, function(error){
-                    //     console.error("[" + protein.uniprotId + "] Error");
-                    //     deferred.resolve();
-                    // });
-                })
-                .on('end', () => {
-                    console.log('CSV file successfully processed');
-
-                    // context.promises.all(promises).then(function(results) {
-                    //     console.log("Finished.");
-                    //     process.exit(0);
-                    // });
+                proteinsDao.create(protein).then(() => {
+                    deferred.resolve({status: 0, protein: protein.uniprotId});
+                }, (error) => {
+                    deferred.resolve({status: -1, protein: protein.uniprotId, error: error});
                 });
+            });
+
+
+            context.promises.all(promises).then(function(results) {
+                let successful = results.filter(e => e.status === 0);
+                let unsuccessful = results.filter(e => e.status !== 0);
+
+                console.log("Finished with " + successful.length + " successful and " + unsuccessful.length + " unsuccessful inserts.");
+                process.exit(0);
+            });
+
         });
     });
 
