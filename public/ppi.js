@@ -541,14 +541,6 @@ var addToMapAndLocalizationsTable = function(protein, proteinUniprotId){
     hideProgress();
 };
 
-// var addProteins = function(someProteins){
-//     someProteins.forEach(function(protein){
-//         addToMappingsTable(protein, function(){
-//             addToMapAndLocalizationsTable(protein, protein.uniprotId);
-//         });
-//     });
-// };
-
 var addProteins = function (requestProteins) {
     var storedProteins = JSON.parse(sessionStorage.getItem("storedProteins")) || [];
     var loadedProteins = [];
@@ -559,11 +551,19 @@ var addProteins = function (requestProteins) {
         loadedProteins = storedProteins;
     }
 
+    //Add protein to search query in URL
+    var currentUri = URI(window.location.href);
+    var searchQueryProteins = [];
+
     loadedProteins.forEach(function (protein) {
+        searchQueryProteins.push(protein.uniprotId);
         addToMappingsTable(protein, () => addToMapAndLocalizationsTable(protein, protein.uniprotId));
     });
 
-    sessionStorage.setItem("storedProteins", JSON.stringify(loadedProteins))
+    currentUri.addSearch({'p': searchQueryProteins});
+    window.history.replaceState({'p': searchQueryProteins}, "CellMap", currentUri.resource());
+
+    sessionStorage.setItem("storedProteins", JSON.stringify(loadedProteins));
 };
 
 $.fn.api.settings.api = {

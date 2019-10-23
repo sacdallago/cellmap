@@ -357,6 +357,10 @@ var addProteins = function (requestProteins) {
     var storedProteins = JSON.parse(sessionStorage.getItem("storedProteins")) || [];
     var loadedProteins = [];
 
+    //Add protein to search query in URL
+    var currentUri = URI(window.location.href);
+    var searchQueryProteins = [];
+
     if(requestProteins.length > 0){
         loadedProteins = requestProteins;
     } else {
@@ -364,10 +368,14 @@ var addProteins = function (requestProteins) {
     }
 
     loadedProteins.forEach(function (protein) {
+        searchQueryProteins.push(protein.uniprotId);
         addToMapAndTable(protein);
     });
 
-    sessionStorage.setItem("storedProteins", JSON.stringify(loadedProteins))
+    currentUri.addSearch({'p': searchQueryProteins});
+    window.history.replaceState({'p': searchQueryProteins}, "CellMap", currentUri.resource());
+
+    sessionStorage.setItem("storedProteins", JSON.stringify(loadedProteins));
 };
 
 $.fn.api.settings.api = {
