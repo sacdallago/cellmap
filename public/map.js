@@ -353,10 +353,21 @@ var addToMapAndTable = function (protein) {
     controlLayers.addOverlay(overlayProteins[protein.uniprotId], protein.uniprotId);
 };
 
-var addProteins = function (someProteins) {
-    someProteins.forEach(function (protein) {
+var addProteins = function (requestProteins) {
+    var storedProteins = JSON.parse(sessionStorage.getItem("storedProteins")) || [];
+    var loadedProteins = [];
+
+    if(requestProteins.length > 0){
+        loadedProteins = requestProteins;
+    } else {
+        loadedProteins = storedProteins;
+    }
+
+    loadedProteins.forEach(function (protein) {
         addToMapAndTable(protein);
     });
+
+    sessionStorage.setItem("storedProteins", JSON.stringify(loadedProteins))
 };
 
 $.fn.api.settings.api = {

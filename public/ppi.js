@@ -541,12 +541,29 @@ var addToMapAndLocalizationsTable = function(protein, proteinUniprotId){
     hideProgress();
 };
 
-var addProteins = function(someProteins){
-    someProteins.forEach(function(protein){
-        addToMappingsTable(protein, function(){
-            addToMapAndLocalizationsTable(protein, protein.uniprotId);
-        });
+// var addProteins = function(someProteins){
+//     someProteins.forEach(function(protein){
+//         addToMappingsTable(protein, function(){
+//             addToMapAndLocalizationsTable(protein, protein.uniprotId);
+//         });
+//     });
+// };
+
+var addProteins = function (requestProteins) {
+    var storedProteins = JSON.parse(sessionStorage.getItem("storedProteins")) || [];
+    var loadedProteins = [];
+
+    if(requestProteins.length > 0){
+        loadedProteins = requestProteins;
+    } else {
+        loadedProteins = storedProteins;
+    }
+
+    loadedProteins.forEach(function (protein) {
+        addToMappingsTable(protein, () => addToMapAndLocalizationsTable(protein, protein.uniprotId));
     });
+
+    sessionStorage.setItem("storedProteins", JSON.stringify(loadedProteins))
 };
 
 $.fn.api.settings.api = {
