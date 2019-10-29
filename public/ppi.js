@@ -203,6 +203,9 @@ var renderMap = function(imageId, callback) {
                 // Add calculate global PPI button
                 PPINButton(map);
 
+                // Add the clear view button
+                loadClearMapButton(map);
+
                 // Add features highlight
                 var featuresLayer = L.geoJson(featuresGeoJSON, {
                     pointToLayer: function (feature, latlng) {

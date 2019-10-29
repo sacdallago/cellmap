@@ -59,6 +59,26 @@ var addHomeButton = function(map){
     }).addTo(map);
 };
 
+var loadClearMapButton = function(map){
+    L.easyButton({
+        states: [{
+            stateName: 'clear',   // name the state
+            icon:      'trash alternate outline icon',          // and define its properties
+            title:     'Clear Proteins', // like its title
+            onClick: function(btn, map) {  // and its callback
+                sessionStorage.clear();
+
+                var currentUri = URI(window.location.href);
+
+                currentUri.removeSearch('p');
+                window.history.replaceState({}, "CellMap", currentUri.resource());
+
+                window.location.reload();
+            }
+        }]
+    }).addTo(map);
+};
+
 var initializeLocalizations = function(localizationsArray){
     var localizations = {};
 

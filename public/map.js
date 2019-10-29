@@ -105,6 +105,9 @@ var renderMap = function (imageId, callback) {
                 // Re-place zoom button
                 map.zoomControl.setPosition('topleft');
 
+                // Add the clear view button
+                loadClearMapButton(map);
+
                 // Add features highlight
 
                 var featuresLayer = L.geoJson(featuresGeoJSON, {
