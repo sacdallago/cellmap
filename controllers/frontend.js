@@ -136,7 +136,7 @@ module.exports = function(context) {
 
             }
 
-            return proteinsDao.findProteins(proteins).then(function(requestProteins){
+            return proteinsDao.findProteins(proteins.slice(0, 400)).then(function(requestProteins){
                 return response.render('ppi', {
                     title: 'Protein interaction visualizer',
                     iid: imageId,
