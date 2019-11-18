@@ -558,6 +558,16 @@ var addProteins = function (requestProteins) {
     sessionStorage.setItem("storedProteins", JSON.stringify(loadedProteins));
 };
 
+var highlightQueryProtein = function(){
+    var currentUri = URI(window.location.href);
+
+    if(currentUri.hasQuery("partners")){
+        currentUri.removeSearch("partners")
+    }
+
+    window.history.replaceState({'partners': null}, "CellMap", currentUri.resource());
+};
+
 $.fn.api.settings.api = {
     'get from proteins': '/api/proteins/search/{query}'
 };

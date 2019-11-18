@@ -73,4 +73,5 @@ block scripts
         localizationsTable(localizations);
         renderMap('#{iid}', function(){
             addProteins(!{JSON.stringify(requestProteins)});
+            highlightQueryProtein();
         });
