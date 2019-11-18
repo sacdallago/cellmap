@@ -162,6 +162,7 @@ var addToInteractionMap = function(protein, color){
                     x = coords[1];
                     y = coords[0];
                     break;
+
                 case "Point":
                     // http://stackoverflow.com/questions/481144/equation-for-testing-if-a-point-is-inside-a-circle
                     var center = geoLoc.geometry.coordinates;
@@ -183,23 +184,14 @@ var addToInteractionMap = function(protein, color){
                         y = y_min + (Math.random() * (y_max - y_min));
                     }
                     break;
+
                 case "LineString":
                     var position = Math.floor(Math.random() * geoLoc.geometry.coordinates.length);
-                    var a = geoLoc.geometry.coordinates[position];
-                    var b = geoLoc.geometry.coordinates[position+1];
-                    var reg = regression('linear',[a,b]);
 
-                    var x_max = a[0];
-                    var x_min = b[0];
+                    var pos = geoLoc.geometry.coordinates[position];
 
-                    if(x_max < b[0]) {
-                        x_max = b[0];
-                        x_min = a[0];
-                    }
-
-                    x = x_min + (Math.random() * (x_max - x_min));
-
-                    y = reg.equation[0]*x + reg.equation[1];
+                    x = pos[0];
+                    y = pos[1];
 
                     break;
             }

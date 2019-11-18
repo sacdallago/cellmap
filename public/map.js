@@ -228,24 +228,12 @@ var addToMapAndTable = function (protein) {
                         }
                         break;
                     case "LineString":
-                        var position = Math.floor(Math.random() * (geoLoc.geometry.coordinates.length - 1));
+                        var position = Math.floor(Math.random() * geoLoc.geometry.coordinates.length);
 
-                        var a = geoLoc.geometry.coordinates[position];
-                        var b = geoLoc.geometry.coordinates[position + 1];
+                        var pos = geoLoc.geometry.coordinates[position];
 
-                        var reg = regression('linear', [a, b]);
-
-                        var x_max = a[0];
-                        var x_min = b[0];
-
-                        if (x_max < b[0]) {
-                            x_max = b[0];
-                            x_min = a[0];
-                        }
-
-                        x = x_min + (Math.random() * (x_max - x_min));
-
-                        y = reg.equation[0] * x + reg.equation[1];
+                        x = pos[0];
+                        y = pos[1];
 
                         break;
                 }
