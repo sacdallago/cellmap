@@ -107,20 +107,17 @@ module.exports = function(context) {
             return deferred.promise;
         },
 
-        findByUniprotId: function(identifier) {
-            let deferred = context.promises.defer();
-
-            proteinsModel.findOne({uniprotId:  identifier})
-                .exec(function(error, result) {
-                    if (error) {
-                        console.error(error);
-                        deferred.reject(error);
-                    } else {
-                        deferred.resolve(result);
-                    }
-                });
-
-            return deferred.promise;
+        findByUniprotId: async function(identifier) {
+            return new Promise(resolve => {
+                proteinsModel.findOne({uniprotId:  identifier})
+                    .exec(function(error, result) {
+                        if (error) {
+                            throw error;
+                        } else {
+                            resolve(result);
+                        }
+                    });
+            });
         },
 
         findProteinNames: function(identifier) {

@@ -20,15 +20,17 @@ module.exports = function(context) {
         getProteinByUniProtID: function(request, response) {
             const identifier = request.params.id.toUpperCase();
 
-            proteinsDao.findByUniprotId(identifier).then(function(protein){
-                if(protein){
-                    response.send(protein);
-                } else {
-                    response.status(404).send();
-                }
-            }, function(error){
-                response.status(500).send(error);
-            });
+            proteinsDao.findByUniprotId(identifier)
+                .then(function(protein){
+                    if(protein){
+                        response.send(protein);
+                    } else {
+                        response.status(404).send();
+                    }
+                })
+                .catch(function(error){
+                    response.status(500).send(error);
+                });
         }
     }
 };

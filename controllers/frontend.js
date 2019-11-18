@@ -82,9 +82,10 @@ module.exports = function(context) {
                 error: "There was an unknown error with your request."
             });
         },
-        ppi: function(request, response) {
+        ppi: async function(request, response) {
             const imageId = request.params.iid;
-            const proteins = (function(){
+            const partners = request.query.partners;
+            let proteins = (function(){
                 if (request.query.p !== undefined){
                     if (request.query.p.constructor === Array){
                         return request.query.p
@@ -96,42 +97,59 @@ module.exports = function(context) {
                 }
             })();
 
-            if(imageId !== undefined){
-                return proteinsDao.findProteins(proteins).then(function(requestProteins){
-                    return response.render('ppi', {
-                        title: 'Protein interaction visualizer',
-                        iid: imageId,
-                        requestProteins: requestProteins,
-                        localizations: context.constants.localizations
+            // If no image/map is defined, select the user's preferred image OR the first image in the images list
+            if(imageId === undefined){
+                if(request.user && request.user.map){
+                    return response.redirect('/ppi/' + request.user.map + (proteins !== undefined ? "?p=" + proteins.join('&p=') : '' ) + (proteins && partners !== undefined ? "&partners=true" : '' ));
+                } else {
+                    return context.gridFs.findOne({},function(error, element){
+                        if(error){
+                            return response.status(500).render('error', {
+                                title: '500',
+                                message: "Cannot retrieve an image",
+                                error: error
+                            });
+                        } else if(element === null){
+                            return response.status(404).render('404', {
+                                title: '404',
+                                message: "Cannot retrieve an image",
+                                error: error
+                            });
+                        } else {
+                            return response.redirect('/ppi/' + element._id + (proteins !== undefined ? "?p=" + proteins.join('&p=') : '' ) + (proteins && partners !== undefined ? "&partners=true" : '' ));
+                        }
                     });
-                }, function(error){
-                    return response.render('error', {
-                        title: 'Error',
-                        message: "Unable to retrieve images metadata",
-                        error: error
-                    });
-                });
-            } else if(request.user && request.user.map){
-                return response.redirect('/ppi/' + request.user.map + (proteins !== undefined ? "?p=" + proteins.join('&p=') : '' ));
-            } else {
-                return context.gridFs.findOne({},function(error, element){
-                    if(error){
-                        return response.status(500).render('error', {
-                            title: '500',
-                            message: "Cannot retrieve an image",
-                            error: error
-                        });
-                    } else if(element === null){
-                        return response.status(404).render('404', {
-                            title: '404',
-                            message: "Cannot retrieve an image",
-                            error: error
-                        });
-                    } else {
-                        return response.redirect('/ppi/' + element._id + (proteins !== undefined ? "?p=" + proteins.join('&p=') : '' ));
-                    }
-                });
+                }
             }
+
+            // If "partners" is passed in the query, load the partners of the FIRST protein. Add them to the "proteins" array, then render
+            if(proteins !== undefined && partners !== undefined){
+                try {
+                    let protein = await proteinsDao.findByUniprotId(proteins[0]);
+
+                    if(protein !== null){
+                        proteins = [...proteins, ...protein.interactions.partners.map(partner => partner.interactor)]
+                    }
+                } catch (e){
+                    console.error(e);
+                }
+
+            }
+
+            return proteinsDao.findProteins(proteins).then(function(requestProteins){
+                return response.render('ppi', {
+                    title: 'Protein interaction visualizer',
+                    iid: imageId,
+                    requestProteins: requestProteins,
+                    localizations: context.constants.localizations
+                });
+            }, function(error){
+                return response.render('error', {
+                    title: 'Error',
+                    message: "Unable to retrieve images metadata",
+                    error: error
+                });
+            });
 
         },
         editor: function(request, response) {
@@ -190,37 +208,39 @@ module.exports = function(context) {
         protein: function(request, response) {
             const uniprotId = request.params.uniprotId;
 
-            return proteinsDao.findByUniprotId(uniprotId).then(function(requestProtein){
-                if(requestProtein) {
-                    return proteinsDao.getPartners(requestProtein).then(function(partners){
-                        return response.render('protein', {
-                            title: uniprotId,
-                            localizations: context.constants.localizations,
-                            protein: requestProtein,
-                            partners: partners
+            return proteinsDao.findByUniprotId(uniprotId)
+                .then(function(requestProtein){
+                    if(requestProtein) {
+                        return proteinsDao.getPartners(requestProtein).then(function(partners){
+                            return response.render('protein', {
+                                title: uniprotId,
+                                localizations: context.constants.localizations,
+                                protein: requestProtein,
+                                partners: partners
+                            });
+                        }, function(error){
+                            return response.render('error', {
+                                title: 'Error',
+                                message: "Unable to retrieve protein interacitons data",
+                                error: error
+                            });
                         });
-                    }, function(error){
-                        return response.render('error', {
-                            title: 'Error',
-                            message: "Unable to retrieve protein interacitons data",
-                            error: error
+                    } else {
+                        return response.render('404', {
+                            title: 'No protein',
+                            message: "No protein with UniProt accession '" + uniprotId + "'.",
+                            error: "No protein by that name"
                         });
-                    });
-                } else {
-                    return response.render('404', {
-                        title: 'No protein',
-                        message: "No protein by that name",
-                        error: "No protein by that name"
-                    });
-                }
+                    }
 
-            }, function(error){
-                return response.render('error', {
-                    title: 'Error',
-                    message: "Unable to retrieve protein data",
-                    error: error
+                })
+                .catch(function(error){
+                    return response.render('error', {
+                        title: 'Error',
+                        message: "Unable to retrieve protein data",
+                        error: error
+                    });
                 });
-            });
 
         }
     }
