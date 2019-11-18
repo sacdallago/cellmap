@@ -141,7 +141,8 @@ module.exports = function(context) {
                     title: 'Protein interaction visualizer',
                     iid: imageId,
                     requestProteins: requestProteins,
-                    localizations: context.constants.localizations
+                    localizations: context.constants.localizations,
+                    root: partners !== undefined ? proteins[0] : undefined
                 });
             }, function(error){
                 return response.render('error', {

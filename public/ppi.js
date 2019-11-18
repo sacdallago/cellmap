@@ -558,14 +558,23 @@ var addProteins = function (requestProteins) {
     sessionStorage.setItem("storedProteins", JSON.stringify(loadedProteins));
 };
 
-var highlightQueryProtein = function(){
+var highlightQueryProtein = function(uniprotOfRoot){
+    if(uniprotOfRoot === undefined){
+        return;
+    }
+
     var currentUri = URI(window.location.href);
 
     if(currentUri.hasQuery("partners")){
-        currentUri.removeSearch("partners")
-    }
+        currentUri.removeSearch("partners");
 
-    window.history.replaceState({'partners': null}, "CellMap", currentUri.resource());
+        // Center around the starting protein (aka the protein for which I'm viewing the interaction partner)
+        var root = overlayProteins[uniprotOfRoot];
+        map.setView(root.points[0].getLatLng());
+        root.points[0].fire("mouseover");
+
+        window.history.replaceState({'partners': null}, "CellMap", currentUri.resource());
+    }
 };
 
 $.fn.api.settings.api = {
