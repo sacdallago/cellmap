@@ -411,8 +411,11 @@ var addToMapAndLocalizationsTable = function(protein, proteinUniprotId){
                         var newLocPoint = _.find(overlayProteins[value].points, function(point){
                             return point.location == text;
                         });
+
                         overlayProteins[value].layer.clearLayers();
                         overlayProteins[value].layer.addLayer(newLocPoint);
+
+                        newLocPoint.fire("mouseover");
 
                         // Reset precalculated connections layers for all-points, as one point has changed position, and both in- and out-bound conenctions might be broken
                         connections = {};
