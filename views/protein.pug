@@ -28,7 +28,7 @@ block content
         if protein.interactions && protein.interactions.partners && protein.interactions.partners.length > 0
             h3 Partners
             #interMap
-            - var link = (function(){ var l = "p=" + protein.uniprotId; protein.interactions.partners.forEach(function(partner){l += "&p=" + partner.interactor}); return l;})();
+            - var link = (function(){ var l = "p=" + protein.uniprotId + "&partners"; return l;})();
             a(href="/ppi?" + link) Expand
             if protein.interactions.notes
                 br
