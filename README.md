@@ -1,35 +1,23 @@
 # CellMap
 
-[![Join the chat at https://gitter.im/sacdallago/cellmap](https://badges.gitter.im/sacdallago/cellmap.svg)](https://gitter.im/sacdallago/cellmap?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-
 Protein Localization and Protein-Protein Interaction (PPI) visualization tool.
 
 ## Live example:
-[cell.dallago.us](http://cell.dallago.us)
+[cellmap.protein.properties](http://cellmap.protein.properties)
 
 ## Prerequisites:
 
-1. Mongo
-2. [Fantom data](http://fantom.gsc.riken.jp/5/suppl/Ramilowski_et_al_2015/), turned into `.json` files inside the `./data` folder. **[1]**
-2. [Küster data](https://www.proteomicsdb.org/), turned into `.json` files inside the `./data` folder.
+To install locally, you must have an instance of MongoDB running and data for proteins formatted in the correct way (see `data` folder).
 
 ## Fill up database
 
- - Once all prerequisites have been met, you can run `npm run import` to fill the database with the data contained in the `.json` files in the `/data` folder.   
- - The script that fills the database will only fill the collections for which a corresponsing file exists.
- - The insertion happens through a mongo upsert, thus existing entries will be updated if existent, while new ones will be inserted anew.
- - The list of file names accepted is:
-    - `proteinMapping.json` [[UniProt]](ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/idmapping/by_organism/) --> Collection: `mappings`
-    - `ExpressionLigRec.json` [Riken]  --> Collection: `expressions`
-    - `PairsLigRec.json` [Riken]  --> Collection: `pairs`
-    - `SubcelLoc.Ages.Proteins.json` [Riken]  --> Collection: `localization`, Depends on: `mappings`
-    - `AllTissues.json` [Küster]  --> Collection: `tissues`
-    - `hippie.json` [mschaefer]  --> Collection: `interactions`, Depends on: `mappings`
+You can fill the database with the publicly available data by running `npm run build:database`. This command will load the data from `data/data.json`.
 
+## Cite
 
+```
+Dallago C, Goldberg T, Andrade-Navarro MA et al. CellMap visualizes protein-protein interactions and subcellular localization [version 2; peer review: 2 approved].
+F1000Research 2018, 6:1824 (https://doi.org/10.12688/f1000research.12707.2)
+```
 
-
-
-
----
-**[1]**: You can use [parsjs](https://www.npmjs.com/package/parsjs) to convert the tab-separated files from the Riken group to json files.
+Link to the manuscript: https://doi.org/10.12688/f1000research.12707.2
