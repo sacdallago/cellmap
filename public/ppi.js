@@ -68,8 +68,8 @@ var PPINButton = function(map){
                                         polyline.setText(interactionPartner.score.toFixed(2), {
                                             center: true,
                                             attributes: {
-                                                style: "font-size: 2.5em;",
-                                                fill: "white",
+                                                style: "font-size: 1.5em;",
+                                                fill: "black",
                                                 stroke: "black",
                                                 "stroke-width": "1"
                                             }
@@ -446,6 +446,8 @@ var addToMapAndLocalizationsTable = function(protein, proteinUniprotId){
                             try {
                                 pt2 = overlayProteins[interactionPartner.interactor].layer.getLayers()[0].getLatLng();
                             } catch (e) {
+                                console.log("The viewer is trying to add an edge to a protein which is not loaded;");
+                                console.log("This most likely happened because the current cell map doesn't map the localization where the protein is located at.");
                                 console.error(e);
                                 continue;
                             }
@@ -476,8 +478,8 @@ var addToMapAndLocalizationsTable = function(protein, proteinUniprotId){
                             polyline.setText(interactionPartner.score.toFixed(2), {
                                 center: true,
                                 attributes: {
-                                    style: "font-size: 2.5em;",
-                                    fill: "white",
+                                    style: "font-size: 1.5em;",
+                                    fill: "black",
                                     stroke: "black",
                                     "stroke-width": "1"
                                 }
