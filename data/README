@@ -9,7 +9,14 @@ Raw data is obtained by:
     - Selecting: Entry, Entry name, Protein names, Gene names
     - Selecting Active only entries
 - Interaction data:
-  - Downloading the latest version from http://cbdm-01.zdv.uni-mainz.de/~mschaefer/hippie/download.php
+  - Downloading the latest version of HIPPIE from http://cbdm-01.zdv.uni-mainz.de/~mschaefer/hippie/download.php
+  - Downloading the latest version of APID from http://cicblade.dep.usal.es:8080/APID/init.action
+    - Here: select "Homo sapeins" from the dropdown
+    - Select "Level 2"
+    - Select the smaller portion of the pie (blue)
+    - Leave the second dropdown blank
+    - Select "YES" to filter out inter-spieces interactions
+    - Click on the button "get selected interactome"
 
 2. Processing
 

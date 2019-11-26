@@ -31,6 +31,11 @@ module.exports = function(context) {
             required: true,
             min: 0,
             max: 1
+        },
+        binary: {
+            type: Boolean,
+            required: true,
+            default: false
         }
     }, {
         strict: true
