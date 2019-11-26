@@ -442,7 +442,13 @@ var addToMapAndLocalizationsTable = function(protein, proteinUniprotId){
                             var pt1 = overlayProteins[proteinUniprotId].layer.getLayers()[0].getLatLng();
 
                             //Get latlng from second marker
-                            var pt2 = overlayProteins[interactionPartner.interactor].layer.getLayers()[0].getLatLng();
+                            var pt2 = null;
+                            try {
+                                pt2 = overlayProteins[interactionPartner.interactor].layer.getLayers()[0].getLatLng();
+                            } catch (e) {
+                                console.error(e);
+                                continue;
+                            }
 
                             // Always display text from left to right
                             if(pt1.lng < pt2.lng){
