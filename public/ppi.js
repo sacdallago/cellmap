@@ -57,7 +57,7 @@ var PPINButton = function(map){
                                         //From documentation http://leafletjs.com/reference.html#polyline
                                         // create a red polyline from an arrays of LatLng points
                                         var polyline = L.polyline(latlngs, {
-                                            color: 'black',
+                                            color: interactionPartner.binary ? 'orange': 'black',
                                             opacity: .6,
                                             dashArray: (interactionPartner.score*100) + ", 15",
                                             // Minimum line width is 2
@@ -459,7 +459,7 @@ var addToMapAndLocalizationsTable = function(protein, proteinUniprotId){
                             //From documentation http://leafletjs.com/reference.html#polyline
                             // create a red polyline from an arrays of LatLng points
                             var polyline = L.polyline(latlngs, {
-                                color: 'black',
+                                color: interactionPartner.binary ? 'orange': 'black',
                                 opacity: .6,
                                 dashArray: (interactionPartner.score*100) + ", 15",
                                 // Minimum line width is 2
