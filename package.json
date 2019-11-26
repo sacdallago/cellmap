@@ -38,7 +38,7 @@
     },
     "devDependencies": {},
     "scripts": {
-        "build:database": "node --max_old_space_size=8192 scripts/dataImporter.js",
+        "build:database": "node --max_old_space_size=9500 scripts/dataImporter.js",
         "start": "node app.js"
     }
 }
