@@ -12,37 +12,17 @@ const grid = $('.grid').isotope({
     }
 });
 
-const modal = function(protein){
-    var html = '<div class="ui modal">';
-    // '<i class="close icon"></i>';
-    html += '<div class="header">' + protein.uniprotId + '</div>';
-    html += '<div class="content">';
-    html += '<p><strong>Primary gene:</strong> ' + protein.geneName + '</p>';
-    if(protein.proteinName){
-        html += '<p><strong>Protein name:</strong> ' + protein.proteinName + '</p>';
-    }
-    if(protein.localizations && protein.localizations.localizations && protein.localizations.localizations.length > 0){
-        html += '<p><strong>Localizations:</strong> ' + protein.localizations.localizations.map(function(element){return element + " "}) + '</p>';
-    }
-    if(protein.interactions && protein.interactions.partners && protein.interactions.partners.length > 0){
-        html += '<p><strong>Interaction partners:</strong> ' + protein.interactions.partners.map(function(element){return element.interactor + " "}) + '</p>';
-    }
-    html += '</div>';
-    html += '<div class="actions"><a href="/protein/' + protein.uniprotId + '" class="ui approve button">Go to protein page</a></div>';
-    html += '</div>';
-    $(html).modal('show');
-};
-
 grid.on('click', '.grid-item', function() {
-    modal($(this).data('protein'));
+    var protein = $(this).data('protein');
+    window.location.href = '/protein/' + protein.uniprotId;
 });
 
 grid.on('click', '.cube', function(event) {
-    // Will avoid opening the modal!
+    // Will avoid opening the protein-page!
     event.stopPropagation();
 
     // Filter only by selected localization type
-    grid.isotope({ filter: "." + $(this).data('localization') })
+    grid.isotope({ filter: "." + $(this).data('localization') });
 
     // Change button color, text
     $('.locButton').text("Viewing: " + $(this).data('localization') + ", click to view all");
