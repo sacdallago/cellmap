@@ -3,5 +3,6 @@ module.exports = function(context) {
     context.api
         .get('/maps', mapsController.getImage)
         .get('/maps/:iid/', mapsController.getImage)
-        .post('/maps', mapsController.insertImage);
+        .post('/maps', mapsController.insertImage)
+        .delete('/maps/:iid', mapsController.deleteImage)
 };

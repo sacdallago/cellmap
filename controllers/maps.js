@@ -1,6 +1,29 @@
 
 module.exports = function(context) {
     return {
+        deleteImage: function(request, response){
+            const imageId = request.params.iid;
+
+            if(imageId === undefined || imageId === null){
+                return response.status(400).render('error', {
+                    title: 'Not a valid image identifier',
+                    message: "Cannot retrieve the image",
+                    error: error
+                });
+            }
+
+            return context.gridFs.remove({ "_id" : imageId }, function(error, removedItem) {
+                if (error) {
+                    return response.status(500).render('error', {
+                        title: 'Could not remove item',
+                        message: "Could not remove item",
+                        error: error
+                    });
+                }
+
+                return response.status(200).send(removedItem);
+            });
+        },
         getImage: function(request, response) {
             const imageId = request.params.iid;
 
