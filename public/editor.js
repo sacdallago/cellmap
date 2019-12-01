@@ -42,7 +42,7 @@ var renderMap = function(imageId) {
                     shapeOptions: {
                         stroke: false,
                         opacity: 1,
-                        color: '#AD0014',
+                        color: '#d98432',
                         fillOpacity: .8,
                     }
                 },
@@ -50,14 +50,14 @@ var renderMap = function(imageId) {
                     showLength: false,
                     shapeOptions: {
                         opacity: 1,
-                        color: '#5235DF'
+                        color: '#1a1cdf'
                     }
                 },
                 rectangle: {
                     shapeOptions: {
                         stroke: false,
                         opacity: 1,
-                        color: '#FFD322',
+                        color: '#ffe21f',
                         fillOpacity: .8,
                     }
                 },
@@ -65,7 +65,7 @@ var renderMap = function(imageId) {
                     shapeOptions: {
                         stroke: true,
                         opacity: .8,
-                        color: '#469531',
+                        color: '#952d8f',
                         fillOpacity: .8,
                     }
                 }
