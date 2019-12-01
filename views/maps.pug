@@ -31,12 +31,10 @@ block content
                                         .center
                                             a(href="/map/" + map._id).ui.button.attached Localizations
                                             a(href="/ppi/" + map._id).ui.button.attached Protein-Protein interactions
+                                            .ui.red.button.attached(data-iid=map._id) Delete
                                 img(src="/api/maps/" + map._id)
     #title
         a(href="/") CellMap
 block scripts
-    script.
-        $('.special.cards .image').dimmer({
-          on: 'hover'
-        });
+    script(type="text/javascript", src="/public/maps.js")
     - var delta = 50
