@@ -5,4 +5,4 @@ module.exports = function(context) {
         .get('/features', featuresController.getFeatures)
         .get('/features/:iid/', featuresController.getFeatures)
         .delete('/features/:fid', featuresController.removeFeature);
-}
+};
