@@ -289,7 +289,7 @@ var renderMap = function(imageId) {
 
 var writeMapId = function(imageId){
     mapId = imageId;
-}
+};
 
 $.fn.form.settings.rules.featureDefined = function() {
     return drawnItems.getLayers()[0] !== undefined;
