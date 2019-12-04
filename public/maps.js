@@ -5,6 +5,8 @@ $('.special.cards .image').dimmer({
 $('.ui.red.button.attached').on('click', function(event) {
     let iid = $(this).data('iid');
 
+    console.log(iid);
+
     $.ajax({
         url: '/api/maps/' + iid,
         type: 'DELETE',

@@ -104,7 +104,7 @@ module.exports = function(context) {
                         });
                     });
                     destination.on('close', function () {
-                        response.status(200).send();
+                        return response.redirect('/maps');
                     });
                 });
             } else {

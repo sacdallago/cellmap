@@ -174,7 +174,7 @@ if (cluster.isMaster) {
         app.use(function(request, response, next) {
             if (request.method === 'GET') {
                 return next();
-            } else if(request.user.googleId == context.config.passport.admin){
+            } else if(request.user && request.user.googleId == context.config.passport.admin){
                 return next();
             } else {
                 response.status(403).render('error', {
@@ -208,7 +208,14 @@ if (cluster.isMaster) {
         if(process.env.NODE_ENV != 'production'){
             context.router.use(function(request, response, next) {
                 // Log each request to the console if in dev mode
-                console.log("Method:", request.method, "Path", request.path, "Query", request.query);
+                console.log("[FRONTEND] Method:", request.method, "Path", request.path, "Query", request.query);
+
+                return next();
+            });
+
+            context.api.use(function(request, response, next) {
+                // Log each request to the console if in dev mode
+                console.log("[API] Method:", request.method, "Path", request.path, "Query", request.query);
 
                 return next();
             });
